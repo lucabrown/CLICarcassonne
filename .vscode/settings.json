@@ -1,0 +1,7 @@
+{
+    "spring-boot.ls.java.home": "/Users/LucaBrown/Documents/javafx-sdk-11.0.2/lib",
+    "java.configuration.runtimes": [
+    
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic"
+}
