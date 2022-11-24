@@ -64,10 +64,11 @@ public class Board {
     public boolean placeTile(Coordinates coordinates, Tile newTile) {
         if (tilePlacementLegal(coordinates, newTile)) {
             newTile.setCoordinates(coordinates);
-            System.out.println("Number of features: " + features.size());
 
             updateBoard(newTile);
             updateFeatures(newTile);
+            System.out.println("Number of features: " + features.size());
+
             return true;
         }
 
@@ -79,7 +80,7 @@ public class Board {
     private void updateBoard(Tile newTile) {
         placedTiles.add(newTile);
         possibleCoordinates.remove(newTile.getCoordinates());
-        System.out.println("Current tile: " + newTile + " at " + newTile.getCoordinates());
+        System.out.println("\nPlacing " + newTile + " at " + newTile.getCoordinates());
 
 
         // For each new adjacent coordinate, add it to the list of possible coordinates
@@ -153,6 +154,7 @@ public class Board {
         boolean featurePlaced = false;
 
         for (Feature newFeature : newTile.getFeatures()) {
+            featurePlaced = false;
             switch (position) {
                 case 0:
                     for (Feature feature : tile.getFeatures()) {

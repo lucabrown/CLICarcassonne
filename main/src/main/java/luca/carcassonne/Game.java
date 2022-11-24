@@ -100,7 +100,7 @@ public class Game {
                 updatePlayerQueue();
             }
 
-            printProgressBarStep();
+            // printProgressBarStep();
 
         }
 
@@ -158,154 +158,101 @@ public class Game {
     private Stack<Tile> getSmallDeckOfTiles() {
         Stack<Tile> tiles = new Stack<>();
 
-        // Straight road
-        tiles.push(new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD, new HashSet<>() {
-            {
-                add(new Road(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.N);
-                        add(CardinalPoint.S);
-                    }
-                }));
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNW);
-                        add(CardinalPoint.WNW);
-                        add(CardinalPoint.W);
-                        add(CardinalPoint.WSW);
-                        add(CardinalPoint.SSW);
-                    }
-                }));
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNE);
-                        add(CardinalPoint.ENE);
-                        add(CardinalPoint.E);
-                        add(CardinalPoint.ESE);
-                        add(CardinalPoint.SSE);
-                    }
-                }));
+        for (int i = 0; i < 2; i++) {
 
-            }
-        }));
+            // Straight road
+            tiles.push(
+                    new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD, new HashSet<>() {
+                        {
+                            add(new Road(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.N);
+                                    add(CardinalPoint.S);
+                                }
+                            }));
+                            add(new Field(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.NNW);
+                                    add(CardinalPoint.WNW);
+                                    add(CardinalPoint.W);
+                                    add(CardinalPoint.WSW);
+                                    add(CardinalPoint.SSW);
+                                }
+                            }));
+                            add(new Field(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.NNE);
+                                    add(CardinalPoint.ENE);
+                                    add(CardinalPoint.E);
+                                    add(CardinalPoint.ESE);
+                                    add(CardinalPoint.SSE);
+                                }
+                            }));
 
-        // Curvy road
-        tiles.push(new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
-            {
-                add(new Road(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.N);
-                        add(CardinalPoint.E);
-                    }
-                }));
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNW);
-                        add(CardinalPoint.WNW);
-                        add(CardinalPoint.W);
-                        add(CardinalPoint.WSW);
-                        add(CardinalPoint.SSW);
-                        add(CardinalPoint.S);
-                        add(CardinalPoint.SSE);
-                        add(CardinalPoint.ESE);
-                    }
-                }));
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNE);
-                        add(CardinalPoint.ENE);
-                    }
-                }));
+                        }
+                    }));
 
-            }
-        }));
-        
-        // Curvy road
-        tiles.push(new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
-            {
-                add(new Road(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.N);
-                        add(CardinalPoint.E);
-                    }
-                }));
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNW);
-                        add(CardinalPoint.WNW);
-                        add(CardinalPoint.W);
-                        add(CardinalPoint.WSW);
-                        add(CardinalPoint.SSW);
-                        add(CardinalPoint.S);
-                        add(CardinalPoint.SSE);
-                        add(CardinalPoint.ESE);
-                    }
-                }));
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNE);
-                        add(CardinalPoint.ENE);
-                    }
-                }));
+            // Curvy road
+            tiles.push(
+                    new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
+                        {
+                            add(new Road(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.N);
+                                    add(CardinalPoint.E);
+                                }
+                            }));
+                            add(new Field(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.NNW);
+                                    add(CardinalPoint.WNW);
+                                    add(CardinalPoint.W);
+                                    add(CardinalPoint.WSW);
+                                    add(CardinalPoint.SSW);
+                                    add(CardinalPoint.S);
+                                    add(CardinalPoint.SSE);
+                                    add(CardinalPoint.ESE);
+                                }
+                            }));
+                            add(new Field(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.NNE);
+                                    add(CardinalPoint.ENE);
+                                }
+                            }));
 
-            }
-        }));
+                        }
+                    }));
 
-        // Curvy castle no road
-        tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
-            {
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.WNW);
-                        add(CardinalPoint.W);
-                        add(CardinalPoint.WSW);
-                        add(CardinalPoint.SSW);
-                        add(CardinalPoint.S);
-                        add(CardinalPoint.SSE);
-                    }
-                }));
-                add(new Castle(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNW);
-                        add(CardinalPoint.N);
-                        add(CardinalPoint.NNE);
-                        add(CardinalPoint.ENE);
-                        add(CardinalPoint.E);
-                        add(CardinalPoint.ESE);
-                    }
-                }));
+            // Curvy castle no road
+            tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD,
+                    new HashSet<>() {
+                        {
+                            add(new Field(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.WNW);
+                                    add(CardinalPoint.W);
+                                    add(CardinalPoint.WSW);
+                                    add(CardinalPoint.SSW);
+                                    add(CardinalPoint.S);
+                                    add(CardinalPoint.SSE);
+                                }
+                            }));
+                            add(new Castle(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.NNW);
+                                    add(CardinalPoint.N);
+                                    add(CardinalPoint.NNE);
+                                    add(CardinalPoint.ENE);
+                                    add(CardinalPoint.E);
+                                    add(CardinalPoint.ESE);
+                                }
+                            }));
 
-            }
-        }));   
-        
-        // Curvy castle no road
-        tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
-            {
-                add(new Field(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.WNW);
-                        add(CardinalPoint.W);
-                        add(CardinalPoint.WSW);
-                        add(CardinalPoint.SSW);
-                        add(CardinalPoint.S);
-                        add(CardinalPoint.SSE);
-                    }
-                }));
-                add(new Castle(new ArrayList<CardinalPoint>() {
-                    {
-                        add(CardinalPoint.NNW);
-                        add(CardinalPoint.N);
-                        add(CardinalPoint.NNE);
-                        add(CardinalPoint.ENE);
-                        add(CardinalPoint.E);
-                        add(CardinalPoint.ESE);
-                    }
-                }));
+                        }
+                    }));
+        }
 
-            }
-        }));   
-        
-        
         return tiles;
     }
 
