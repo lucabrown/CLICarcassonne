@@ -2,9 +2,11 @@ package luca.carcassonne;
 
 import java.util.ArrayList;
 
-public class Road extends Feature {
+public class Road extends Feature{
+    private ArrayList<CardinalPoint> cardinalPoints;
+    private boolean isOpen;
 
-    Road(Tile tile, ArrayList<CardinalPoint> cardinalPoints) {
-        super(tile, cardinalPoints);
+    Road(ArrayList<CardinalPoint> cardinalPoints) {
+        super(cardinalPoints);
     }
 }

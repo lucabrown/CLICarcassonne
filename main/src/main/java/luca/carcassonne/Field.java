@@ -2,9 +2,11 @@ package luca.carcassonne;
 
 import java.util.ArrayList;
 
-public class Field extends Feature {
+public class Field extends Feature{
+    private ArrayList<CardinalPoint> cardinalPoints;
+    private boolean isOpen;
 
-    Field(Tile tile, ArrayList<CardinalPoint> cardinalPoints) {
-        super(tile, cardinalPoints);
+    Field(ArrayList<CardinalPoint> cardinalPoints) {
+        super(cardinalPoints);
     }
 }

@@ -3,24 +3,25 @@ package luca.carcassonne;
 import java.util.ArrayList;
 
 public abstract class Feature {
-    ArrayList<Tile> tilesSpanned;
-    ArrayList<CardinalPoint> cardinalPoints;
-    ArrayList<Tile> openTiles;
+    private ArrayList<CardinalPoint> cardinalPoints;
+    private boolean isOpen;
 
-    Feature(Tile tile, ArrayList<CardinalPoint> cardinalPoints) {
-        tilesSpanned = new ArrayList<Tile>() {
-            {
-                add(tile);
-            }
-        };
-        openTiles = new ArrayList<>() {
-            {
-                add(tile);
-            }
-        };
+    Feature(ArrayList<CardinalPoint> cardinalPoints) {
+        this.cardinalPoints = cardinalPoints;
+        this.isOpen = true;
     }
 
-    public void addSpannedTile(Tile tile) {
-        tilesSpanned.add(tile);
+    public ArrayList<CardinalPoint> getCardinalPoints() {
+        return cardinalPoints;
     }
+
+    public void setCardinalPoints(int indexOf, CardinalPoint cardinalPoint) {
+        this.cardinalPoints.set(indexOf, cardinalPoint);
+    }
+
+    public void setClosed() {
+        this.isOpen = false;
+    }
+
+
 }

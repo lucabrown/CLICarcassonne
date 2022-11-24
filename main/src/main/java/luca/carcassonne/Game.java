@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
 
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+
 // Starts the game and handles turns and available tiles
 public class Game {
     public static final String ANSI_RESET = "\u001B[0m";
@@ -13,7 +16,7 @@ public class Game {
     public static final String ANSI_RED = "\u001B[31m";
 
     private static final Random random = new Random();
-    private static final Integer numberOfTiles = 10000; // For now at least more than 100
+    private static final Integer numberOfTiles = 5; // For now at least more than 100
     private static final Integer numberOfPLayers = 2;
     private static int failedTiles = 0;
     private static int triedPlacements = 0;
@@ -25,7 +28,6 @@ public class Game {
     private Stack<Tile> availableTiles;
     private Tile currentTile;
     private Player currentPlayer;
-    private HashSet<Feature> features;
     private HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
     private HashSet<Integer> checkedRotations;
 
@@ -41,13 +43,9 @@ public class Game {
                 // add(new Player(Colour.BLUE));
             }
         };
-        this.availableTiles = getRandomTiles(numberOfTiles);
+        // this.availableTiles = getRandomTiles(numberOfTiles);
+        this.availableTiles = getSmallDeckOfTiles();
         currentTile = new Tile(0, 0);
-        this.features = new HashSet<>() {
-            {
-                currentTile.getFeatures();
-            }
-        };
         Game.failedTiles = 0;
     }
 
@@ -59,7 +57,7 @@ public class Game {
     // The main game loop
     public void play() {
         startTime = System.currentTimeMillis();
-        progressBarStep = availableTiles.size() / 100;
+        progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
 
         // Each loop iteration corresponds to one turn
@@ -153,6 +151,161 @@ public class Game {
             // SideFeature.ROAD));
         }
 
+        return tiles;
+    }
+
+    // Returns a few properly setup tiles
+    private Stack<Tile> getSmallDeckOfTiles() {
+        Stack<Tile> tiles = new Stack<>();
+
+        // Straight road
+        tiles.push(new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD, new HashSet<>() {
+            {
+                add(new Road(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.N);
+                        add(CardinalPoint.S);
+                    }
+                }));
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNW);
+                        add(CardinalPoint.WNW);
+                        add(CardinalPoint.W);
+                        add(CardinalPoint.WSW);
+                        add(CardinalPoint.SSW);
+                    }
+                }));
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNE);
+                        add(CardinalPoint.ENE);
+                        add(CardinalPoint.E);
+                        add(CardinalPoint.ESE);
+                        add(CardinalPoint.SSE);
+                    }
+                }));
+
+            }
+        }));
+
+        // Curvy road
+        tiles.push(new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
+            {
+                add(new Road(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.N);
+                        add(CardinalPoint.E);
+                    }
+                }));
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNW);
+                        add(CardinalPoint.WNW);
+                        add(CardinalPoint.W);
+                        add(CardinalPoint.WSW);
+                        add(CardinalPoint.SSW);
+                        add(CardinalPoint.S);
+                        add(CardinalPoint.SSE);
+                        add(CardinalPoint.ESE);
+                    }
+                }));
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNE);
+                        add(CardinalPoint.ENE);
+                    }
+                }));
+
+            }
+        }));
+        
+        // Curvy road
+        tiles.push(new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
+            {
+                add(new Road(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.N);
+                        add(CardinalPoint.E);
+                    }
+                }));
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNW);
+                        add(CardinalPoint.WNW);
+                        add(CardinalPoint.W);
+                        add(CardinalPoint.WSW);
+                        add(CardinalPoint.SSW);
+                        add(CardinalPoint.S);
+                        add(CardinalPoint.SSE);
+                        add(CardinalPoint.ESE);
+                    }
+                }));
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNE);
+                        add(CardinalPoint.ENE);
+                    }
+                }));
+
+            }
+        }));
+
+        // Curvy castle no road
+        tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
+            {
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.WNW);
+                        add(CardinalPoint.W);
+                        add(CardinalPoint.WSW);
+                        add(CardinalPoint.SSW);
+                        add(CardinalPoint.S);
+                        add(CardinalPoint.SSE);
+                    }
+                }));
+                add(new Castle(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNW);
+                        add(CardinalPoint.N);
+                        add(CardinalPoint.NNE);
+                        add(CardinalPoint.ENE);
+                        add(CardinalPoint.E);
+                        add(CardinalPoint.ESE);
+                    }
+                }));
+
+            }
+        }));   
+        
+        // Curvy castle no road
+        tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
+            {
+                add(new Field(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.WNW);
+                        add(CardinalPoint.W);
+                        add(CardinalPoint.WSW);
+                        add(CardinalPoint.SSW);
+                        add(CardinalPoint.S);
+                        add(CardinalPoint.SSE);
+                    }
+                }));
+                add(new Castle(new ArrayList<CardinalPoint>() {
+                    {
+                        add(CardinalPoint.NNW);
+                        add(CardinalPoint.N);
+                        add(CardinalPoint.NNE);
+                        add(CardinalPoint.ENE);
+                        add(CardinalPoint.E);
+                        add(CardinalPoint.ESE);
+                    }
+                }));
+
+            }
+        }));   
+        
+        
         return tiles;
     }
 

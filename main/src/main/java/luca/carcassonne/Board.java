@@ -1,8 +1,12 @@
 package luca.carcassonne;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
 
 // Holds all played tiles and tracks the relation between them
 public class Board {
@@ -20,6 +24,7 @@ public class Board {
     private Integer minX;
     private Tile startingTile;
     private ArrayList<Tile> placedTiles;
+    private HashSet<SimpleGraph<Feature, DefaultEdge>> features;
     private ArrayList<Coordinates> possibleCoordinates;
 
     public Board() {
@@ -42,6 +47,12 @@ public class Board {
                 });
             }
         };
+        this.features = new HashSet<>();
+        for (Feature feature : startingTile.getFeatures()) {
+            SimpleGraph<Feature, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
+            graph.addVertex(feature);
+            features.add(graph);
+        }
     }
 
     public Tile getStartingTile() {
@@ -50,12 +61,13 @@ public class Board {
 
     // Tries to place a tile in the given coordinates. Returns true if the placement
     // was legal.
-    public boolean placeTile(Coordinates coordinates, Tile tile) {
-        if (tilePlacementLegal(coordinates, tile)) {
-            tile.setCoordinates(coordinates);
+    public boolean placeTile(Coordinates coordinates, Tile newTile) {
+        if (tilePlacementLegal(coordinates, newTile)) {
+            newTile.setCoordinates(coordinates);
+            System.out.println("Number of features: " + features.size());
 
-            updateBoard(tile);
-
+            updateBoard(newTile);
+            updateFeatures(newTile);
             return true;
         }
 
@@ -64,19 +76,34 @@ public class Board {
     }
 
     // Updates the board's state with the new tile
-    private void updateBoard(Tile tile) {
-        placedTiles.add(tile);
-        possibleCoordinates.remove(tile.getCoordinates());
+    private void updateBoard(Tile newTile) {
+        placedTiles.add(newTile);
+        possibleCoordinates.remove(newTile.getCoordinates());
+        System.out.println("Current tile: " + newTile + " at " + newTile.getCoordinates());
+
 
         // For each new adjacent coordinate, add it to the list of possible coordinates
-        tile.getAdjacentCoordinates().forEach(coordinates -> {
+        newTile.getAdjacentCoordinates().forEach(coordinates -> {
             if (!possibleCoordinates.contains(coordinates)
-                    && !placedTiles.stream().anyMatch(tile1 -> tile1.getCoordinates().equals(coordinates))) {
+                    && !placedTiles.stream().anyMatch(tile -> tile.getCoordinates().equals(coordinates))) {
                 possibleCoordinates.add(coordinates);
             }
         });
 
-        updateBoardStringParameters(tile);
+        updateBoardStringParameters(newTile);
+    }
+
+    // Updates the set of features by connecting the new features
+    private void updateFeatures(Tile newTile) {
+        List<Tile> tilesToCheck = placedTiles.stream()
+                .filter(e -> e.getAdjacentCoordinates().contains(newTile.getCoordinates()))
+                .collect(Collectors.toList());
+
+        for (Tile tile : tilesToCheck) {
+            int position = getRelativePosition(tile, newTile.getCoordinates());
+
+            linkFeatures(tile, newTile, position);
+        }
     }
 
     // Checks if the tile's placement is legal
@@ -121,6 +148,113 @@ public class Board {
         return false;
     }
 
+    // Links the new features to the existing graphs.
+    private void linkFeatures(Tile tile, Tile newTile, int position) {
+        boolean featurePlaced = false;
+
+        for (Feature newFeature : newTile.getFeatures()) {
+            switch (position) {
+                case 0:
+                    for (Feature feature : tile.getFeatures()) {
+                        if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.SSW)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.NNW)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.S)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.N)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.SSE)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.NNE)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        }
+                    }
+                    break;
+                case 1:
+                    for (Feature feature : tile.getFeatures()) {
+                        if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.WSW)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.ESE)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.W)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.E)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.WNW)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.ENE)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        }
+                    }
+                    break;
+                case 2:
+                    for (Feature feature : tile.getFeatures()) {
+                        if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.NNE)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.SSE)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.N)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.S)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.NNW)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.SSW)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        }
+                    }
+                    break;
+                case 3:
+                    for (Feature feature : tile.getFeatures()) {
+                        if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.ESE)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.WSW)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.E)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.W)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        } else if (feature.getClass() == newFeature.getClass()
+                                && feature.getCardinalPoints().contains(CardinalPoint.ENE)
+                                && newFeature.getCardinalPoints().contains(CardinalPoint.WNW)) {
+                            addFeaturesEdge(feature, newFeature);
+                            featurePlaced = true;
+                        }
+                    }
+                    break;
+            }
+
+            if (!featurePlaced) {
+                SimpleGraph<Feature, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
+                System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
+                newGraph.addVertex(newFeature);
+                features.add(newGraph);
+            }
+        }
+    }
+
+    private void addFeaturesEdge(Feature feature, Feature newFeature) {
+        for (SimpleGraph<Feature, DefaultEdge> graph : features) {
+            if (graph.containsVertex(feature) && !graph.containsVertex(newFeature)) {
+                System.out.println("Adding edge between " + feature.getClass().getSimpleName() + " and " + newFeature.getClass().getSimpleName());
+                graph.addVertex(newFeature);
+                graph.addEdge(feature, newFeature);
+            }
+        }
+    }
+
     // Returns a number between 0 and 3 that represents the clockwise position of a
     // tile relative to the given coordinates
     private int getRelativePosition(Tile tile, Coordinates coordinates) {
@@ -161,9 +295,9 @@ public class Board {
         return height;
     }
 
-    //  *   *   *   *   *   *   *
-    //  *   PRINTING METHODS    *
-    //  *   *   *   *   *   *   *
+    // * * * * * * *
+    // * PRINTING METHODS *
+    // * * * * * * *
 
     // Prints the board with the option to highlight a feature
     public void printBoard(SideFeature... highlightedFeatures) {
@@ -203,7 +337,8 @@ public class Board {
                         System.out.print(highlightColour + "X " + ANSI_RESET);
                         n += 1;
                     } else {
-                        System.out.print(getTileFromCoordinates(c).getOwner().getColour().getSymbol() + "X " + ANSI_RESET);
+                        System.out.print(
+                                getTileFromCoordinates(c).getOwner().getColour().getSymbol() + "X " + ANSI_RESET);
                     }
                 } else {
                     System.out.print(ANSI_CYAN + ". " + ANSI_RESET);
@@ -212,7 +347,7 @@ public class Board {
 
             System.out.println();
         }
-        System.out.println("Ratio: " + n/(placedTiles.size() - 1) );
+        System.out.println("Ratio: " + n / (placedTiles.size() - 1));
 
         // Print highlight, height and width
         if (SideFeature != null) {
