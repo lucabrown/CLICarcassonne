@@ -158,7 +158,7 @@ public class Game {
     private Stack<Tile> getSmallDeckOfTiles() {
         Stack<Tile> tiles = new Stack<>();
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
 
             // Straight road
             tiles.push(
@@ -249,6 +249,33 @@ public class Game {
                                 }
                             }));
 
+                        }
+                    }));
+
+            tiles.push(new Tile(SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD,
+                    new HashSet<>() {
+                        {
+                            add(new Field(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.ENE);
+                                    add(CardinalPoint.E);
+                                    add(CardinalPoint.E);
+                                    add(CardinalPoint.ESE);
+                                    add(CardinalPoint.SSE);
+                                    add(CardinalPoint.S);
+                                    add(CardinalPoint.SSW);
+                                    add(CardinalPoint.WSW);
+                                    add(CardinalPoint.W);
+                                    add(CardinalPoint.WNW);
+                                }
+                            }));
+                            add(new Castle(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.NNE);
+                                    add(CardinalPoint.N);
+                                    add(CardinalPoint.NNW);
+                                }
+                            }));
                         }
                     }));
         }

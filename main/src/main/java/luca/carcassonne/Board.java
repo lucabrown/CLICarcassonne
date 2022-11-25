@@ -24,7 +24,8 @@ public class Board {
     private Integer minX;
     private Tile startingTile;
     private ArrayList<Tile> placedTiles;
-    private HashSet<SimpleGraph<Feature, DefaultEdge>> features;
+    private HashSet<SimpleGraph<Feature, DefaultEdge>> openFeatures;
+    private HashSet<SimpleGraph<Feature, DefaultEdge>> closedFeatures;
     private ArrayList<Coordinates> possibleCoordinates;
 
     public Board() {
@@ -47,12 +48,14 @@ public class Board {
                 });
             }
         };
-        this.features = new HashSet<>();
+        this.openFeatures = new HashSet<>();
         for (Feature feature : startingTile.getFeatures()) {
             SimpleGraph<Feature, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
             graph.addVertex(feature);
-            features.add(graph);
+            openFeatures.add(graph);
         }
+        this.closedFeatures = new HashSet<>();
+
     }
 
     public Tile getStartingTile() {
@@ -67,7 +70,13 @@ public class Board {
 
             updateBoard(newTile);
             updateFeatures(newTile);
-            System.out.println("Number of features: " + features.size());
+            System.out.println("Number of openFeatures: " + openFeatures.size());
+            for (SimpleGraph<Feature, DefaultEdge> feature : openFeatures) {
+                for (Feature f : feature.vertexSet()) {
+                    System.out.print(f.getClass().getSimpleName() + " - ");
+                }
+                System.out.println();
+            }
 
             return true;
         }
@@ -82,7 +91,6 @@ public class Board {
         possibleCoordinates.remove(newTile.getCoordinates());
         System.out.println("\nPlacing " + newTile + " at " + newTile.getCoordinates());
 
-
         // For each new adjacent coordinate, add it to the list of possible coordinates
         newTile.getAdjacentCoordinates().forEach(coordinates -> {
             if (!possibleCoordinates.contains(coordinates)
@@ -94,7 +102,7 @@ public class Board {
         updateBoardStringParameters(newTile);
     }
 
-    // Updates the set of features by connecting the new features
+    // Updates the set of open features by connecting the new open features
     private void updateFeatures(Tile newTile) {
         List<Tile> tilesToCheck = placedTiles.stream()
                 .filter(e -> e.getAdjacentCoordinates().contains(newTile.getCoordinates()))
@@ -149,12 +157,12 @@ public class Board {
         return false;
     }
 
-    // Links the new features to the existing graphs.
+    // Links the new open features to the existing graphs.
     private void linkFeatures(Tile tile, Tile newTile, int position) {
-        boolean featurePlaced = false;
+        boolean featureLinked = false;
 
         for (Feature newFeature : newTile.getFeatures()) {
-            featurePlaced = false;
+            featureLinked = false;
             switch (position) {
                 case 0:
                     for (Feature feature : tile.getFeatures()) {
@@ -162,17 +170,17 @@ public class Board {
                                 && feature.getCardinalPoints().contains(CardinalPoint.SSW)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.NNW)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.S)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.N)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.SSE)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.NNE)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         }
                     }
                     break;
@@ -182,17 +190,17 @@ public class Board {
                                 && feature.getCardinalPoints().contains(CardinalPoint.WSW)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.ESE)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.W)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.E)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.WNW)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.ENE)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         }
                     }
                     break;
@@ -202,17 +210,17 @@ public class Board {
                                 && feature.getCardinalPoints().contains(CardinalPoint.NNE)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.SSE)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.N)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.S)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.NNW)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.SSW)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         }
                     }
                     break;
@@ -222,35 +230,64 @@ public class Board {
                                 && feature.getCardinalPoints().contains(CardinalPoint.ESE)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.WSW)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.E)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.W)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         } else if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.ENE)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.WNW)) {
                             addFeaturesEdge(feature, newFeature);
-                            featurePlaced = true;
+                            featureLinked = true;
                         }
                     }
                     break;
             }
 
-            if (!featurePlaced) {
+            if (!featureLinked) {
                 SimpleGraph<Feature, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
                 System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
                 newGraph.addVertex(newFeature);
-                features.add(newGraph);
+                openFeatures.add(newGraph);
+            } else if(newFeature.getClass() != Field.class){
+                checkIfFeatureIsComplete(newFeature);
             }
         }
     }
 
+    private void checkIfFeatureIsComplete(Feature newFeature) {
+        for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
+            if (graph.containsVertex(newFeature)) {
+                int totalCardinalPoints = graph.vertexSet().stream().mapToInt(f -> f.getCardinalPoints().size()).sum();
+                int totalEdges = graph.edgeSet().size();
+                
+                if (newFeature.getClass() == Castle.class){
+                    if(totalCardinalPoints/totalEdges == 6){
+                        System.out.println("Castle closed!");
+                        closedFeatures.add(graph);
+                        openFeatures.remove(graph);
+                    }
+                } else if (newFeature.getClass() == Road.class){
+                    if(totalCardinalPoints/totalEdges == 2){
+                        System.out.println("Road closed!");
+                        closedFeatures.add(graph);
+                        openFeatures.remove(graph);
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
+    // Connects a feature to an existing graph.
     private void addFeaturesEdge(Feature feature, Feature newFeature) {
-        for (SimpleGraph<Feature, DefaultEdge> graph : features) {
+        for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
             if (graph.containsVertex(feature) && !graph.containsVertex(newFeature)) {
-                System.out.println("Adding edge between " + feature.getClass().getSimpleName() + " and " + newFeature.getClass().getSimpleName());
+                System.out.println("Adding edge between " + feature.getClass().getSimpleName() + " and "
+                        + newFeature.getClass().getSimpleName());
                 graph.addVertex(newFeature);
                 graph.addEdge(feature, newFeature);
             }

@@ -8,5 +8,8 @@ public class Castle extends Feature{
 
     Castle(ArrayList<CardinalPoint> cardinalPoints) {
         super(cardinalPoints);
+        super.setPointsClosed(4);
+        super.setPointsOpen(2);
+        
     }
 }

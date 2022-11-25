@@ -8,5 +8,7 @@ public class Road extends Feature{
 
     Road(ArrayList<CardinalPoint> cardinalPoints) {
         super(cardinalPoints);
+        super.setPointsClosed(1);
+        super.setPointsOpen(1);
     }
 }
