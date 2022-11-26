@@ -16,7 +16,7 @@ public class Game {
     public static final String ANSI_RED = "\u001B[31m";
 
     private static final Random random = new Random();
-    private static final Integer numberOfTiles = 5; // For now at least more than 100
+    private static final Integer numberOfTiles = 100; // For now at least more than 100
     private static final Integer numberOfPLayers = 2;
     private static int failedTiles = 0;
     private static int triedPlacements = 0;
@@ -44,7 +44,7 @@ public class Game {
             }
         };
         // this.availableTiles = getRandomTiles(numberOfTiles);
-        this.availableTiles = getSmallDeckOfTiles();
+        this.availableTiles = getSmallDeckOfTiles(numberOfTiles);
         currentTile = new Tile(0, 0);
         Game.failedTiles = 0;
     }
@@ -100,7 +100,7 @@ public class Game {
                 updatePlayerQueue();
             }
 
-            // printProgressBarStep();
+            printProgressBarStep();
 
         }
 
@@ -155,10 +155,11 @@ public class Game {
     }
 
     // Returns a few properly setup tiles
-    private Stack<Tile> getSmallDeckOfTiles() {
+    private Stack<Tile> getSmallDeckOfTiles(int n) {
         Stack<Tile> tiles = new Stack<>();
+        n = n / 4;
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < n; i++) {
 
             // Straight road
             tiles.push(
@@ -290,7 +291,7 @@ public class Game {
     // Prints how many tiles were placed successfully
     private void printSuccessfulTiles() {
         System.out.println(
-                "\nTried to place " + ANSI_GREEN + numberOfTiles + ANSI_RESET + " tiles " + ANSI_GREEN + triedPlacements
+                "\nTried to place " + ANSI_GREEN + (board.getPlacedTilesSize() - 1) + ANSI_RESET + " tiles " + ANSI_GREEN + triedPlacements
                         + ANSI_RESET + " times.");
     }
 

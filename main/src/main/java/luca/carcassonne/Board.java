@@ -70,13 +70,14 @@ public class Board {
 
             updateBoard(newTile);
             updateFeatures(newTile);
-            System.out.println("Number of openFeatures: " + openFeatures.size());
-            for (SimpleGraph<Feature, DefaultEdge> feature : openFeatures) {
-                for (Feature f : feature.vertexSet()) {
-                    System.out.print(f.getClass().getSimpleName() + " - ");
-                }
-                System.out.println();
-            }
+            // System.out.println("Number of open features: " + openFeatures.size());
+            // System.out.println("Number of closed features: " + closedFeatures.size());
+            // for (SimpleGraph<Feature, DefaultEdge> feature : openFeatures) {
+            //     for (Feature f : feature.vertexSet()) {
+            //         System.out.print(f.getClass().getSimpleName() + " - ");
+            //     }
+            //     System.out.println();
+            // }
 
             return true;
         }
@@ -89,7 +90,7 @@ public class Board {
     private void updateBoard(Tile newTile) {
         placedTiles.add(newTile);
         possibleCoordinates.remove(newTile.getCoordinates());
-        System.out.println("\nPlacing " + newTile + " at " + newTile.getCoordinates());
+        // System.out.println("\nPlacing " + newTile + " at " + newTile.getCoordinates());
 
         // For each new adjacent coordinate, add it to the list of possible coordinates
         newTile.getAdjacentCoordinates().forEach(coordinates -> {
@@ -248,7 +249,7 @@ public class Board {
 
             if (!featureLinked) {
                 SimpleGraph<Feature, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
-                System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
+                // System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
                 newGraph.addVertex(newFeature);
                 openFeatures.add(newGraph);
             } else if(newFeature.getClass() != Field.class){
@@ -262,16 +263,20 @@ public class Board {
             if (graph.containsVertex(newFeature)) {
                 int totalCardinalPoints = graph.vertexSet().stream().mapToInt(f -> f.getCardinalPoints().size()).sum();
                 int totalEdges = graph.edgeSet().size();
+
+                if(totalEdges == 0){
+                    break;
+                }
                 
                 if (newFeature.getClass() == Castle.class){
                     if(totalCardinalPoints/totalEdges == 6){
-                        System.out.println("Castle closed!");
+                        // System.out.println("Castle closed!");
                         closedFeatures.add(graph);
                         openFeatures.remove(graph);
                     }
                 } else if (newFeature.getClass() == Road.class){
                     if(totalCardinalPoints/totalEdges == 2){
-                        System.out.println("Road closed!");
+                        // System.out.println("Road closed!");
                         closedFeatures.add(graph);
                         openFeatures.remove(graph);
                     }
@@ -286,8 +291,8 @@ public class Board {
     private void addFeaturesEdge(Feature feature, Feature newFeature) {
         for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
             if (graph.containsVertex(feature) && !graph.containsVertex(newFeature)) {
-                System.out.println("Adding edge between " + feature.getClass().getSimpleName() + " and "
-                        + newFeature.getClass().getSimpleName());
+                // System.out.println("Adding edge between " + feature.getClass().getSimpleName() + " and "
+                //         + newFeature.getClass().getSimpleName());
                 graph.addVertex(newFeature);
                 graph.addEdge(feature, newFeature);
             }
