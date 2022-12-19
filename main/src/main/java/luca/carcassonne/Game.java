@@ -1,10 +1,13 @@
 package luca.carcassonne;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
+import java.util.Scanner;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
@@ -16,7 +19,7 @@ public class Game {
     public static final String ANSI_RED = "\u001B[31m";
 
     private static final Random random = new Random();
-    private static final Integer numberOfTiles = 100; // For now at least more than 100
+    private static final Integer numberOfTiles = 200; // For now at least more than 100
     private static final Integer numberOfPLayers = 2;
     private static int failedTiles = 0;
     private static int triedPlacements = 0;
@@ -104,7 +107,10 @@ public class Game {
 
         }
 
+        board.printOpenFeatures();
+        board.printClosedFeatures();
         board.printBoard();
+        
         printSuccessfulTiles();
         printFailedTiles();
         printTimeElapsed();
@@ -141,14 +147,14 @@ public class Game {
 
         for (int i = 0; i < n; i++) {
             tiles.push(
-                    new Tile(SideFeature.getRandomFeature(),
-                            SideFeature.getRandomFeature(),
-                            SideFeature.getRandomFeature(),
-                            SideFeature.getRandomFeature()));
-            // new Tile(SideFeature.ROAD,
-            // SideFeature.ROAD,
-            // SideFeature.ROAD,
-            // SideFeature.ROAD));
+                    // new Tile(SideFeature.getRandomFeature(),
+                    //         SideFeature.getRandomFeature(),
+                    //         SideFeature.getRandomFeature(),
+                    //         SideFeature.getRandomFeature()));
+            new Tile(SideFeature.FIELD,
+            SideFeature.FIELD,
+            SideFeature.FIELD,
+            SideFeature.FIELD));
         }
 
         return tiles;
@@ -284,9 +290,16 @@ public class Game {
         return tiles;
     }
 
-    // * * * * * * *
-    // * PRINTING METHODS *
-    // * * * * * * *
+    // * * * * * * * * * * * * 
+    // *   PRINTING METHODS  *
+    // * * * * * * * * * * * *
+
+    private Coordinates readCoordinatesFromInput(Scanner scanner){
+        System.out.println("Enter coordinates (x,y):");
+        String input = scanner.nextLine();
+        String[] coordinates = input.split(",");
+        return new Coordinates(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
+    }
 
     // Prints how many tiles were placed successfully
     private void printSuccessfulTiles() {

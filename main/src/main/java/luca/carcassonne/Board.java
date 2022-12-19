@@ -400,6 +400,24 @@ public class Board {
 
         System.out.println("Height: " + height);
         System.out.println("Width: " + width);
+        System.out.println("Closed features: " + closedFeatures.size());
+        System.out.println("Open features: " + openFeatures.size());
+    }
+
+    // Prints all the closed features on the board
+    public void printClosedFeatures() {
+        System.out.println("\n");
+        for (SimpleGraph<Feature, DefaultEdge> graph : closedFeatures) {
+            System.out.println(graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
+        }
+    }
+
+    // Prints all the open features on the board
+    public void printOpenFeatures() {
+        System.out.println("\n");
+        for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
+            System.out.println(graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
+        }
     }
 
     // Keeps track of the board's width and height
