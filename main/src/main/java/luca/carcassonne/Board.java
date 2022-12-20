@@ -1,6 +1,7 @@
 package luca.carcassonne;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,8 +25,10 @@ public class Board {
     private Integer minX;
     private Tile startingTile;
     private ArrayList<Tile> placedTiles;
+    private HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> openFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> closedFeatures;
+    private HashSet<SimpleGraph<Feature, DefaultEdge>> newlyClosedFeatures;
     private ArrayList<Coordinates> possibleCoordinates;
 
     public Board() {
@@ -48,14 +51,16 @@ public class Board {
                 });
             }
         };
+        this.allFeatures = new HashSet<>();
         this.openFeatures = new HashSet<>();
         for (Feature feature : startingTile.getFeatures()) {
             SimpleGraph<Feature, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
             graph.addVertex(feature);
+            allFeatures.add(graph);
             openFeatures.add(graph);
         }
         this.closedFeatures = new HashSet<>();
-
+        this.newlyClosedFeatures = new HashSet<>();
     }
 
     public Tile getStartingTile() {
@@ -70,14 +75,6 @@ public class Board {
 
             updateBoard(newTile);
             updateFeatures(newTile);
-            // System.out.println("Number of open features: " + openFeatures.size());
-            // System.out.println("Number of closed features: " + closedFeatures.size());
-            // for (SimpleGraph<Feature, DefaultEdge> feature : openFeatures) {
-            //     for (Feature f : feature.vertexSet()) {
-            //         System.out.print(f.getClass().getSimpleName() + " - ");
-            //     }
-            //     System.out.println();
-            // }
 
             return true;
         }
@@ -86,11 +83,40 @@ public class Board {
 
     }
 
+    // Tries to place a meeple on a feature
+    public boolean placeMeeple(Feature newFeature, Player currentPlayer) {
+        SimpleGraph<Feature, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class); 
+        HashMap<Player, Integer> players = new HashMap<>();
+
+        if (currentPlayer.getAvailableMeeples() <= 0) {
+            return false;
+        }
+
+        for(SimpleGraph<Feature, DefaultEdge> f : allFeatures) {
+            if (f.containsVertex(newFeature)) {
+                feature = f;
+                break;
+            }
+        }
+
+        players = getPlayersOnFeature(feature);
+
+        if (!players.isEmpty() && !players.containsKey(currentPlayer)) {
+            return false;
+        }
+
+        currentPlayer.decrementMeeples();
+        newFeature.setOwner(currentPlayer);
+
+        return true;
+    }
+
     // Updates the board's state with the new tile
     private void updateBoard(Tile newTile) {
         placedTiles.add(newTile);
         possibleCoordinates.remove(newTile.getCoordinates());
-        // System.out.println("\nPlacing " + newTile + " at " + newTile.getCoordinates());
+        // System.out.println("\nPlacing " + newTile + " at " +
+        // newTile.getCoordinates());
 
         // For each new adjacent coordinate, add it to the list of possible coordinates
         newTile.getAdjacentCoordinates().forEach(coordinates -> {
@@ -161,6 +187,7 @@ public class Board {
     // Links the new open features to the existing graphs.
     private void linkFeatures(Tile tile, Tile newTile, int position) {
         boolean featureLinked = false;
+        newlyClosedFeatures.clear();
 
         for (Feature newFeature : newTile.getFeatures()) {
             featureLinked = false;
@@ -251,35 +278,26 @@ public class Board {
                 SimpleGraph<Feature, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
                 // System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
                 newGraph.addVertex(newFeature);
+                allFeatures.add(newGraph);
                 openFeatures.add(newGraph);
-            } else if(newFeature.getClass() != Field.class){
+            } else if (newFeature.getClass() != Field.class) {
                 checkIfFeatureIsComplete(newFeature);
             }
         }
     }
 
+    // Finds the graph that contains the new feature and checks if it's closed
     private void checkIfFeatureIsComplete(Feature newFeature) {
         for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
             if (graph.containsVertex(newFeature)) {
                 int totalCardinalPoints = graph.vertexSet().stream().mapToInt(f -> f.getCardinalPoints().size()).sum();
                 int totalEdges = graph.edgeSet().size();
 
-                if(totalEdges == 0){
-                    break;
-                }
-                
-                if (newFeature.getClass() == Castle.class){
-                    if(totalCardinalPoints/totalEdges == 6){
-                        // System.out.println("Castle closed!");
-                        closedFeatures.add(graph);
-                        openFeatures.remove(graph);
-                    }
-                } else if (newFeature.getClass() == Road.class){
-                    if(totalCardinalPoints/totalEdges == 2){
-                        // System.out.println("Road closed!");
-                        closedFeatures.add(graph);
-                        openFeatures.remove(graph);
-                    }
+                if (totalEdges != 0 && (newFeature.getClass() == Castle.class && totalCardinalPoints / totalEdges == 6
+                        || newFeature.getClass() == Road.class && totalCardinalPoints / totalEdges == 2)) {
+                    newlyClosedFeatures.add(graph);
+                    closedFeatures.add(graph);
+                    openFeatures.remove(graph);
                 }
 
                 break;
@@ -291,12 +309,97 @@ public class Board {
     private void addFeaturesEdge(Feature feature, Feature newFeature) {
         for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
             if (graph.containsVertex(feature) && !graph.containsVertex(newFeature)) {
-                // System.out.println("Adding edge between " + feature.getClass().getSimpleName() + " and "
-                //         + newFeature.getClass().getSimpleName());
+                // System.out.println("Adding edge between " +
+                // feature.getClass().getSimpleName() + " and "
+                // + newFeature.getClass().getSimpleName());
                 graph.addVertex(newFeature);
                 graph.addEdge(feature, newFeature);
             }
         }
+    }
+
+    // Scores all closed features
+    public void scoreClosedFeatures() {
+        if (newlyClosedFeatures.isEmpty()) {
+            return;
+        }
+
+        for (SimpleGraph<Feature, DefaultEdge> feature : newlyClosedFeatures) {
+            List<Player> owners = new ArrayList<>();
+            int score = 0;
+
+            owners = getFeatureOwners(feature);
+            score = calculateFeatureValue(feature);
+
+            if (owners.isEmpty()) {
+                break;
+            }
+
+            for (Player owner : owners) {
+                owner.addScore(score);
+                // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
+                // + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                // + owner.getColour() + " worth " + score + " points");
+            }
+
+        }
+    }
+
+    // Returns a list of players who own the feature
+    private List<Player> getFeatureOwners(SimpleGraph<Feature, DefaultEdge> feature) {
+        ArrayList<Player> owners = new ArrayList<>();
+        HashMap<Player, Integer> players = new HashMap<>();
+        int maxMeeples = 0;
+
+        players = getPlayersOnFeature(feature);
+
+        // Find the player(s) with the most meeples on the feature
+        if (!players.isEmpty()) {
+            int nMeeples = 0;
+            maxMeeples = players.values().stream().max(Integer::compare).get();
+
+            for (Player p : players.keySet()) {
+                nMeeples = players.get(p);
+                p.incrementMeeples(nMeeples);
+
+                if (nMeeples == maxMeeples) {
+                    owners.add(p);
+                }
+            }
+
+        }
+
+        return owners;
+    }
+
+    // Returns a map of players and the number of meeples they have on the feature
+    private HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature){
+        HashMap<Player, Integer> players = new HashMap<>();
+
+        // Map each player to the number of meeples they have on the feature
+        feature.vertexSet().stream().map(v -> v.getOwner()).forEach(p -> {
+            if (players.containsKey(p)) {
+                players.put(p, players.get(p) + 1);
+            } else {
+                if (p != null) {
+                    players.put(p, 1);
+                }
+            }
+        });
+
+        return players;
+    }
+
+    // Calculates the value of a feature
+    // TODO: add scoring for shields and monasteries
+    private int calculateFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
+        int score = 0;
+
+        for (Feature vertex : feature.vertexSet()) {
+            score += vertex.getPointsClosed();
+        }
+
+        return score;
     }
 
     // Returns a number between 0 and 3 that represents the clockwise position of a
@@ -337,6 +440,14 @@ public class Board {
 
     public Integer getHeight() {
         return height;
+    }
+
+    public HashSet<SimpleGraph<Feature, DefaultEdge>> getNewlyClosedFeatures() {
+        return newlyClosedFeatures;
+    }
+
+    public HashSet<SimpleGraph<Feature, DefaultEdge>> getOpenFeatures() {
+        return openFeatures;
     }
 
     // * * * * * * *
@@ -408,7 +519,8 @@ public class Board {
     public void printClosedFeatures() {
         System.out.println("\n");
         for (SimpleGraph<Feature, DefaultEdge> graph : closedFeatures) {
-            System.out.println(graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
+            System.out.println(
+                    graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
         }
     }
 
@@ -416,7 +528,8 @@ public class Board {
     public void printOpenFeatures() {
         System.out.println("\n");
         for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
-            System.out.println(graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
+            System.out.println(
+                    graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
         }
     }
 

@@ -3,14 +3,13 @@ package luca.carcassonne;
 import java.util.ArrayList;
 
 public abstract class Feature {
+    private Player owner;
     private ArrayList<CardinalPoint> cardinalPoints;
-    private static Integer pointsOpen;
-    private static Integer pointsClosed;
-    private boolean isOpen;
+    private Integer pointsOpen;
+    private Integer pointsClosed;
 
     Feature(ArrayList<CardinalPoint> cardinalPoints) {
         this.cardinalPoints = cardinalPoints;
-        this.isOpen = true;
     }
 
     public ArrayList<CardinalPoint> getCardinalPoints() {
@@ -21,27 +20,27 @@ public abstract class Feature {
         this.cardinalPoints.set(indexOf, cardinalPoint);
     }
 
-    public void setClosed() {
-        this.isOpen = false;
+    public Player getOwner() {
+        return owner;
     }
 
-    public boolean isOpen() {
-        return isOpen;
+    public void setOwner(Player owner) {
+        this.owner = owner;
     }
 
-    protected static void setPointsOpen(Integer pointsOpen) {
-        Feature.pointsOpen = pointsOpen;
+    protected void setPointsOpen(Integer pointsOpen) {
+        this.pointsOpen = pointsOpen;
     }
 
-    protected static void setPointsClosed(Integer pointsClosed) {
-        Feature.pointsClosed = pointsClosed;
+    protected void setPointsClosed(Integer pointsClosed) {
+        this.pointsClosed = pointsClosed;
     }
 
-    public static Integer getPointsOpen() {
+    public Integer getPointsOpen() {
         return pointsOpen;
     }
 
-    public static Integer getPointsClosed() {
+    public Integer getPointsClosed() {
         return pointsClosed;
     }
 

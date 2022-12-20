@@ -3,13 +3,36 @@ package luca.carcassonne;
 public class Player {
     public static final Integer MAX_MEEPLES = 7;
     Colour colour;
-    Integer points;
+    Integer score;
     Integer availableMeeples;
 
     public Player(Colour colour) {
         this.colour = colour;
-        this.points = 0;
+        this.score = 0;
         this.availableMeeples = MAX_MEEPLES;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void addScore(Integer score) {
+        this.score += score;
+    }
+
+    public Integer getAvailableMeeples() {
+        return availableMeeples;
+    }
+
+    public void incrementMeeples(int amount) {
+        availableMeeples += amount;
+    }
+    public void incrementMeeples() {
+        availableMeeples++;
+    }
+
+    public void decrementMeeples() {
+        availableMeeples--;
     }
 
     public Colour getColour() {

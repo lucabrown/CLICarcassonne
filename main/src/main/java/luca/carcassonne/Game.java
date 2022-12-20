@@ -3,8 +3,11 @@ package luca.carcassonne;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Scanner;
@@ -39,7 +42,7 @@ public class Game {
         this.players = new ArrayList<>(numberOfPLayers) {
             {
                 add(new Player(Colour.WHITE));
-                // add(new Player(Colour.RED));
+                add(new Player(Colour.RED));
                 // add(new Player(Colour.GREEN));
                 // add(new Player(Colour.YELLOW));
                 // add(new Player(Colour.BLACK));
@@ -53,8 +56,36 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        Game game = new Game(new Board());
-        game.play();
+        float times = 1000;
+        float whiteTotalScore = 0;
+        float redTotalScore = 0;
+        float whiteWR = 0;
+        float redWR = 0;
+        float ties = 0;
+
+        for (int i = 0; i < times; i++) {
+            Game game = new Game(new Board());
+            game.play();
+
+            whiteTotalScore += game.players.get(0).getScore();
+            redTotalScore += game.players.get(1).getScore();
+            if (game.players.get(0).getScore() > game.players.get(1).getScore()) {
+                whiteWR++;
+            } else if (game.players.get(0).getScore() == game.players.get(1).getScore()) {
+                ties++;
+            } else {
+                redWR++;
+            }
+        }
+
+        whiteWR = (whiteWR / times * 100);
+        redWR = (redWR / times * 100);
+        ties = (ties / times * 100);
+        System.out.println("After " + times + " games:");
+        System.out.println("White won " + whiteWR + "% of games with an average score of " + whiteTotalScore / times);
+        System.out.println("Red won " + redWR + "% of games with an average score of " + redTotalScore / times);
+        System.out.println("Ties: " + ties + "%");
+
     }
 
     // The main game loop
@@ -99,7 +130,21 @@ public class Game {
             }
 
             if (playerPlacedTile) {
-                currentTile.setOwner(currentPlayer);
+                // Take a feature node from the current tile and place a meeple
+                boolean meeplePlaced = false;
+
+                Object[] filteredFeature = currentTile.getFeatures().stream().filter(f -> f.getClass() != Field.class).toArray();
+                Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
+
+                meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);
+
+                if (!meeplePlaced){
+                    System.out.println("Meeple not placed");
+                }
+
+                currentTile.setOwner(currentPlayer); // to delete
+
+                board.scoreClosedFeatures();
                 updatePlayerQueue();
             }
 
@@ -107,13 +152,14 @@ public class Game {
 
         }
 
-        board.printOpenFeatures();
-        board.printClosedFeatures();
-        board.printBoard();
-        
-        printSuccessfulTiles();
-        printFailedTiles();
-        printTimeElapsed();
+        // board.printOpenFeatures();
+        // board.printClosedFeatures();
+        // board.printBoard();
+        // printScores();
+
+        // printSuccessfulTiles();
+        // printFailedTiles();
+        // printTimeElapsed();
     }
 
     // Keeps a record of checked combinations for one tile
@@ -148,13 +194,13 @@ public class Game {
         for (int i = 0; i < n; i++) {
             tiles.push(
                     // new Tile(SideFeature.getRandomFeature(),
-                    //         SideFeature.getRandomFeature(),
-                    //         SideFeature.getRandomFeature(),
-                    //         SideFeature.getRandomFeature()));
-            new Tile(SideFeature.FIELD,
-            SideFeature.FIELD,
-            SideFeature.FIELD,
-            SideFeature.FIELD));
+                    // SideFeature.getRandomFeature(),
+                    // SideFeature.getRandomFeature(),
+                    // SideFeature.getRandomFeature()));
+                    new Tile(SideFeature.FIELD,
+                            SideFeature.FIELD,
+                            SideFeature.FIELD,
+                            SideFeature.FIELD));
         }
 
         return tiles;
@@ -168,8 +214,8 @@ public class Game {
         for (int i = 0; i < n; i++) {
 
             // Straight road
-            tiles.push(
-                    new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD, new HashSet<>() {
+            tiles.push(new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD,
+                    new HashSet<>() {
                         {
                             add(new Road(new ArrayList<CardinalPoint>() {
                                 {
@@ -200,8 +246,8 @@ public class Game {
                     }));
 
             // Curvy road
-            tiles.push(
-                    new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD, new HashSet<>() {
+            tiles.push(new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD,
+                    new HashSet<>() {
                         {
                             add(new Road(new ArrayList<CardinalPoint>() {
                                 {
@@ -290,21 +336,29 @@ public class Game {
         return tiles;
     }
 
-    // * * * * * * * * * * * * 
-    // *   PRINTING METHODS  *
+    // * * * * * * * * * * * *
+    // * PRINTING METHODS *
     // * * * * * * * * * * * *
 
-    private Coordinates readCoordinatesFromInput(Scanner scanner){
+    private Coordinates readCoordinatesFromInput(Scanner scanner) {
         System.out.println("Enter coordinates (x,y):");
         String input = scanner.nextLine();
         String[] coordinates = input.split(",");
         return new Coordinates(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
     }
 
+    // Prints all the players' scores
+    private void printScores() {
+        for (Player player : players) {
+            System.out.println(player.colour + " score: " + player.getScore());
+        }
+    }
+
     // Prints how many tiles were placed successfully
     private void printSuccessfulTiles() {
         System.out.println(
-                "\nTried to place " + ANSI_GREEN + (board.getPlacedTilesSize() - 1) + ANSI_RESET + " tiles " + ANSI_GREEN + triedPlacements
+                "\nTried to place " + ANSI_GREEN + (board.getPlacedTilesSize() - 1) + ANSI_RESET + " tiles "
+                        + ANSI_GREEN + triedPlacements
                         + ANSI_RESET + " times.");
     }
 
