@@ -53,10 +53,17 @@ public class Tile {
             }
         };
         features = new HashSet<Feature>() {{
+            HashSet<Castle> castles = new HashSet<Castle>() {{
+                add(new Castle(new ArrayList<CardinalPoint>() {{
+                    add(CardinalPoint.NNE);
+                    add(CardinalPoint.N);
+                    add(CardinalPoint.NNW);
+                }}));
+            }};
             add(new Field(new ArrayList<CardinalPoint>() {{
                 add(CardinalPoint.ENE);
                 add(CardinalPoint.WNW);
-            }}));
+            }}, castles));
             add(new Road(new ArrayList<CardinalPoint>() {{
                 add(CardinalPoint.E);
                 add(CardinalPoint.W);
@@ -67,12 +74,8 @@ public class Tile {
                 add(CardinalPoint.S);
                 add(CardinalPoint.SSW);
                 add(CardinalPoint.WSW);
-            }}));
-            add(new Castle(new ArrayList<CardinalPoint>() {{
-                add(CardinalPoint.NNE);
-                add(CardinalPoint.N);
-                add(CardinalPoint.NNW);
-            }}));
+            }}, new HashSet<Castle>()));
+            add(castles.iterator().next());
         }};
     }
 

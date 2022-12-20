@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jgrapht.graph.DefaultEdge;
@@ -85,14 +86,14 @@ public class Board {
 
     // Tries to place a meeple on a feature
     public boolean placeMeeple(Feature newFeature, Player currentPlayer) {
-        SimpleGraph<Feature, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class); 
+        SimpleGraph<Feature, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class);
         HashMap<Player, Integer> players = new HashMap<>();
 
         if (currentPlayer.getAvailableMeeples() <= 0) {
             return false;
         }
 
-        for(SimpleGraph<Feature, DefaultEdge> f : allFeatures) {
+        for (SimpleGraph<Feature, DefaultEdge> f : allFeatures) {
             if (f.containsVertex(newFeature)) {
                 feature = f;
                 break;
@@ -329,11 +330,42 @@ public class Board {
             int score = 0;
 
             owners = getFeatureOwners(feature);
-            score = calculateFeatureValue(feature);
+            score = calculateClosedFeatureValue(feature);
 
             if (owners.isEmpty()) {
                 break;
             }
+
+            for (Player owner : owners) {
+                owner.addScore(score);
+                // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
+                // + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                // + owner.getColour() + " worth " + score + " points");
+            }
+
+        }
+    }
+
+    // Scores all the open features
+    public void scoreOpenFeatures() {
+        if (openFeatures.isEmpty()) {
+            System.out.println("No open features to score");
+            return;
+        }
+
+        for (SimpleGraph<Feature, DefaultEdge> feature : openFeatures) {
+            Set<Player> owners = new HashSet<>();
+            int score = 0;
+
+            owners = getPlayersOnFeature(feature).keySet();
+            score = calculateOpenFeatureValue(feature);
+
+            if (owners.isEmpty() || score == 0) {
+                continue;
+            }
+
+            // System.out.println("Scoring " + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+            //         + owners.iterator().next().getColour() + " worth " + score + " points");
 
             for (Player owner : owners) {
                 owner.addScore(score);
@@ -373,7 +405,7 @@ public class Board {
     }
 
     // Returns a map of players and the number of meeples they have on the feature
-    private HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature){
+    private HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature) {
         HashMap<Player, Integer> players = new HashMap<>();
 
         // Map each player to the number of meeples they have on the feature
@@ -390,14 +422,57 @@ public class Board {
         return players;
     }
 
-    // Calculates the value of a feature
+    // Calculates the value of a closed feature
     // TODO: add scoring for shields and monasteries
-    private int calculateFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
+    private int calculateClosedFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
         int score = 0;
 
         for (Feature vertex : feature.vertexSet()) {
             score += vertex.getPointsClosed();
         }
+
+        return score;
+    }
+
+    // Calculates the value of an open feature
+    // TODO: add scoring for shields and monasteries
+    private int calculateOpenFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
+        int score = 0;
+        Feature v = feature.vertexSet().iterator().next();
+
+        if (v.getClass() != Field.class) {
+            for (Feature vertex : feature.vertexSet()) {
+                score += vertex.getPointsOpen();
+            }
+        }
+        else{
+            score += calculateFieldScore(feature);
+        }
+
+        return score;
+    }
+
+    // Scores all the fields on the board
+    private int calculateFieldScore(SimpleGraph<Feature, DefaultEdge> feature) {
+        HashSet<SimpleGraph<Feature, DefaultEdge>> adjacentCastles = new HashSet<>();
+        int score = 0;
+
+        for (Feature vertex : feature.vertexSet()) {
+            Field field = (Field) vertex;
+
+            if(!field.hasAdjacentCastle()){
+                continue;
+            }
+
+            for(SimpleGraph<Feature, DefaultEdge> castle : closedFeatures){
+                for (Feature castleVertex : field.getAdjacentCastles()){
+                    if(castle.containsVertex(castleVertex)){
+                        adjacentCastles.add(castle);
+                    }
+                }
+            }
+        }
+        score += Field.POINTS_PER_CASTLE * adjacentCastles.size();
 
         return score;
     }
