@@ -58,7 +58,7 @@ public class Tile {
                     add(CardinalPoint.NNE);
                     add(CardinalPoint.N);
                     add(CardinalPoint.NNW);
-                }}));
+                }}, false));
             }};
             add(new Field(new ArrayList<CardinalPoint>() {{
                 add(CardinalPoint.ENE);

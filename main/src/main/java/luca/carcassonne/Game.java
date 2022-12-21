@@ -1,19 +1,12 @@
 package luca.carcassonne;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Scanner;
-
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
 
 // Starts the game and handles turns and available tiles
 public class Game {
@@ -38,6 +31,7 @@ public class Game {
     private HashSet<Integer> checkedRotations;
 
     public Game(Board board) {
+        Rules rules = new Rules();
         this.board = board;
         this.players = new ArrayList<>(numberOfPLayers) {
             {
@@ -50,13 +44,14 @@ public class Game {
             }
         };
         // this.availableTiles = getRandomTiles(numberOfTiles);
-        this.availableTiles = getSmallDeckOfTiles(numberOfTiles);
+        // this.availableTiles = getSmallDeckOfTiles(numberOfTiles);
+        this.availableTiles = rules.getStandardDeckOfTiles();
         currentTile = new Tile(0, 0);
         Game.failedTiles = 0;
     }
 
     public static void main(String[] args) {
-        float times = 1000;
+        float times = 1;
         float whiteTotalScore = 0;
         float redTotalScore = 0;
         float whiteWR = 0;
@@ -64,9 +59,10 @@ public class Game {
         float ties = 0;
 
         for (int i = 0; i < times; i++) {
+            System.out.print(i);
+
             Game game = new Game(new Board());
             game.play();
-
             whiteTotalScore += game.players.get(0).getScore();
             redTotalScore += game.players.get(1).getScore();
             if (game.players.get(0).getScore() > game.players.get(1).getScore()) {
@@ -96,6 +92,8 @@ public class Game {
 
     // The main game loop
     public void play() {
+        Collections.shuffle(availableTiles);
+
         startTime = System.currentTimeMillis();
         progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
@@ -139,8 +137,11 @@ public class Game {
                 // Take a feature node from the current tile and place a meeple
                 boolean meeplePlaced = false;
 
-                Object[] filteredFeature = currentTile.getFeatures().stream().filter(f -> f.getClass() == Field.class)
-                        .toArray();
+                Object[] filteredFeature = currentTile.getFeatures().stream().toArray();
+                // Object[] filteredFeature = currentTile.getFeatures().stream().filter(f ->
+                // f.getClass() == Field.class)
+                // .toArray();
+
                 Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
 
                 meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);
@@ -160,6 +161,7 @@ public class Game {
         }
 
         board.scoreOpenFeatures();
+
         // board.printOpenFeatures();
         // board.printClosedFeatures();
         // board.printBoard();
@@ -217,7 +219,7 @@ public class Game {
     // Returns a few properly setup tiles
     private Stack<Tile> getSmallDeckOfTiles(int n) {
         Stack<Tile> tiles = new Stack<>();
-        n = n / 4;
+        n = n / 5;
 
         for (int i = 0; i < n; i++) {
 
@@ -253,7 +255,7 @@ public class Game {
 
                         }
                     }));
-            
+
             // Curvy road
             tiles.push(new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD,
                     new HashSet<>() {
@@ -286,7 +288,6 @@ public class Game {
 
                         }
                     }));
-            
 
             // Curvy castle no road
             tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD,
@@ -303,7 +304,7 @@ public class Game {
                                             add(CardinalPoint.E);
                                             add(CardinalPoint.ESE);
                                         }
-                                    }));
+                                    }, false));
                                 }
                             };
                             add(new Field(new ArrayList<CardinalPoint>() {
@@ -332,7 +333,7 @@ public class Game {
                                             add(CardinalPoint.N);
                                             add(CardinalPoint.NNW);
                                         }
-                                    }));
+                                    }, false));
                                 }
                             };
                             add(new Field(new ArrayList<CardinalPoint>() {
@@ -353,6 +354,29 @@ public class Game {
                         }
                     }));
 
+            // Monastery, all field
+            tiles.push(new Tile(SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD,
+                    new HashSet<>() {
+                        {
+                            add(new Field(new ArrayList<CardinalPoint>() {
+                                {
+                                    add(CardinalPoint.NNW);
+                                    add(CardinalPoint.N);
+                                    add(CardinalPoint.NNE);
+                                    add(CardinalPoint.ENE);
+                                    add(CardinalPoint.E);
+                                    add(CardinalPoint.ESE);
+                                    add(CardinalPoint.SSE);
+                                    add(CardinalPoint.S);
+                                    add(CardinalPoint.SSW);
+                                    add(CardinalPoint.WSW);
+                                    add(CardinalPoint.W);
+                                    add(CardinalPoint.WNW);
+                                }
+                            }, new HashSet<>()));
+                            add(new Monastery());
+                        }
+                    }));
         }
 
         return tiles;

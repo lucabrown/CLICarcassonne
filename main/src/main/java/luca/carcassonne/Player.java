@@ -1,7 +1,7 @@
 package luca.carcassonne;
 
 public class Player {
-    public static final Integer MAX_MEEPLES = 1000;
+    public static final Integer MAX_MEEPLES = 7;
     Colour colour;
     Integer score;
     Integer availableMeeples;

@@ -26,6 +26,7 @@ public class Board {
     private Integer minX;
     private Tile startingTile;
     private ArrayList<Tile> placedTiles;
+    private HashSet<Tile> monasteryTiles;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> openFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> closedFeatures;
@@ -45,6 +46,7 @@ public class Board {
                 add(startingTile);
             }
         };
+        monasteryTiles = new HashSet<>();
         possibleCoordinates = new ArrayList<>() {
             {
                 startingTile.getAdjacentCoordinates().forEach(coordinate -> {
@@ -140,6 +142,11 @@ public class Board {
             int position = getRelativePosition(tile, newTile.getCoordinates());
 
             linkFeatures(tile, newTile, position);
+        }
+
+        if (newTile.getFeatures().stream().anyMatch(c -> c instanceof Monastery)) {
+            // System.out.println("Tile has monastery");
+            monasteryTiles.add(newTile);
         }
     }
 
@@ -281,6 +288,8 @@ public class Board {
                 newGraph.addVertex(newFeature);
                 allFeatures.add(newGraph);
                 openFeatures.add(newGraph);
+
+                checkIfMonasteriesAreComplete();
             } else if (newFeature.getClass() != Field.class) {
                 checkIfFeatureIsComplete(newFeature);
             }
@@ -296,12 +305,34 @@ public class Board {
 
                 if (totalEdges != 0 && (newFeature.getClass() == Castle.class && totalCardinalPoints / totalEdges == 6
                         || newFeature.getClass() == Road.class && totalCardinalPoints / totalEdges == 2)) {
+
                     newlyClosedFeatures.add(graph);
                     closedFeatures.add(graph);
                     openFeatures.remove(graph);
                 }
 
                 break;
+            }
+        }
+    }
+
+    // Checks if monasteries are closed
+    private void checkIfMonasteriesAreComplete() {
+        for (Tile monastery : monasteryTiles) {
+            if (getSurroundingTiles(monastery) == 8) {
+                SimpleGraph<Feature, DefaultEdge> newGraph;
+
+                for (SimpleGraph<Feature, DefaultEdge> g : openFeatures) {
+                    if (g.containsVertex(monastery.getFeatures().iterator().next())) {
+                        newGraph = g;
+
+                        newlyClosedFeatures.add(newGraph);
+                        closedFeatures.add(newGraph);
+                        openFeatures.remove(newGraph);
+
+                        break;
+                    }
+                }
             }
         }
     }
@@ -326,6 +357,10 @@ public class Board {
         }
 
         for (SimpleGraph<Feature, DefaultEdge> feature : newlyClosedFeatures) {
+            if (feature.vertexSet().iterator().next().getClass() == Field.class) {
+                continue;
+            }
+
             List<Player> owners = new ArrayList<>();
             int score = 0;
 
@@ -364,8 +399,9 @@ public class Board {
                 continue;
             }
 
-            // System.out.println("Scoring " + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
-            //         + owners.iterator().next().getColour() + " worth " + score + " points");
+            // System.out.println("Scoring " +
+            // feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+            // + owners.iterator().next().getColour() + " worth " + score + " points");
 
             for (Player owner : owners) {
                 owner.addScore(score);
@@ -423,11 +459,17 @@ public class Board {
     }
 
     // Calculates the value of a closed feature
-    // TODO: add scoring for shields and monasteries
     private int calculateClosedFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
         int score = 0;
-
         for (Feature vertex : feature.vertexSet()) {
+            if (vertex.getClass() == Castle.class && ((Castle) vertex).hasShield()) {
+                score += 2 + vertex.getPointsClosed();
+                continue;
+            } else if (vertex.getClass() == Monastery.class) {
+                score += 9;
+                continue;
+            }
+
             score += vertex.getPointsClosed();
         }
 
@@ -435,17 +477,23 @@ public class Board {
     }
 
     // Calculates the value of an open feature
-    // TODO: add scoring for shields and monasteries
     private int calculateOpenFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
         int score = 0;
         Feature v = feature.vertexSet().iterator().next();
 
         if (v.getClass() != Field.class) {
             for (Feature vertex : feature.vertexSet()) {
+                if (vertex.getClass() == Castle.class && ((Castle) vertex).hasShield()) {
+                    score += 1 + vertex.getPointsClosed();
+                    continue;
+                } else if (vertex.getClass() == Monastery.class) {
+                    Tile monasteryTile = getTileFromFeature(vertex);
+                    score += 1 + getSurroundingTiles(monasteryTile);
+                    continue;
+                }
                 score += vertex.getPointsOpen();
             }
-        }
-        else{
+        } else {
             score += calculateFieldScore(feature);
         }
 
@@ -460,13 +508,13 @@ public class Board {
         for (Feature vertex : feature.vertexSet()) {
             Field field = (Field) vertex;
 
-            if(!field.hasAdjacentCastle()){
+            if (!field.hasAdjacentCastle()) {
                 continue;
             }
 
-            for(SimpleGraph<Feature, DefaultEdge> castle : closedFeatures){
-                for (Feature castleVertex : field.getAdjacentCastles()){
-                    if(castle.containsVertex(castleVertex)){
+            for (SimpleGraph<Feature, DefaultEdge> castle : closedFeatures) {
+                for (Feature castleVertex : field.getAdjacentCastles()) {
+                    if (castle.containsVertex(castleVertex)) {
                         adjacentCastles.add(castle);
                     }
                 }
@@ -495,6 +543,45 @@ public class Board {
         }
 
         return pos;
+    }
+
+    // Returns the number of tiles surrounding the given tile (used for scoring
+    // monasteries)
+    private int getSurroundingTiles(Tile tile) {
+        int nSurroundingTiles = 0;
+        HashSet<Coordinates> surroundingCoordinates = new HashSet<>() {
+            {
+                add(new Coordinates(tile.getCoordinates().getX() + 1, tile.getCoordinates().getY()));
+                add(new Coordinates(tile.getCoordinates().getX() - 1, tile.getCoordinates().getY()));
+                add(new Coordinates(tile.getCoordinates().getX(), tile.getCoordinates().getY() + 1));
+                add(new Coordinates(tile.getCoordinates().getX(), tile.getCoordinates().getY() - 1));
+                add(new Coordinates(tile.getCoordinates().getX() + 1, tile.getCoordinates().getY() + 1));
+                add(new Coordinates(tile.getCoordinates().getX() - 1, tile.getCoordinates().getY() - 1));
+                add(new Coordinates(tile.getCoordinates().getX() + 1, tile.getCoordinates().getY() - 1));
+                add(new Coordinates(tile.getCoordinates().getX() - 1, tile.getCoordinates().getY() + 1));
+
+            }
+        };
+
+        for (Coordinates c : surroundingCoordinates) {
+            if (getTileFromCoordinates(c) != null) {
+                nSurroundingTiles++;
+            }
+        }
+
+        return nSurroundingTiles;
+    }
+
+    private Tile getTileFromFeature(Feature feature) {
+        for (Tile tile : placedTiles) {
+            for (Feature f : tile.getFeatures()) {
+                if (f.equals(feature)) {
+                    return tile;
+                }
+            }
+        }
+
+        return null;
     }
 
     public Tile getTileFromCoordinates(Coordinates coordinates) {
