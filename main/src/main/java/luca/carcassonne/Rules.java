@@ -38,7 +38,7 @@ public class Rules {
                             }, new HashSet<>()));
                             add(new Monastery());
                         }
-                    }));
+                    }, "Monastery"));
         }
 
         // 2x Monasteries with road
@@ -68,7 +68,7 @@ public class Rules {
                                 }
                             }));
                         }
-                    }));
+                    }, "Monastery with road"));
         }
 
         // 8x Straight road
@@ -103,7 +103,7 @@ public class Rules {
                             }, castles));
 
                         }
-                    }));
+                    }, "Straight road"));
         }
 
         // 9x Curvy road
@@ -138,7 +138,7 @@ public class Rules {
                             }, castles));
 
                         }
-                    }));
+                    }, "Curvy road"));
         }
 
         // 4x Three road intersection
@@ -185,7 +185,7 @@ public class Rules {
                                 }
                             }, castles));
                         }
-                    }));
+                    }, "Three road intersection"));
         }
 
         // 1x Four road intersection
@@ -239,7 +239,7 @@ public class Rules {
                                 }
                             }, castles));
                         }
-                    }));
+                    }, "Four road intersection"));
         }
 
         // 5x Single castle
@@ -275,11 +275,11 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Single castle"));
         }
 
         // 4x Single castle with straight road
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             tiles.push(new Tile(SideFeature.CASTLE, SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD,
                     new HashSet<Feature>() {
                         {
@@ -319,7 +319,7 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Single castle with straight road"));
         }
 
         // 3x Single castle with curvy road left
@@ -363,7 +363,7 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Single castle with curvy road left"));
         }
 
         // 3x Single castle with curvy road right
@@ -407,12 +407,12 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Single castle with curvy road right"));
         }
 
         // 3x Single castle with three road intersection
         for (int i = 0; i < 3; i++) {
-            tiles.push(new Tile(SideFeature.FIELD, SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD,
+            tiles.push(new Tile(SideFeature.CASTLE, SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD,
                     new HashSet<>() {
                         {
                             HashSet<Castle> castles = new HashSet<>() {
@@ -468,7 +468,7 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Single castle with three road intersection"));
 
         }
 
@@ -509,7 +509,7 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Long castle"));
         }
 
         // 3x Curvy castle
@@ -544,7 +544,7 @@ public class Rules {
                             add(castles.iterator().next());
 
                         }
-                    }));
+                    }, "Curvy castle"));
         }
 
         // 3x Two single castles opposite
@@ -584,7 +584,7 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Two single castles opposite"));
         }
 
         // 2x Two single castles adjacent
@@ -624,7 +624,7 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Two single castles adjacent"));
         }
 
         // 3x Curvy castle with curvy road
@@ -666,7 +666,7 @@ public class Rules {
                             }));
                             add(castles.iterator().next());
                         }
-                    }));
+                    }, "Curvy castle with curvy road"));
         }
 
         // 2x Straight castle with shield
@@ -706,7 +706,7 @@ public class Rules {
                                 add(castle);
                             }
                         }
-                    }));
+                    }, "Straight castle with shield"));
         }
 
         // 2x Curvy castle with shield
@@ -741,7 +741,7 @@ public class Rules {
                             add(castles.iterator().next());
 
                         }
-                    }));
+                    }, "Curvy castle with shield"));
         }
 
         // 2x Curvy castle with shield with curvy road
@@ -783,7 +783,7 @@ public class Rules {
                             }));
                             add(castles.iterator().next());
                         }
-                    }));
+                    }, "Curvy castle with shield with curvy road"));
         }
 
         // 3x Big castle tiny field
@@ -817,11 +817,11 @@ public class Rules {
                             }, castles));
                             add(castles.iterator().next());
                         }
-                    }));
+                    }, "Big castle tiny field"));
         }
 
-        // 3x Big castle tiny field with road
-        for (int i = 0; i < 3; i++) {
+        // 1x Big castle tiny field with road
+        for (int i = 0; i < 1; i++) {
             tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.ROAD, SideFeature.CASTLE,
                     new HashSet<>() {
                         {
@@ -859,7 +859,7 @@ public class Rules {
                             }));
                             add(castles.iterator().next());
                         }
-                    }));
+                    }, "Big castle tiny field with road"));
         }
 
         // 1x Big castle with shield tiny field
@@ -893,7 +893,7 @@ public class Rules {
                             }, castles));
                             add(castles.iterator().next());
                         }
-                    }));
+                    }, "Big castle with shield tiny field"));
         }
  
         // 2x Big castle with shield tiny field with road
@@ -935,7 +935,7 @@ public class Rules {
                             }));
                             add(castles.iterator().next());
                         }
-                    }));
+                    }, "Big castle with shield tiny field with road"));
         }
 
         // 1x Huge castle
@@ -962,7 +962,7 @@ public class Rules {
                             };
                             add(castles.iterator().next());
                         }
-                    }));
+                    }, "Huge castle"));
         }
 
 

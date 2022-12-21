@@ -6,6 +6,7 @@ import java.util.HashSet;
 // The main Tile object. The 4 sides are represented by side features, arranged clockwise 
 // from the top: north, east, south, west.
 public class Tile {
+    private String id;
     private ArrayList<SideFeature> sideFeatures;
     private Coordinates coordinates;
     private ArrayList<Coordinates> adjacentCoordinates;
@@ -23,7 +24,7 @@ public class Tile {
         features = new HashSet<>();
     }
 
-    Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, HashSet<Feature> features) {
+    Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, HashSet<Feature> features, String id) {
         this.sideFeatures = new ArrayList<>() {{
             add(north);
             add(east);
@@ -32,6 +33,7 @@ public class Tile {
         }};
         adjacentCoordinates = new ArrayList<>();
         this.features = features;
+        this.id = id;
     }
 
     Tile(Integer x, Integer y) {
@@ -187,6 +189,10 @@ public class Tile {
 
     public ArrayList<SideFeature> getSideFeatures() {
         return sideFeatures;
+    }
+
+    public String getId() {
+        return id;
     }
 
     @Override

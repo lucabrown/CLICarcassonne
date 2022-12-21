@@ -303,8 +303,9 @@ public class Board {
                 int totalCardinalPoints = graph.vertexSet().stream().mapToInt(f -> f.getCardinalPoints().size()).sum();
                 int totalEdges = graph.edgeSet().size();
 
-                if (totalEdges != 0 && (newFeature.getClass() == Castle.class && totalCardinalPoints / totalEdges == 6
-                        || newFeature.getClass() == Road.class && totalCardinalPoints / totalEdges == 2)) {
+                if (totalEdges != 0 && totalCardinalPoints % totalEdges == 0
+                        && (newFeature.getClass() == Castle.class && totalCardinalPoints / totalEdges == 6
+                                || newFeature.getClass() == Road.class && totalCardinalPoints / totalEdges == 2)) {
 
                     newlyClosedFeatures.add(graph);
                     closedFeatures.add(graph);
@@ -373,9 +374,9 @@ public class Board {
 
             for (Player owner : owners) {
                 owner.addScore(score);
-                // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
-                // + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
-                // + owner.getColour() + " worth " + score + " points");
+                System.out.println("Scored a " + feature.vertexSet().size() + " tile "
+                        + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                        + owner.getColour() + " worth " + score + " points");
             }
 
         }
@@ -405,9 +406,10 @@ public class Board {
 
             for (Player owner : owners) {
                 owner.addScore(score);
-                // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
-                // + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
-                // + owner.getColour() + " worth " + score + " points");
+                System.out.println("Scored a " + feature.vertexSet().size() + " tile "
+                        + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                        + owner.getColour() + " worth " + score + " points ("
+                        + getTileFromFeature(feature.vertexSet().iterator().next()).getCoordinates() + ")");
             }
 
         }
@@ -682,7 +684,10 @@ public class Board {
         System.out.println("\n");
         for (SimpleGraph<Feature, DefaultEdge> graph : closedFeatures) {
             System.out.println(
-                    graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
+                    graph.vertexSet().stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList())
+                            + ""
+                            + getTileFromFeature(graph.vertexSet().iterator().next()).getCoordinates()
+                            + "");
         }
     }
 
