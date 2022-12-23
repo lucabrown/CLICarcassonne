@@ -38,14 +38,7 @@ public class Tile {
 
     Tile(Integer x, Integer y) {
         this.coordinates = new Coordinates(x, y);
-        this.sideFeatures = new ArrayList<SideFeature>() {
-            {
-                add(SideFeature.CASTLE);
-                add(SideFeature.ROAD);
-                add(SideFeature.FIELD);
-                add(SideFeature.ROAD);
-            }
-        };
+        this.sideFeatures = Rules.STARTING_TILE.getSideFeatures();
         this.adjacentCoordinates = new ArrayList<Coordinates>() {
             {
                 add(new Coordinates(x, y + 1));
@@ -54,31 +47,7 @@ public class Tile {
                 add(new Coordinates(x - 1, y));
             }
         };
-        features = new HashSet<Feature>() {{
-            HashSet<Castle> castles = new HashSet<Castle>() {{
-                add(new Castle(new ArrayList<CardinalPoint>() {{
-                    add(CardinalPoint.NNE);
-                    add(CardinalPoint.N);
-                    add(CardinalPoint.NNW);
-                }}, false));
-            }};
-            add(new Field(new ArrayList<CardinalPoint>() {{
-                add(CardinalPoint.ENE);
-                add(CardinalPoint.WNW);
-            }}, castles));
-            add(new Road(new ArrayList<CardinalPoint>() {{
-                add(CardinalPoint.E);
-                add(CardinalPoint.W);
-            }}));
-            add(new Field(new ArrayList<CardinalPoint>() {{
-                add(CardinalPoint.ESE);
-                add(CardinalPoint.SSE);
-                add(CardinalPoint.S);
-                add(CardinalPoint.SSW);
-                add(CardinalPoint.WSW);
-            }}, new HashSet<Castle>()));
-            add(castles.iterator().next());
-        }};
+        features = Rules.STARTING_TILE.getFeatures();
     }
 
     public Coordinates getCoordinates() {

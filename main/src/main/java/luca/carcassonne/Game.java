@@ -31,7 +31,6 @@ public class Game {
     private HashSet<Integer> checkedRotations;
 
     public Game(Board board) {
-        Rules rules = new Rules();
         this.board = board;
         this.players = new ArrayList<>(numberOfPLayers) {
             {

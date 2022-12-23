@@ -36,7 +36,8 @@ public class Board {
     public Board() {
         this.height = 1;
         this.width = 1;
-        this.startingTile = new Tile(0, 0);
+        this.startingTile = Rules.STARTING_TILE;
+        startingTile.setCoordinates(new Coordinates(0, 0));
         this.maxY = startingTile.getCoordinates().getY();
         this.maxX = startingTile.getCoordinates().getX();
         this.minY = maxY;
@@ -598,6 +599,10 @@ public class Board {
 
     public int getPlacedTilesSize() {
         return placedTiles.size();
+    }
+
+    public ArrayList<Tile> getPlacedTiles() {
+        return placedTiles;
     }
 
     public Integer getWidth() {
