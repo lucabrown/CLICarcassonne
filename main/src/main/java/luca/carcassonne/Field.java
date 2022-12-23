@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Field extends Feature{
-    protected static final Integer POINTS_PER_CASTLE = 3;
     HashSet<Castle> adjacentCastles;
 
     Field(ArrayList<CardinalPoint> cardinalPoints, HashSet<Castle> adjacentCastles) {

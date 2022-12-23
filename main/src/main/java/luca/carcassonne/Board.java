@@ -143,11 +143,6 @@ public class Board {
 
             linkFeatures(tile, newTile, position);
         }
-
-        if (newTile.getFeatures().stream().anyMatch(c -> c instanceof Monastery)) {
-            // System.out.println("Tile has monastery");
-            monasteryTiles.add(newTile);
-        }
     }
 
     // Checks if the tile's placement is legal
@@ -285,15 +280,22 @@ public class Board {
             if (!featureLinked) {
                 SimpleGraph<Feature, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
                 // System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
+
+                if (newFeature instanceof Monastery) {
+                    System.out.println("Tile has monastery");
+                    monasteryTiles.add(newTile);
+                }
+
                 newGraph.addVertex(newFeature);
                 allFeatures.add(newGraph);
                 openFeatures.add(newGraph);
 
-                checkIfMonasteriesAreComplete();
             } else if (newFeature.getClass() != Field.class) {
                 checkIfFeatureIsComplete(newFeature);
             }
         }
+
+        checkIfMonasteriesAreComplete();
     }
 
     // Finds the graph that contains the new feature and checks if it's closed
@@ -465,7 +467,7 @@ public class Board {
         int score = 0;
         for (Feature vertex : feature.vertexSet()) {
             if (vertex.getClass() == Castle.class && ((Castle) vertex).hasShield()) {
-                score += 2 + vertex.getPointsClosed();
+                score += Rules.SHIELD_POINTS_CLOSED + vertex.getPointsClosed();
                 continue;
             } else if (vertex.getClass() == Monastery.class) {
                 score += 9;
@@ -486,7 +488,7 @@ public class Board {
         if (v.getClass() != Field.class) {
             for (Feature vertex : feature.vertexSet()) {
                 if (vertex.getClass() == Castle.class && ((Castle) vertex).hasShield()) {
-                    score += 1 + vertex.getPointsClosed();
+                    score += Rules.SHIELD_POINTS_OPEN + vertex.getPointsClosed();
                     continue;
                 } else if (vertex.getClass() == Monastery.class) {
                     Tile monasteryTile = getTileFromFeature(vertex);
@@ -522,7 +524,7 @@ public class Board {
                 }
             }
         }
-        score += Field.POINTS_PER_CASTLE * adjacentCastles.size();
+        score += Rules.FIELD_POINTS_PER_CASTLE * adjacentCastles.size();
 
         return score;
     }

@@ -45,7 +45,7 @@ public class Game {
         };
         // this.availableTiles = getRandomTiles(numberOfTiles);
         // this.availableTiles = getSmallDeckOfTiles(numberOfTiles);
-        this.availableTiles = rules.getStandardDeckOfTiles();
+        this.availableTiles = Rules.STANDARD_DECK;
         currentTile = new Tile(0, 0);
         Game.failedTiles = 0;
     }
