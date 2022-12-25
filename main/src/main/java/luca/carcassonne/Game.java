@@ -44,7 +44,7 @@ public class Game {
         };
         // this.availableTiles = getRandomTiles(numberOfTiles);
         // this.availableTiles = getSmallDeckOfTiles(numberOfTiles);
-        this.availableTiles = Rules.STANDARD_DECK;
+        this.availableTiles = Rules.getStandardDeck();
         currentTile = new Tile(0, 0);
         Game.failedTiles = 0;
     }
@@ -60,7 +60,7 @@ public class Game {
         for (int i = 0; i < times; i++) {
             System.out.print(i);
 
-            Game game = new Game(new Board());
+            Game game = new Game(new Board(Rules.getStartingTile()));
             game.play();
             whiteTotalScore += game.players.get(0).getScore();
             redTotalScore += game.players.get(1).getScore();
@@ -143,8 +143,14 @@ public class Game {
                 // f.getClass() == Field.class)
                 // .toArray();
 
+
                 Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
 
+                while (randomFeature.getClass() == Field.class && random.nextInt(10) < 7) {
+                    randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
+                }
+
+                
                 // place meeple with 30% chance
                 if (random.nextInt(10) < 3) {
                     meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);

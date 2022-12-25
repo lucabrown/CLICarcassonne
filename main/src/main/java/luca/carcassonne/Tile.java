@@ -38,7 +38,7 @@ public class Tile {
 
     Tile(Integer x, Integer y) {
         this.coordinates = new Coordinates(x, y);
-        this.sideFeatures = Rules.STARTING_TILE.getSideFeatures();
+        this.sideFeatures = Rules.getStartingTile().getSideFeatures();
         this.adjacentCoordinates = new ArrayList<Coordinates>() {
             {
                 add(new Coordinates(x, y + 1));
@@ -47,7 +47,7 @@ public class Tile {
                 add(new Coordinates(x - 1, y));
             }
         };
-        features = Rules.STARTING_TILE.getFeatures();
+        features = Rules.getStartingTile().getFeatures();
     }
 
     public Coordinates getCoordinates() {
@@ -79,6 +79,10 @@ public class Tile {
             sideFeatures.add(0, west);
             rotateSideFeaturesClockwise();
         }
+    }
+
+    public void rotateClockwise() {
+        rotateClockwise(1);
     }
 
     private void rotateSideFeaturesClockwise() {

@@ -3,6 +3,7 @@ package luca.carcassonne;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,10 +34,10 @@ public class Board {
     private HashSet<SimpleGraph<Feature, DefaultEdge>> newlyClosedFeatures;
     private ArrayList<Coordinates> possibleCoordinates;
 
-    public Board() {
+    public Board(Tile startingTile) {
         this.height = 1;
         this.width = 1;
-        this.startingTile = Rules.STARTING_TILE;
+        this.startingTile = startingTile;
         startingTile.setCoordinates(new Coordinates(0, 0));
         this.maxY = startingTile.getCoordinates().getY();
         this.maxX = startingTile.getCoordinates().getX();
@@ -322,13 +323,20 @@ public class Board {
 
     // Checks if monasteries are closed
     private void checkIfMonasteriesAreComplete() {
-        for (Tile monastery : monasteryTiles) {
-            if (getSurroundingTiles(monastery) == 8) {
+        for (Tile monasteryTile : monasteryTiles) {
+            final Iterator<Feature> it = monasteryTile.getFeatures().iterator();
+            Feature monastery = it.next(); 
+
+            while(!(monastery instanceof Monastery)){
+                monastery = it.next();
+            }
+
+            if (getSurroundingTiles(monasteryTile) == 8) {
                 SimpleGraph<Feature, DefaultEdge> newGraph;
 
-                for (SimpleGraph<Feature, DefaultEdge> g : openFeatures) {
-                    if (g.containsVertex(monastery.getFeatures().iterator().next())) {
-                        newGraph = g;
+                for (SimpleGraph<Feature, DefaultEdge> openGraph : openFeatures) {
+                    if (openGraph.containsVertex(monasteryTile.getFeatures().iterator().next())) {
+                        newGraph = openGraph;
 
                         newlyClosedFeatures.add(newGraph);
                         closedFeatures.add(newGraph);
@@ -615,6 +623,10 @@ public class Board {
 
     public HashSet<SimpleGraph<Feature, DefaultEdge>> getNewlyClosedFeatures() {
         return newlyClosedFeatures;
+    }
+
+    public HashSet<SimpleGraph<Feature, DefaultEdge>> getClosedFeatures() {
+        return closedFeatures;
     }
 
     public HashSet<SimpleGraph<Feature, DefaultEdge>> getOpenFeatures() {
