@@ -140,11 +140,16 @@ public class Board {
                 .filter(e -> e.getAdjacentCoordinates().contains(newTile.getCoordinates()))
                 .collect(Collectors.toList());
 
+        HashMap<Feature, Integer> featuresToConnect = new HashMap<>();
+
         for (Tile tile : tilesToCheck) {
             int position = getRelativePosition(tile, newTile.getCoordinates());
-
-            linkFeatures(tile, newTile, position);
+            for (Feature feature : tile.getFeatures()) {
+                featuresToConnect.put(feature, position);
+            }
         }
+
+        linkFeatures(featuresToConnect, newTile);
     }
 
     // Checks if the tile's placement is legal
@@ -190,15 +195,16 @@ public class Board {
     }
 
     // Links the new open features to the existing graphs.
-    private void linkFeatures(Tile tile, Tile newTile, int position) {
+    private void linkFeatures(HashMap<Feature, Integer> featuresToConnect, Tile newTile) {
         boolean featureLinked = false;
         newlyClosedFeatures.clear();
 
         for (Feature newFeature : newTile.getFeatures()) {
             featureLinked = false;
-            switch (position) {
-                case 0:
-                    for (Feature feature : tile.getFeatures()) {
+
+            for (Feature feature : featuresToConnect.keySet()) {
+                switch (featuresToConnect.get(feature)) {
+                    case 0:
                         if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.SSW)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.NNW)) {
@@ -215,10 +221,8 @@ public class Board {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
-                    }
-                    break;
-                case 1:
-                    for (Feature feature : tile.getFeatures()) {
+                        break;
+                    case 1:
                         if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.WSW)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.ESE)) {
@@ -235,10 +239,8 @@ public class Board {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
-                    }
-                    break;
-                case 2:
-                    for (Feature feature : tile.getFeatures()) {
+                        break;
+                    case 2:
                         if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.NNE)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.SSE)) {
@@ -255,10 +257,8 @@ public class Board {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
-                    }
-                    break;
-                case 3:
-                    for (Feature feature : tile.getFeatures()) {
+                        break;
+                    case 3:
                         if (feature.getClass() == newFeature.getClass()
                                 && feature.getCardinalPoints().contains(CardinalPoint.ESE)
                                 && newFeature.getCardinalPoints().contains(CardinalPoint.WSW)) {
@@ -275,8 +275,8 @@ public class Board {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
-                    }
-                    break;
+                        break;
+                }
             }
 
             if (!featureLinked) {
@@ -292,7 +292,7 @@ public class Board {
                 allFeatures.add(newGraph);
                 openFeatures.add(newGraph);
 
-            } else if (newFeature.getClass() != Field.class) {
+            } else if (newFeature.getClass() != Field.class && newFeature.getClass() != Monastery.class) {
                 checkIfFeatureIsComplete(newFeature);
             }
         }
@@ -323,30 +323,33 @@ public class Board {
 
     // Checks if monasteries are closed
     private void checkIfMonasteriesAreComplete() {
+        HashSet<Tile> tilesToDelete = new HashSet<>();
+
         for (Tile monasteryTile : monasteryTiles) {
-            final Iterator<Feature> it = monasteryTile.getFeatures().iterator();
-            Feature monastery = it.next(); 
-
-            while(!(monastery instanceof Monastery)){
-                monastery = it.next();
-            }
-
             if (getSurroundingTiles(monasteryTile) == 8) {
-                SimpleGraph<Feature, DefaultEdge> newGraph;
+                System.out.println("-------------------------------------------------------Monastery closed");
+                Iterator<Feature> it = monasteryTile.getFeatures().iterator();
+                Feature monastery = it.next();
+
+                while (!(monastery instanceof Monastery)) {
+                    monastery = it.next();
+                }
 
                 for (SimpleGraph<Feature, DefaultEdge> openGraph : openFeatures) {
-                    if (openGraph.containsVertex(monasteryTile.getFeatures().iterator().next())) {
-                        newGraph = openGraph;
+                    if (openGraph.containsVertex(monastery)) {
 
-                        newlyClosedFeatures.add(newGraph);
-                        closedFeatures.add(newGraph);
-                        openFeatures.remove(newGraph);
+                        newlyClosedFeatures.add(openGraph);
+                        closedFeatures.add(openGraph);
+                        openFeatures.remove(openGraph);
+                        tilesToDelete.add(monasteryTile);
 
                         break;
                     }
                 }
             }
         }
+
+        monasteryTiles.removeAll(tilesToDelete);
     }
 
     // Connects a feature to an existing graph.

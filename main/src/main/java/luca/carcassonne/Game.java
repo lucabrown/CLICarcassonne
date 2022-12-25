@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
+
+import javax.annotation.processing.Filer;
+
 import java.util.Scanner;
 
 // Starts the game and handles turns and available tiles
@@ -142,7 +145,7 @@ public class Game {
                 // Object[] filteredFeature = currentTile.getFeatures().stream().filter(f ->
                 // f.getClass() == Field.class)
                 // .toArray();
-
+                
 
                 Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
 
@@ -150,7 +153,6 @@ public class Game {
                     randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
                 }
 
-                
                 // place meeple with 30% chance
                 if (random.nextInt(10) < 3) {
                     meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);
