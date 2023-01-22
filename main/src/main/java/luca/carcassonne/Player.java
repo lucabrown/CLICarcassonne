@@ -2,6 +2,7 @@ package luca.carcassonne;
 
 public class Player {
     public static final Integer MAX_MEEPLES = 7;
+    Behaviour behaviour;
     Colour colour;
     Integer score;
     Integer availableMeeples;
@@ -10,6 +11,7 @@ public class Player {
         this.colour = colour;
         this.score = 0;
         this.availableMeeples = MAX_MEEPLES;
+        behaviour = new Behaviour();
     }
 
     public Integer getScore() {
@@ -37,5 +39,9 @@ public class Player {
 
     public Colour getColour() {
         return colour;
+    }
+
+    public boolean isHuman() {
+        return true;
     }
 }

@@ -63,7 +63,7 @@ public class Game {
         for (int i = 0; i < times; i++) {
             System.out.print(i);
 
-            Game game = new Game(new Board(Rules.getStartingTile()));
+            Game game = new Game(new Board(Rules.getSingleCastleWithStraightRoad()));
             game.play();
             whiteTotalScore += game.players.get(0).getScore();
             redTotalScore += game.players.get(1).getScore();
@@ -110,6 +110,12 @@ public class Game {
 
             currentPlayer = players.get(0);
             currentTile = availableTiles.pop();
+            
+
+            System.out.println("- - - - - - - - - -");
+            System.out.println(currentPlayer.getColour() + "'s turn.");
+            System.out.println("Current tile: " + currentTile.getId());
+            System.out.println("- - - - - - - - - -");
 
             while (!isPlaced) {
                 triedPlacements++;
@@ -136,7 +142,7 @@ public class Game {
             }
 
             if (playerPlacedTile) {
-                System.out.println("Placing " + currentTile.getId() + " at " + currentTile.getCoordinates() + " (" + currentTile + ")");
+                // System.out.println("Placing " + currentTile.getId() + " at " + currentTile.getCoordinates() + " (" + currentTile + ")");
 
                 // Take a feature node from the current tile and place a meeple
                 boolean meeplePlaced = false;
@@ -159,9 +165,9 @@ public class Game {
                 }
                 // meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);
 
-                if (meeplePlaced) {
-                    System.out.println(currentPlayer.getColour() + " placed meeple on " + randomFeature.getClass().getSimpleName() + "(" + (randomFeature.getCardinalPoints().isEmpty() ? "null" : randomFeature.getCardinalPoints().get(0)) + ")");
-                }
+                // if (meeplePlaced) {
+                //     System.out.println(currentPlayer.getColour() + " placed meeple on " + randomFeature.getClass().getSimpleName() + "(" + (randomFeature.getCardinalPoints().isEmpty() ? "null" : randomFeature.getCardinalPoints().get(0)) + ")");
+                // }
 
                 currentTile.setOwner(currentPlayer); // to delete
 
@@ -176,7 +182,7 @@ public class Game {
         board.scoreOpenFeatures();
 
         // board.printOpenFeatures();
-        board.printClosedFeatures();
+        // board.printClosedFeatures();
         board.printBoard();
         printScores();
 

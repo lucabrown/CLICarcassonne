@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
@@ -284,7 +286,6 @@ public class Board {
                 // System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
 
                 if (newFeature instanceof Monastery) {
-                    System.out.println("Tile has monastery");
                     monasteryTiles.add(newTile);
                 }
 
@@ -327,7 +328,6 @@ public class Board {
 
         for (Tile monasteryTile : monasteryTiles) {
             if (getSurroundingTiles(monasteryTile) == 8) {
-                System.out.println("-------------------------------------------------------Monastery closed");
                 Iterator<Feature> it = monasteryTile.getFeatures().iterator();
                 Feature monastery = it.next();
 
@@ -354,13 +354,30 @@ public class Board {
 
     // Connects a feature to an existing graph.
     private void addFeaturesEdge(Feature feature, Feature newFeature) {
+        SimpleGraph<Feature, DefaultEdge> belongingGraph = null;
+        boolean foundBelongingGraph = false;
         for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
-            if (graph.containsVertex(feature) && !graph.containsVertex(newFeature)) {
+            if (graph.containsVertex(feature) && !graph.containsEdge(feature, newFeature)) {
                 // System.out.println("Adding edge between " +
                 // feature.getClass().getSimpleName() + " and "
                 // + newFeature.getClass().getSimpleName());
+                for(SimpleGraph<Feature, DefaultEdge> g : openFeatures){
+                    if(g.containsVertex(newFeature)){
+                        belongingGraph = g;
+                        foundBelongingGraph = true;
+                        break;
+                    }
+                }
+
                 graph.addVertex(newFeature);
                 graph.addEdge(feature, newFeature);
+
+                if(foundBelongingGraph && belongingGraph != graph){
+                    Graphs.addGraph(graph, belongingGraph);
+                    openFeatures.remove(belongingGraph);
+                }
+
+                break;
             }
         }
     }
@@ -388,9 +405,9 @@ public class Board {
 
             for (Player owner : owners) {
                 owner.addScore(score);
-                System.out.println("Scored a " + feature.vertexSet().size() + " tile "
-                        + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
-                        + owner.getColour() + " worth " + score + " points");
+                // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
+                //         + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                //         + owner.getColour() + " worth " + score + " points");
             }
 
         }
@@ -420,10 +437,10 @@ public class Board {
 
             for (Player owner : owners) {
                 owner.addScore(score);
-                System.out.println("Scored a " + feature.vertexSet().size() + " tile "
-                        + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
-                        + owner.getColour() + " worth " + score + " points ("
-                        + getTileFromFeature(feature.vertexSet().iterator().next()).getCoordinates() + ")");
+                // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
+                //         + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                //         + owner.getColour() + " worth " + score + " points ("
+                //         + getTileFromFeature(feature.vertexSet().iterator().next()).getCoordinates() + ")");
             }
 
         }

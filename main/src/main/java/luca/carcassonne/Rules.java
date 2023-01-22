@@ -989,6 +989,16 @@ public class Rules {
         return getSingleCastleWithStraightRoad();
     }
 
+    public static final Stack<Tile> getMonasteryDeck(){
+        return new Stack<>() {
+            {
+                for(int i = 0; i < 72; i++){
+                    push(getMonastery());
+                }
+            }
+        };
+    }
+
     public static final Stack<Tile> getStandardDeck() {
         return new Stack<>() {
             {
@@ -1046,7 +1056,6 @@ public class Rules {
                 // 3x Single castle with three road intersection
                 for (int i = 0; i < N_SINGLE_CASTLE_WITH_THREE_ROAD_INTERSECTION; i++) {
                     push(getSingleCastleWithThreeRoadIntersection());
-
                 }
 
                 // 1x Long castle
