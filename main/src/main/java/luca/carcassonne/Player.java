@@ -2,10 +2,10 @@ package luca.carcassonne;
 
 public class Player {
     public static final Integer MAX_MEEPLES = 7;
-    Behaviour behaviour;
-    Colour colour;
-    Integer score;
-    Integer availableMeeples;
+    private Behaviour behaviour;
+    private Colour colour;
+    private Integer score;
+    private Integer availableMeeples;
 
     public Player(Colour colour) {
         this.colour = colour;

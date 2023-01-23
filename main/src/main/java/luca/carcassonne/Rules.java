@@ -40,6 +40,7 @@ public class Rules {
     private static final int N_BIG_CASTLE_WITH_SHIELD_WITH_ROAD = 2;
     private static final int N_HUGE_CASTLE = 1;
 
+    // [FIELD, FIELD, FIELD, FIELD]
     public static final Tile getMonastery() {
         return new Tile(SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD,
                 SideFeature.FIELD,
@@ -66,6 +67,7 @@ public class Rules {
                 }, "Monastery");
     }
 
+    // [FIELD, FIELD, ROAD, FIELD]
     public static final Tile getMonasteryWithRoad() {
         return new Tile(SideFeature.FIELD, SideFeature.FIELD, SideFeature.ROAD,
                 SideFeature.FIELD,
@@ -96,6 +98,7 @@ public class Rules {
                 }, "Monastery with road");
     }
 
+    // [ROAD, FIELD, ROAD, FIELD]
     public static final Tile getStraightRoad() {
         return new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD,
                 SideFeature.FIELD,
@@ -130,6 +133,7 @@ public class Rules {
                 }, "Straight road");
     }
 
+    // [ROAD, ROAD, FIELD, FIELD]
     public static final Tile getCurvyRoad() {
         return new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD,
                 SideFeature.FIELD,
@@ -164,6 +168,7 @@ public class Rules {
                 }, "Curvy road");
     }
 
+    // [FIELD, ROAD, ROAD, ROAD]
     public static final Tile getThreeRoadIntersection() {
         return new Tile(SideFeature.FIELD, SideFeature.ROAD, SideFeature.ROAD,
                 SideFeature.ROAD,
@@ -210,6 +215,7 @@ public class Rules {
                 }, "Three road intersection");
     }
 
+    // [ROAD, ROAD, ROAD, ROAD]
     public static final Tile getFourRoadIntersection() {
         return new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD,
                 SideFeature.ROAD,
@@ -264,6 +270,7 @@ public class Rules {
                 }, "Four road intersection");
     }
 
+    // [CASTLE, FIELD, FIELD, FIELD]
     public static final Tile getSingleCastle() {
         return new Tile(SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD,
                 SideFeature.FIELD,

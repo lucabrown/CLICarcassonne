@@ -37,6 +37,19 @@ class BoardTest {
     }
 
     @Test
+    void testTileIsPlacedAtCorrectCoordinates(){
+        Tile tile = new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.CASTLE);
+        board = new Board(startingTile);
+
+        board.placeTile(new Coordinates(0, 1), tile);
+
+        assertEquals(0, tile.getCoordinates().getX());
+        assertEquals(1, tile.getCoordinates().getY());
+    }
+
+    // PLACEMENT TESTS
+
+    @Test
     void testCastlePlacement() {
         Tile tile = new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.CASTLE);
         board = new Board(startingTile);
@@ -69,6 +82,8 @@ class BoardTest {
         assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
     }
 
+    // CLOSURE TESTS
+
     @Test
     void testClosingTwoTileCastle() {
         Board board = new Board(startingTile);
@@ -90,7 +105,7 @@ class BoardTest {
     }
 
     @Test
-    void testClosingThreeTileCastleCastle() {
+    void testClosingThreeTileCastle() {
         board = new Board(startingTile);
 
         Tile singleCastle = Rules.getSingleCastle();
@@ -119,6 +134,52 @@ class BoardTest {
         assertEquals(nClosedFeatures + 1, board.getClosedFeatures().size());
         assertEquals(nNewlyClosedFeatures + 1, board.getNewlyClosedFeatures().size());
         assertEquals(3, board.getClosedFeatures().iterator().next().vertexSet().size());
+
+    }
+
+    @Test
+    void testClsoingFourTileLoopCastle() {
+        board = new Board(Rules.getCurvyCastle());
+
+        Tile curvyCastle = Rules.getCurvyCastle();
+        curvyCastle.rotateClockwise();
+        assertTrue(board.placeTile(new Coordinates(0, 1), curvyCastle));
+        board.printOpenFeatures();
+        assertEquals(3, board.getOpenFeatures().size());
+        assertEquals(0, board.getClosedFeatures().size());
+        assertEquals(0, board.getNewlyClosedFeatures().size());
+
+
+        curvyCastle = Rules.getCurvyCastle();
+        curvyCastle.rotateClockwise(2);
+        assertTrue(board.placeTile(new Coordinates(1, 1), curvyCastle));
+        board.printOpenFeatures();
+        assertEquals(4, board.getOpenFeatures().size());
+        assertEquals(0, board.getClosedFeatures().size());
+        assertEquals(0, board.getNewlyClosedFeatures().size());
+
+
+        curvyCastle = Rules.getCurvyCastle();
+        curvyCastle.rotateClockwise(3);
+        assertTrue(board.placeTile(new Coordinates(1, 0), curvyCastle));
+        board.printOpenFeatures();
+
+
+        board.printClosedFeatures();
+        for (SimpleGraph<Feature, DefaultEdge> feature : board.getOpenFeatures()) {
+            if (feature.vertexSet().iterator().next().getClass() == Road.class) {
+                System.out.println(
+                        feature.vertexSet().stream().map(f -> f.getClass().getSimpleName())
+                                .collect(Collectors.toList()));
+                System.out.println(feature.vertexSet().stream().map(f -> f.getCardinalPoints().size()));
+                System.out.println(feature.edgeSet().size());
+
+            }
+        }
+
+        assertEquals(4, board.getOpenFeatures().size());
+        assertEquals(1, board.getClosedFeatures().size());
+        assertEquals(1, board.getNewlyClosedFeatures().size());
 
     }
 
@@ -174,7 +235,7 @@ class BoardTest {
     }
 
     @Test
-    void testFourTileLoopRoad() {
+    void testClosingFourTileLoopRoad() {
         board = new Board(Rules.getCurvyRoad());
 
         Tile curvyRoad = Rules.getCurvyRoad();
@@ -220,7 +281,7 @@ class BoardTest {
     }
 
     @Test
-    void testFourTileFourEdgeRoad(){
+    void testClosingFourTileFourEdgeRoad(){
         board = new Board(Rules.getThreeRoadIntersection());
 
         Tile curvyRoad = Rules.getCurvyRoad();
@@ -270,15 +331,256 @@ class BoardTest {
     @Test
     void testClosingMonastery() {
         board = new Board(Rules.getMonastery());
+        Player player = new Player(Colour.RED);
 
         Tile straightRoad = Rules.getStraightRoad();
-
-        int nOpenFeatures = board.getOpenFeatures().size();
-        int nClosedFeatures = board.getClosedFeatures().size();
-        int nNewlyClosedFeatures = board.getNewlyClosedFeatures().size();
-
+        straightRoad.setOwner(player);
         assertTrue(board.placeTile(new Coordinates(1, 0), straightRoad));
 
+        straightRoad = Rules.getStraightRoad();
+        straightRoad.setOwner(player);
+        assertTrue(board.placeTile(new Coordinates(-1, 0), straightRoad));
+
+        straightRoad = Rules.getStraightRoad();
+        straightRoad.rotateClockwise();
+        straightRoad.setOwner(player);
+        assertTrue(board.placeTile(new Coordinates(0, 1), straightRoad));
+
+        straightRoad = Rules.getStraightRoad();
+        straightRoad.rotateClockwise();
+        straightRoad.setOwner(player);
+        assertTrue(board.placeTile(new Coordinates(0, -1), straightRoad));
+
+        Tile curvyRoad = Rules.getCurvyRoad();
+        curvyRoad.setOwner(player);
+        assertTrue(board.placeTile(new Coordinates(-1, -1), curvyRoad));
+
+        curvyRoad = Rules.getCurvyRoad();
+        curvyRoad.rotateClockwise();
+        curvyRoad.setOwner(player);
+        assertTrue(board.placeTile(new Coordinates(-1, 1), curvyRoad));
+
+        curvyRoad = Rules.getCurvyRoad();
+        curvyRoad.rotateClockwise(2);
+        curvyRoad.setOwner(player);
+        assertTrue(board.placeTile(new Coordinates(1, 1), curvyRoad));
+
+        curvyRoad = Rules.getCurvyRoad();
+        curvyRoad.rotateClockwise(3);
+        curvyRoad.setOwner(player);
+        assertTrue(board.placeTile(new Coordinates(1, -1), curvyRoad));
+        System.out.println("After placing all tiles");
+        board.printBoard();
+
+        board.printOpenFeatures();
+        assertEquals(2, board.getOpenFeatures().size());
+        assertEquals(2, board.getClosedFeatures().size());
+        assertEquals(2, board.getNewlyClosedFeatures().size());
+    }
+
+    // MEEPLE TESTS
+
+    @Test
+    void testAddingMeepleToRoad(){
+        board = new Board(Rules.getStraightRoad());
+        Player player = new Player(Colour.RED);
+
+        Tile singleRoad = Rules.getMonasteryWithRoad();
+        Feature roadFeature = singleRoad.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        singleRoad.setOwner(player);
+
+        assertTrue(board.placeTile(new Coordinates(0, 1), singleRoad));
+        assertTrue(board.placeMeeple(roadFeature, player));
+
+        assertEquals(player, roadFeature.getOwner());
+    }
+
+    @Test
+    void testAddingMeepleToCastle(){
+        board = new Board(Rules.getHugeCastle());
+        Player player = new Player(Colour.RED);
+
+        Tile singleCastle = Rules.getHugeCastle();
+        Feature castleFeature = singleCastle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
+
+        singleCastle.setOwner(player);
+
+        assertTrue(board.placeTile(new Coordinates(0, 1), singleCastle));
+        assertTrue(board.placeMeeple(castleFeature, player));
+
+        assertEquals(player, castleFeature.getOwner());
+    }
+
+    @Test
+    void testAddingMeepleToMonastery(){
+        board = new Board(Rules.getMonastery());
+        Player player = new Player(Colour.RED);
+
+        Tile singleMonastery = Rules.getMonastery();
+        Feature monasteryFeature = singleMonastery.getFeatures().stream().filter(f -> f instanceof Monastery).findFirst().get();
+
+        singleMonastery.setOwner(player);
+
+        assertTrue(board.placeTile(new Coordinates(0, 1), singleMonastery));
+        assertTrue(board.placeMeeple(monasteryFeature, player));
+
+        assertEquals(player, monasteryFeature.getOwner());
+    }
+
+    @Test
+    void testAddingMeepleToField(){
+        board = new Board(Rules.getMonastery());
+        Player player = new Player(Colour.RED);
+
+        Tile singleField = Rules.getMonastery();
+        Feature fieldFeature = singleField.getFeatures().stream().filter(f -> f instanceof Field).findFirst().get();
+
+        singleField.setOwner(player);
+
+        assertTrue(board.placeTile(new Coordinates(0, 1), singleField));
+        assertTrue(board.placeMeeple(fieldFeature, player));
+
+        assertEquals(player, fieldFeature.getOwner());
+    }
+
+    @Test
+    void testAddingMeepleToTakenFeature(){
+        board = new Board(Rules.getHugeCastle());
+        Player player1 = new Player(Colour.RED);
+        Player player2 = new Player(Colour.BLUE);
+
+        Tile castle = Rules.getHugeCastle();
+        Feature castleFeature = castle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
+
+        castle.setOwner(player1);
+        assertTrue(board.placeTile(new Coordinates(0, 1), castle));
+        assertTrue(board.placeMeeple(castleFeature, player1));
+
+        castle = Rules.getHugeCastle();
+        castleFeature = castle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
+
+        assertTrue(board.placeTile(new Coordinates(0, -1), castle));
+        assertFalse(board.placeMeeple(castleFeature, player2));
+    }
+
+    @Test
+    void testJoiningTwoSeparatelyOwnedCastles(){
+        board = new Board(Rules.getLongCastle());
+
+        Player player1 = new Player(Colour.RED);
+        Player player2 = new Player(Colour.BLUE);
+
+        Tile castle = Rules.getLongCastle();
+        Feature castleFeature = castle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
+
+        castle.setOwner(player1);
+    
+        assertTrue(board.placeTile(new Coordinates(0, 1), castle));
+        assertTrue(board.placeMeeple(castleFeature, player1));
+
+        castle = Rules.getHugeCastle();
+        castleFeature = castle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
+
+        castle.setOwner(player2);
+        assertTrue(board.placeTile(new Coordinates(1, 0), castle));
+        assertTrue(board.placeMeeple(castleFeature, player2));
+
+        castle = Rules.getHugeCastle();
+        castleFeature = castle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
+
+        castle.setOwner(player1);
+        assertTrue(board.placeTile(new Coordinates(1, 1), castle));
+        assertTrue(board.placeMeeple(castleFeature, player1));
+    }
+
+    // SCORING TESTS
+
+    @Test
+    void testScoreClosedTwoTileRoad(){
+        board = new Board(Rules.getMonasteryWithRoad());
+        Player player = new Player(Colour.RED);
+
+        Tile singleRoad = Rules.getMonasteryWithRoad();
+        Feature roadFeature = singleRoad.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        singleRoad.rotateClockwise(2);
+        singleRoad.setOwner(player);
+
+        assertTrue(board.placeTile(new Coordinates(0, -1), singleRoad));
+        assertTrue(board.placeMeeple(roadFeature, player));
+
+        assertEquals(3, board.getOpenFeatures().size());
+        assertEquals(1, board.getClosedFeatures().size());
+        assertEquals(1, board.getNewlyClosedFeatures().size());
+        assertEquals(0, player.getScore());
+
+        board.scoreClosedFeatures();
+
+        assertEquals(2, player.getScore());
+    }
+
+    @Test
+    void testScoreOpenTwoTileRoad(){
+        board = new Board(Rules.getMonasteryWithRoad());
+        Player player = new Player(Colour.RED);
+
+        Tile straightRoad = Rules.getStraightRoad();
+        Feature roadFeature = straightRoad.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        straightRoad.setOwner(player);
+
+        assertTrue(board.placeTile(new Coordinates(0, -1), straightRoad));
+        assertTrue(board.placeMeeple(roadFeature, player));
+
+        assertEquals(3, board.getOpenFeatures().size());
         assertEquals(0, board.getClosedFeatures().size());
+        assertEquals(0, board.getNewlyClosedFeatures().size());
+        assertEquals(0, player.getScore());
+
+        board.scoreOpenFeatures();
+
+        assertEquals(2, player.getScore());
+    }
+
+    @Test
+    void testScoreContestedClosedFourTileRoad(){
+        board = new Board(Rules.getMonasteryWithRoad());
+        Player player1 = new Player(Colour.RED);
+        Player player2 = new Player(Colour.BLUE);
+
+        Tile curvyRoad = Rules.getCurvyRoad();
+        Tile singleRoad = Rules.getMonasteryWithRoad();
+        Feature roadFeature = singleRoad.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        singleRoad.setOwner(player1);
+
+        assertTrue(board.placeTile(new Coordinates(1, 0), singleRoad));
+        assertTrue(board.placeMeeple(roadFeature, player1));
+
+        curvyRoad.setOwner(player2);
+        roadFeature = curvyRoad.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        assertTrue(board.placeTile(new Coordinates(0, -1), curvyRoad));
+        assertTrue(board.placeMeeple(roadFeature, player2));
+
+        curvyRoad = Rules.getCurvyRoad();
+        curvyRoad.rotateClockwise(3);
+        curvyRoad.setOwner(player1);
+        roadFeature = curvyRoad.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        assertTrue(board.placeTile(new Coordinates(1, -1), curvyRoad));
+        // assertFalse(board.placeMeeple(roadFeature, player1));
+
+    
+        assertEquals(0, player1.getScore());
+        assertEquals(0, player2.getScore());
+
+        board.scoreClosedFeatures();
+
+        assertEquals(4, player1.getScore());
+        assertEquals(4, player2.getScore());
+
+        board.printBoard();
     }
 }

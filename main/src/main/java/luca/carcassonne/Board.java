@@ -50,7 +50,13 @@ public class Board {
                 add(startingTile);
             }
         };
-        monasteryTiles = new HashSet<>();
+        monasteryTiles = new HashSet<>() {
+            {
+                if (startingTile.getFeatures().stream().anyMatch(feature -> feature.getClass() == Monastery.class)) {
+                    add(startingTile);
+                }
+            }
+        };
         possibleCoordinates = new ArrayList<>() {
             {
                 startingTile.getAdjacentCoordinates().forEach(coordinate -> {
@@ -207,73 +213,49 @@ public class Board {
             for (Feature feature : featuresToConnect.keySet()) {
                 switch (featuresToConnect.get(feature)) {
                     case 0:
-                        if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.SSW)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.NNW)) {
+                        if (featuresMatch(feature, newFeature, CardinalPoint.SSW, CardinalPoint.NNW)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.S)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.N)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.S, CardinalPoint.N)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.SSE)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.NNE)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.SSE, CardinalPoint.NNE)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
                         break;
                     case 1:
-                        if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.WSW)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.ESE)) {
+                        if (featuresMatch(feature, newFeature, CardinalPoint.WSW, CardinalPoint.ESE)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.W)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.E)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.W, CardinalPoint.E)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.WNW)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.ENE)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.WNW, CardinalPoint.ENE)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
                         break;
                     case 2:
-                        if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.NNE)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.SSE)) {
+                        if (featuresMatch(feature, newFeature, CardinalPoint.NNE, CardinalPoint.SSE)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.N)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.S)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.N, CardinalPoint.S)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.NNW)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.SSW)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.NNW, CardinalPoint.SSW)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
                         break;
                     case 3:
-                        if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.ESE)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.WSW)) {
+                        if (featuresMatch(feature, newFeature, CardinalPoint.ESE, CardinalPoint.WSW)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.E)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.W)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.E, CardinalPoint.W)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
-                        } else if (feature.getClass() == newFeature.getClass()
-                                && feature.getCardinalPoints().contains(CardinalPoint.ENE)
-                                && newFeature.getCardinalPoints().contains(CardinalPoint.WNW)) {
+                        } else if (featuresMatch(feature, newFeature, CardinalPoint.ENE, CardinalPoint.WNW)) {
                             addFeaturesEdge(feature, newFeature);
                             featureLinked = true;
                         }
@@ -325,7 +307,6 @@ public class Board {
     // Checks if monasteries are closed
     private void checkIfMonasteriesAreComplete() {
         HashSet<Tile> tilesToDelete = new HashSet<>();
-
         for (Tile monasteryTile : monasteryTiles) {
             if (getSurroundingTiles(monasteryTile) == 8) {
                 Iterator<Feature> it = monasteryTile.getFeatures().iterator();
@@ -352,6 +333,14 @@ public class Board {
         monasteryTiles.removeAll(tilesToDelete);
     }
 
+    // Checks if two features match given their cardinal points
+    private boolean featuresMatch(Feature feature, Feature newFeature, CardinalPoint featureCardinalPoint,
+            CardinalPoint newFeatureCardinalPoint) {
+        return feature.getClass() == newFeature.getClass()
+                && feature.getCardinalPoints().contains(featureCardinalPoint)
+                && newFeature.getCardinalPoints().contains(newFeatureCardinalPoint);
+    }
+
     // Connects a feature to an existing graph.
     private void addFeaturesEdge(Feature feature, Feature newFeature) {
         SimpleGraph<Feature, DefaultEdge> belongingGraph = null;
@@ -361,8 +350,8 @@ public class Board {
                 // System.out.println("Adding edge between " +
                 // feature.getClass().getSimpleName() + " and "
                 // + newFeature.getClass().getSimpleName());
-                for(SimpleGraph<Feature, DefaultEdge> g : openFeatures){
-                    if(g.containsVertex(newFeature)){
+                for (SimpleGraph<Feature, DefaultEdge> g : openFeatures) {
+                    if (g.containsVertex(newFeature)) {
                         belongingGraph = g;
                         foundBelongingGraph = true;
                         break;
@@ -372,7 +361,7 @@ public class Board {
                 graph.addVertex(newFeature);
                 graph.addEdge(feature, newFeature);
 
-                if(foundBelongingGraph && belongingGraph != graph){
+                if (foundBelongingGraph && belongingGraph != graph) {
                     Graphs.addGraph(graph, belongingGraph);
                     openFeatures.remove(belongingGraph);
                 }
@@ -406,8 +395,8 @@ public class Board {
             for (Player owner : owners) {
                 owner.addScore(score);
                 // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
-                //         + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
-                //         + owner.getColour() + " worth " + score + " points");
+                // + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                // + owner.getColour() + " worth " + score + " points");
             }
 
         }
@@ -438,9 +427,10 @@ public class Board {
             for (Player owner : owners) {
                 owner.addScore(score);
                 // System.out.println("Scored a " + feature.vertexSet().size() + " tile "
-                //         + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
-                //         + owner.getColour() + " worth " + score + " points ("
-                //         + getTileFromFeature(feature.vertexSet().iterator().next()).getCoordinates() + ")");
+                // + feature.vertexSet().iterator().next().getClass().getSimpleName() + " for "
+                // + owner.getColour() + " worth " + score + " points ("
+                // + getTileFromFeature(feature.vertexSet().iterator().next()).getCoordinates()
+                // + ")");
             }
 
         }
@@ -601,7 +591,7 @@ public class Board {
                 nSurroundingTiles++;
             }
         }
-
+        System.out.println("Surrounding tiles: " + nSurroundingTiles);
         return nSurroundingTiles;
     }
 

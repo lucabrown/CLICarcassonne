@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
 
-import javax.annotation.processing.Filer;
-
 import java.util.Scanner;
 
 // Starts the game and handles turns and available tiles
@@ -415,7 +413,7 @@ public class Game {
     // Prints all the players' scores
     private void printScores() {
         for (Player player : players) {
-            System.out.println(player.colour + " score: " + player.getScore());
+            System.out.println(player.getColour() + " score: " + player.getScore());
         }
     }
 
