@@ -465,6 +465,41 @@ class BoardTest {
     }
 
     @Test
+    void testJoiningTwoSeparatelyOwnedRoads(){
+        board = new Board(Rules.getStraightRoad());
+
+        Player player1 = new Player(Colour.RED);
+        Player player2 = new Player(Colour.BLUE);
+
+        Tile road = Rules.getCurvyRoad();
+        Feature roadFeature = road.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        road.setOwner(player1);
+        road.rotateClockwise();
+
+        assertTrue(board.placeTile(new Coordinates(0, 1), road));
+        assertTrue(board.placeMeeple(roadFeature, player1));
+
+        road = Rules.getStraightRoad();
+        roadFeature = road.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        road.setOwner(player2);
+        assertTrue(board.placeTile(new Coordinates(1, 0), road));
+        assertTrue(board.placeMeeple(roadFeature, player2));
+
+        road = Rules.getCurvyRoad();
+        roadFeature = road.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get();
+
+        road.setOwner(player1);
+        road.rotateClockwise(2);
+
+        assertTrue(board.placeTile(new Coordinates(1, 1), road));
+        board.printOpenFeatures();
+        System.out.println("Number of features: "  + board.getOpenFeatures().size());
+        assertTrue(board.placeMeeple(roadFeature, player1));
+    }
+
+    @Test
     void testJoiningTwoSeparatelyOwnedCastles(){
         board = new Board(Rules.getLongCastle());
 
@@ -492,6 +527,7 @@ class BoardTest {
         castle.setOwner(player1);
         assertTrue(board.placeTile(new Coordinates(1, 1), castle));
         assertTrue(board.placeMeeple(castleFeature, player1));
+        
     }
 
     // SCORING TESTS
@@ -510,9 +546,10 @@ class BoardTest {
         assertTrue(board.placeTile(new Coordinates(0, -1), singleRoad));
         assertTrue(board.placeMeeple(roadFeature, player));
 
-        assertEquals(3, board.getOpenFeatures().size());
         assertEquals(1, board.getClosedFeatures().size());
         assertEquals(1, board.getNewlyClosedFeatures().size());
+        assertEquals(3, board.getOpenFeatures().size());
+
         assertEquals(0, player.getScore());
 
         board.scoreClosedFeatures();

@@ -30,7 +30,7 @@ public class Board {
     private Tile startingTile;
     private ArrayList<Tile> placedTiles;
     private HashSet<Tile> monasteryTiles;
-    private HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures;
+    // private HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> openFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> closedFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> newlyClosedFeatures;
@@ -64,12 +64,12 @@ public class Board {
                 });
             }
         };
-        this.allFeatures = new HashSet<>();
+        // this.allFeatures = new HashSet<>();
         this.openFeatures = new HashSet<>();
         for (Feature feature : startingTile.getFeatures()) {
             SimpleGraph<Feature, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
             graph.addVertex(feature);
-            allFeatures.add(graph);
+            // allFeatures.add(graph);
             openFeatures.add(graph);
         }
         this.closedFeatures = new HashSet<>();
@@ -97,11 +97,15 @@ public class Board {
     }
 
     // Tries to place a meeple on a feature
+    @SuppressWarnings("unchecked")
     public boolean placeMeeple(Feature newFeature, Player currentPlayer) {
         SimpleGraph<Feature, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class);
         HashMap<Player, Integer> players = new HashMap<>();
+        HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) openFeatures.clone();
+        allFeatures.addAll(closedFeatures);
 
         if (currentPlayer.getAvailableMeeples() <= 0) {
+            System.out.println("You have no more meeples!");
             return false;
         }
 
@@ -115,6 +119,7 @@ public class Board {
         players = getPlayersOnFeature(feature);
 
         if (!players.isEmpty() && !players.containsKey(currentPlayer)) {
+            System.out.println("You cannot place a meeple on a feature with other players' meeples!");
             return false;
         }
 
@@ -272,7 +277,6 @@ public class Board {
                 }
 
                 newGraph.addVertex(newFeature);
-                allFeatures.add(newGraph);
                 openFeatures.add(newGraph);
 
             } else if (newFeature.getClass() != Field.class && newFeature.getClass() != Monastery.class) {
