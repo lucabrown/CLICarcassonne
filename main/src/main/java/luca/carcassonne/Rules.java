@@ -13,6 +13,7 @@ public class Rules {
     public static final int SHIELD_POINTS_OPEN = 1;
     public static final int SHIELD_POINTS_CLOSED = 2;
     public static final int FIELD_POINTS_PER_CASTLE = 3;
+    public static final int MONASTERY_POINTS_PER_TILE = 1;
 
     // Tile number constants
     private static final int N_MONASTERY = 4;
@@ -536,6 +537,46 @@ public class Rules {
                         }
                     }
                 }, "Long castle");
+    }
+
+    public static final Tile getLongCastleWithShield() {
+        return new Tile(SideFeature.FIELD, SideFeature.CASTLE, SideFeature.FIELD,
+                SideFeature.CASTLE,
+                new HashSet<Feature>() {
+                    {
+                        HashSet<Castle> castles = new HashSet<Castle>() {
+                            {
+                                add(new Castle(new ArrayList<CardinalPoint>() {
+                                    {
+                                        add(CardinalPoint.WNW);
+                                        add(CardinalPoint.W);
+                                        add(CardinalPoint.WSW);
+                                        add(CardinalPoint.ENE);
+                                        add(CardinalPoint.E);
+                                        add(CardinalPoint.ESE);
+                                    }
+                                }, true));
+                            }
+                        };
+                        add(new Field(new ArrayList<CardinalPoint>() {
+                            {
+                                add(CardinalPoint.NNW);
+                                add(CardinalPoint.N);
+                                add(CardinalPoint.NNE);
+                            }
+                        }, castles));
+                        add(new Field(new ArrayList<CardinalPoint>() {
+                            {
+                                add(CardinalPoint.SSW);
+                                add(CardinalPoint.S);
+                                add(CardinalPoint.SSE);
+                            }
+                        }, castles));
+                        for (Castle castle : castles) {
+                            add(castle);
+                        }
+                    }
+                }, "Long castle with shield");
     }
 
     public static final Tile getCurvyCastle() {

@@ -5,11 +5,13 @@ import java.util.ArrayList;
 public abstract class Feature {
     private Player owner;
     private ArrayList<CardinalPoint> cardinalPoints;
+    private Tile belongingTile;
     private Integer pointsOpen;
     private Integer pointsClosed;
 
     Feature(ArrayList<CardinalPoint> cardinalPoints) {
         this.cardinalPoints = cardinalPoints;
+        this.belongingTile = null;
     }
 
     public ArrayList<CardinalPoint> getCardinalPoints() {
@@ -18,6 +20,14 @@ public abstract class Feature {
 
     public void setCardinalPoints(int indexOf, CardinalPoint cardinalPoint) {
         this.cardinalPoints.set(indexOf, cardinalPoint);
+    }
+
+    public Tile getBelongingTile() {
+        return belongingTile;
+    }
+
+    public void setBelongingTile(Tile belongingTile) {
+        this.belongingTile = belongingTile;
     }
 
     public Player getOwner() {
