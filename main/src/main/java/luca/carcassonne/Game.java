@@ -110,10 +110,10 @@ public class Game {
             currentTile = availableTiles.pop();
             
 
-            System.out.println("- - - - - - - - - -");
-            System.out.println(currentPlayer.getColour() + "'s turn.");
-            System.out.println("Current tile: " + currentTile.getId());
-            System.out.println("- - - - - - - - - -");
+            // System.out.println("- - - - - - - - - -");
+            // System.out.println(currentPlayer.getColour() + "'s turn.");
+            // System.out.println("Current tile: " + currentTile.getId());
+            // System.out.println("- - - - - - - - - -");
 
             while (!isPlaced) {
                 triedPlacements++;

@@ -73,6 +73,10 @@ public class Board {
         this.newlyClosedFeatures = new HashSet<>();
     }
 
+    public Board(){
+        new Board(Rules.getStartingTile());
+    }
+
     public Tile getStartingTile() {
         return startingTile;
     }
@@ -103,7 +107,6 @@ public class Board {
         allFeatures.addAll(closedFeatures);
 
         if (currentPlayer.getAvailableMeeples() <= 0) {
-            System.out.println("You have no more meeples!");
             return false;
         }
 
@@ -117,7 +120,7 @@ public class Board {
         players = getPlayersOnFeature(feature);
 
         if (!players.isEmpty() && !players.containsKey(currentPlayer)) {
-            System.out.println("You cannot place a meeple on a feature with other players' meeples!");
+            // System.out.println("You cannot place a meeple on a feature with other players' meeples!");
             return false;
         }
 
@@ -633,7 +636,6 @@ public class Board {
                 nSurroundingTiles++;
             }
         }
-        System.out.println("Surrounding tiles: " + nSurroundingTiles);
         return nSurroundingTiles;
     }
 
