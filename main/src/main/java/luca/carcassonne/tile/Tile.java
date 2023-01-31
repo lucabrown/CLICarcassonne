@@ -13,7 +13,6 @@ public class Tile {
     private String id;
     private ArrayList<SideFeature> sideFeatures;
     private Coordinates coordinates;
-    private ArrayList<Coordinates> adjacentCoordinates;
     private HashSet<Feature> features;
     private Player owner;
 
@@ -24,7 +23,6 @@ public class Tile {
             add(south);
             add(west);
         }};
-        adjacentCoordinates = new ArrayList<>();
         features = new HashSet<>();
     }
 
@@ -35,7 +33,6 @@ public class Tile {
             add(south);
             add(west);
         }};
-        adjacentCoordinates = new ArrayList<>();
         this.features = features;
         this.id = id;
     }
@@ -43,14 +40,6 @@ public class Tile {
     public Tile(Integer x, Integer y) {
         this.coordinates = new Coordinates(x, y);
         this.sideFeatures = Rules.getStartingTile().getSideFeatures();
-        this.adjacentCoordinates = new ArrayList<Coordinates>() {
-            {
-                add(new Coordinates(x, y + 1));
-                add(new Coordinates(x + 1, y));
-                add(new Coordinates(x, y - 1));
-                add(new Coordinates(x - 1, y));
-            }
-        };
         features = Rules.getStartingTile().getFeatures();
     }
 
@@ -60,20 +49,17 @@ public class Tile {
 
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
-        int x = coordinates.getX();
-        int y = coordinates.getY();
-        adjacentCoordinates = new ArrayList<Coordinates>() {
-            {
-                add(new Coordinates(x, y + 1));
-                add(new Coordinates(x + 1, y));
-                add(new Coordinates(x, y - 1));
-                add(new Coordinates(x - 1, y));
-            }
-        };
     }
 
     public ArrayList<Coordinates> getAdjacentCoordinates() {
-        return adjacentCoordinates;
+        return new ArrayList<Coordinates>() {
+            {
+                add(new Coordinates(coordinates.getX(), coordinates.getY() + 1));
+                add(new Coordinates(coordinates.getX() + 1, coordinates.getY()));
+                add(new Coordinates(coordinates.getX(), coordinates.getY() - 1));
+                add(new Coordinates(coordinates.getX() - 1, coordinates.getY()));
+            }
+        };
     }
 
     public void rotateClockwise(int times) {
