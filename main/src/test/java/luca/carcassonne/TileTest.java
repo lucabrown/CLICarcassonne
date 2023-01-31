@@ -2,6 +2,10 @@ package luca.carcassonne;
 
 import org.junit.jupiter.api.Test;
 
+import luca.carcassonne.tile.CardinalPoint;
+import luca.carcassonne.tile.Tile;
+import luca.carcassonne.tile.feature.Feature;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -4,6 +4,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
 
+import luca.carcassonne.tile.CardinalPoint;
+import luca.carcassonne.tile.SideFeature;
+import luca.carcassonne.tile.Tile;
+import luca.carcassonne.tile.feature.Castle;
+import luca.carcassonne.tile.feature.Feature;
+import luca.carcassonne.tile.feature.Field;
+import luca.carcassonne.tile.feature.Monastery;
+import luca.carcassonne.tile.feature.Road;
+
 public class Rules {
     // Feature score constants
     public static final int ROAD_POINTS_OPEN = 1;

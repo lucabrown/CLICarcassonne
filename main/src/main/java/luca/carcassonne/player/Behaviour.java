@@ -1,4 +1,4 @@
-package luca.carcassonne;
+package luca.carcassonne.player;
 
 public class Behaviour {
     

@@ -1,4 +1,4 @@
-package luca.carcassonne;
+package luca.carcassonne.tile;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package luca.carcassonne;
+package luca.carcassonne.player;
 
 public class Player {
     public static final Integer MAX_MEEPLES = 7;

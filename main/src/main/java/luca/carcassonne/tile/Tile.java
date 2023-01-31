@@ -1,7 +1,11 @@
-package luca.carcassonne;
+package luca.carcassonne.tile;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import luca.carcassonne.Rules;
+import luca.carcassonne.player.Player;
+import luca.carcassonne.tile.feature.Feature;
 
 // The main Tile object. The 4 sides are represented by side features, arranged clockwise 
 // from the top: north, east, south, west.
@@ -13,7 +17,7 @@ public class Tile {
     private HashSet<Feature> features;
     private Player owner;
 
-    Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west) {
+    public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west) {
         this.sideFeatures = new ArrayList<>() {{
             add(north);
             add(east);
@@ -24,7 +28,7 @@ public class Tile {
         features = new HashSet<>();
     }
 
-    Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, HashSet<Feature> features, String id) {
+    public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, HashSet<Feature> features, String id) {
         this.sideFeatures = new ArrayList<>() {{
             add(north);
             add(east);
@@ -36,7 +40,7 @@ public class Tile {
         this.id = id;
     }
 
-    Tile(Integer x, Integer y) {
+    public Tile(Integer x, Integer y) {
         this.coordinates = new Coordinates(x, y);
         this.sideFeatures = Rules.getStartingTile().getSideFeatures();
         this.adjacentCoordinates = new ArrayList<Coordinates>() {

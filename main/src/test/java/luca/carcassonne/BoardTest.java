@@ -2,6 +2,17 @@ package luca.carcassonne;
 
 import org.junit.jupiter.api.Test;
 
+import luca.carcassonne.player.Colour;
+import luca.carcassonne.player.Player;
+import luca.carcassonne.tile.Coordinates;
+import luca.carcassonne.tile.SideFeature;
+import luca.carcassonne.tile.Tile;
+import luca.carcassonne.tile.feature.Castle;
+import luca.carcassonne.tile.feature.Feature;
+import luca.carcassonne.tile.feature.Field;
+import luca.carcassonne.tile.feature.Monastery;
+import luca.carcassonne.tile.feature.Road;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

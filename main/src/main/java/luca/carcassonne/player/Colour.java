@@ -1,4 +1,4 @@
-package luca.carcassonne;
+package luca.carcassonne.player;
 
 public enum Colour {
     RED("\u001B[31m"),

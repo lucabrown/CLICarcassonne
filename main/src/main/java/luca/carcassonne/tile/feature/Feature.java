@@ -1,6 +1,10 @@
-package luca.carcassonne;
+package luca.carcassonne.tile.feature;
 
 import java.util.ArrayList;
+
+import luca.carcassonne.player.Player;
+import luca.carcassonne.tile.CardinalPoint;
+import luca.carcassonne.tile.Tile;
 
 public abstract class Feature {
     private Player owner;
