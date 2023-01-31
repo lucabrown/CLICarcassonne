@@ -7,6 +7,14 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
 
+import luca.carcassonne.player.Colour;
+import luca.carcassonne.player.Player;
+import luca.carcassonne.tile.Coordinates;
+import luca.carcassonne.tile.SideFeature;
+import luca.carcassonne.tile.Tile;
+import luca.carcassonne.tile.feature.Feature;
+import luca.carcassonne.tile.feature.Field;
+
 import java.util.Scanner;
 
 // Starts the game and handles turns and available tiles
@@ -16,7 +24,6 @@ public class Game {
     public static final String ANSI_RED = "\u001B[31m";
 
     private static final Random random = new Random();
-    private static final Integer numberOfTiles = 1000; // For now at least more than 100
     private static final Integer numberOfPLayers = 2;
     private static int failedTiles = 0;
     private static int triedPlacements = 0;
@@ -43,8 +50,6 @@ public class Game {
                 // add(new Player(Colour.BLUE));
             }
         };
-        // this.availableTiles = getRandomTiles(numberOfTiles);
-        // this.availableTiles = getSmallDeckOfTiles(numberOfTiles);
         this.availableTiles = Rules.getStandardDeck();
         currentTile = new Tile(0, 0);
         Game.failedTiles = 0;
@@ -72,11 +77,6 @@ public class Game {
             } else {
                 redWR++;
             }
-
-            // System.out.println("White has " + game.players.get(0).getAvailableMeeples() +
-            // " meeples left");
-            // System.out.println("Red has " + game.players.get(1).getAvailableMeeples() + "
-            // meeples left");
         }
 
         whiteWR = (whiteWR / times * 100);
@@ -108,12 +108,6 @@ public class Game {
 
             currentPlayer = players.get(0);
             currentTile = availableTiles.pop();
-            
-
-            // System.out.println("- - - - - - - - - -");
-            // System.out.println(currentPlayer.getColour() + "'s turn.");
-            // System.out.println("Current tile: " + currentTile.getId());
-            // System.out.println("- - - - - - - - - -");
 
             while (!isPlaced) {
                 triedPlacements++;
@@ -140,16 +134,11 @@ public class Game {
             }
 
             if (playerPlacedTile) {
-                // System.out.println("Placing " + currentTile.getId() + " at " + currentTile.getCoordinates() + " (" + currentTile + ")");
 
                 // Take a feature node from the current tile and place a meeple
                 boolean meeplePlaced = false;
 
                 Object[] filteredFeature = currentTile.getFeatures().stream().toArray();
-                // Object[] filteredFeature = currentTile.getFeatures().stream().filter(f ->
-                // f.getClass() == Field.class)
-                // .toArray();
-                
 
                 Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
 
@@ -161,11 +150,6 @@ public class Game {
                 if (random.nextInt(10) < 3) {
                     meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);
                 }
-                // meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);
-
-                // if (meeplePlaced) {
-                //     System.out.println(currentPlayer.getColour() + " placed meeple on " + randomFeature.getClass().getSimpleName() + "(" + (randomFeature.getCardinalPoints().isEmpty() ? "null" : randomFeature.getCardinalPoints().get(0)) + ")");
-                // }
 
                 currentTile.setOwner(currentPlayer); // to delete
 
@@ -214,201 +198,9 @@ public class Game {
         players.add(currentPlayer);
     }
 
-    // Returns n randomly generated tiles
-    private Stack<Tile> getRandomTiles(int n) {
-        Stack<Tile> tiles = new Stack<>();
-
-        for (int i = 0; i < n; i++) {
-            tiles.push(
-                    // new Tile(SideFeature.getRandomFeature(),
-                    // SideFeature.getRandomFeature(),
-                    // SideFeature.getRandomFeature(),
-                    // SideFeature.getRandomFeature()));
-                    new Tile(SideFeature.FIELD,
-                            SideFeature.FIELD,
-                            SideFeature.FIELD,
-                            SideFeature.FIELD));
-        }
-
-        return tiles;
-    }
-
-    // Returns a few properly setup tiles
-    // private Stack<Tile> getSmallDeckOfTiles(int n) {
-    //     Stack<Tile> tiles = new Stack<>();
-    //     n = n / 5;
-
-    //     for (int i = 0; i < n; i++) {
-
-    //         // Straight road
-    //         tiles.push(new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD,
-    //                 new HashSet<>() {
-    //                     {
-    //                         HashSet<Castle> castles = new HashSet<>();
-    //                         add(new Road(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.N);
-    //                                 add(CardinalPoint.S);
-    //                             }
-    //                         }));
-    //                         add(new Field(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.NNW);
-    //                                 add(CardinalPoint.WNW);
-    //                                 add(CardinalPoint.W);
-    //                                 add(CardinalPoint.WSW);
-    //                                 add(CardinalPoint.SSW);
-    //                             }
-    //                         }, castles));
-    //                         add(new Field(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.NNE);
-    //                                 add(CardinalPoint.ENE);
-    //                                 add(CardinalPoint.E);
-    //                                 add(CardinalPoint.ESE);
-    //                                 add(CardinalPoint.SSE);
-    //                             }
-    //                         }, castles));
-
-    //                     }
-    //                 }));
-
-    //         // Curvy road
-    //         tiles.push(new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.FIELD,
-    //                 new HashSet<>() {
-    //                     {
-    //                         HashSet<Castle> castles = new HashSet<>();
-    //                         add(new Road(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.N);
-    //                                 add(CardinalPoint.E);
-    //                             }
-    //                         }));
-    //                         add(new Field(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.NNW);
-    //                                 add(CardinalPoint.WNW);
-    //                                 add(CardinalPoint.W);
-    //                                 add(CardinalPoint.WSW);
-    //                                 add(CardinalPoint.SSW);
-    //                                 add(CardinalPoint.S);
-    //                                 add(CardinalPoint.SSE);
-    //                                 add(CardinalPoint.ESE);
-    //                             }
-    //                         }, castles));
-    //                         add(new Field(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.NNE);
-    //                                 add(CardinalPoint.ENE);
-    //                             }
-    //                         }, castles));
-
-    //                     }
-    //                 }));
-
-    //         // Curvy castle no road
-    //         tiles.push(new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD,
-    //                 new HashSet<>() {
-    //                     {
-    //                         HashSet<Castle> castles = new HashSet<>() {
-    //                             {
-    //                                 add(new Castle(new ArrayList<CardinalPoint>() {
-    //                                     {
-    //                                         add(CardinalPoint.NNW);
-    //                                         add(CardinalPoint.N);
-    //                                         add(CardinalPoint.NNE);
-    //                                         add(CardinalPoint.ENE);
-    //                                         add(CardinalPoint.E);
-    //                                         add(CardinalPoint.ESE);
-    //                                     }
-    //                                 }, false));
-    //                             }
-    //                         };
-    //                         add(new Field(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.WNW);
-    //                                 add(CardinalPoint.W);
-    //                                 add(CardinalPoint.WSW);
-    //                                 add(CardinalPoint.SSW);
-    //                                 add(CardinalPoint.S);
-    //                                 add(CardinalPoint.SSE);
-    //                             }
-    //                         }, castles));
-    //                         add(castles.iterator().next());
-
-    //                     }
-    //                 }));
-
-    //         tiles.push(new Tile(SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD,
-    //                 new HashSet<>() {
-    //                     {
-    //                         HashSet<Castle> castles = new HashSet<>() {
-    //                             {
-    //                                 add(new Castle(new ArrayList<CardinalPoint>() {
-    //                                     {
-    //                                         add(CardinalPoint.NNE);
-    //                                         add(CardinalPoint.N);
-    //                                         add(CardinalPoint.NNW);
-    //                                     }
-    //                                 }, false));
-    //                             }
-    //                         };
-    //                         add(new Field(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.ENE);
-    //                                 add(CardinalPoint.E);
-    //                                 add(CardinalPoint.E);
-    //                                 add(CardinalPoint.ESE);
-    //                                 add(CardinalPoint.SSE);
-    //                                 add(CardinalPoint.S);
-    //                                 add(CardinalPoint.SSW);
-    //                                 add(CardinalPoint.WSW);
-    //                                 add(CardinalPoint.W);
-    //                                 add(CardinalPoint.WNW);
-    //                             }
-    //                         }, castles));
-    //                         add(castles.iterator().next());
-    //                     }
-    //                 }));
-
-    //         // Monastery, all field
-    //         tiles.push(new Tile(SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD,
-    //                 new HashSet<>() {
-    //                     {
-    //                         add(new Field(new ArrayList<CardinalPoint>() {
-    //                             {
-    //                                 add(CardinalPoint.NNW);
-    //                                 add(CardinalPoint.N);
-    //                                 add(CardinalPoint.NNE);
-    //                                 add(CardinalPoint.ENE);
-    //                                 add(CardinalPoint.E);
-    //                                 add(CardinalPoint.ESE);
-    //                                 add(CardinalPoint.SSE);
-    //                                 add(CardinalPoint.S);
-    //                                 add(CardinalPoint.SSW);
-    //                                 add(CardinalPoint.WSW);
-    //                                 add(CardinalPoint.W);
-    //                                 add(CardinalPoint.WNW);
-    //                             }
-    //                         }, new HashSet<>()));
-    //                         add(new Monastery());
-    //                     }
-    //                 }));
-    //     }
-
-    //     return tiles;
-    // }
-
     // * * * * * * * * * * * *
-    // * PRINTING METHODS *
+    // *   PRINTING METHODS  *
     // * * * * * * * * * * * *
-
-    private Coordinates readCoordinatesFromInput(Scanner scanner) {
-        System.out.println("Enter coordinates (x,y):");
-        String input = scanner.nextLine();
-        String[] coordinates = input.split(",");
-        return new Coordinates(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
-    }
 
     // Prints all the players' scores
     private void printScores() {

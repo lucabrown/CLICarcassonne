@@ -1,4 +1,4 @@
-package luca.carcassonne;
+package luca.carcassonne.tile;
 
 // The tile's coordinate system
 public class Coordinates {

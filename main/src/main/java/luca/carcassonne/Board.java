@@ -12,6 +12,17 @@ import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+import luca.carcassonne.player.Player;
+import luca.carcassonne.tile.CardinalPoint;
+import luca.carcassonne.tile.Coordinates;
+import luca.carcassonne.tile.SideFeature;
+import luca.carcassonne.tile.Tile;
+import luca.carcassonne.tile.feature.Castle;
+import luca.carcassonne.tile.feature.Feature;
+import luca.carcassonne.tile.feature.Field;
+import luca.carcassonne.tile.feature.Monastery;
+import luca.carcassonne.tile.feature.Road;
+
 // Holds all played tiles and tracks the relation between them
 public class Board {
     public static final String ANSI_RESET = "\u001B[0m";
@@ -73,12 +84,8 @@ public class Board {
         this.newlyClosedFeatures = new HashSet<>();
     }
 
-    public Board(){
+    public Board() {
         new Board(Rules.getStartingTile());
-    }
-
-    public Tile getStartingTile() {
-        return startingTile;
     }
 
     // Tries to place a tile in the given coordinates. Returns true if the placement
@@ -120,7 +127,6 @@ public class Board {
         players = getPlayersOnFeature(feature);
 
         if (!players.isEmpty() && !players.containsKey(currentPlayer)) {
-            // System.out.println("You cannot place a meeple on a feature with other players' meeples!");
             return false;
         }
 
@@ -134,8 +140,6 @@ public class Board {
     private void updateBoard(Tile newTile) {
         placedTiles.add(newTile);
         possibleCoordinates.remove(newTile.getCoordinates());
-        // System.out.println("\nPlacing " + newTile + " at " +
-        // newTile.getCoordinates());
 
         // For each new adjacent coordinate, add it to the list of possible coordinates
         newTile.getAdjacentCoordinates().forEach(coordinates -> {
@@ -275,7 +279,6 @@ public class Board {
 
             if (!featureLinked) {
                 SimpleGraph<Feature, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
-                // System.out.println("Creating new: " + newFeature.getClass().getSimpleName());
 
                 if (newFeature instanceof Monastery) {
                     monasteryTiles.add(newTile);
@@ -356,9 +359,6 @@ public class Board {
         boolean foundBelongingGraph = false;
         for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
             if (graph.containsVertex(feature) && !graph.containsEdge(feature, newFeature)) {
-                // System.out.println("Adding edge between " +
-                // feature.getClass().getSimpleName() + " and "
-                // + newFeature.getClass().getSimpleName());
                 for (SimpleGraph<Feature, DefaultEdge> g : openFeatures) {
                     if (g.containsVertex(newFeature)) {
                         belongingGraph = g;
@@ -489,84 +489,34 @@ public class Board {
 
         if (featureClass == Road.class) {
             score += belongingTiles.size();
-        }
-        else if(featureClass == Castle.class){
+        } else if (featureClass == Castle.class) {
             int shields = 0;
 
-            for(Feature vertex : feature.vertexSet()){
-                if(((Castle)vertex).hasShield()){
+            for (Feature vertex : feature.vertexSet()) {
+                if (((Castle) vertex).hasShield()) {
                     shields++;
                 }
             }
 
-            if(isClosed){
+            if (isClosed) {
                 score += belongingTiles.size() * Rules.CASTLE_POINTS_CLOSED + shields * Rules.SHIELD_POINTS_CLOSED;
-            }
-            else{
+            } else {
                 score += belongingTiles.size() * Rules.CASTLE_POINTS_OPEN + shields * Rules.SHIELD_POINTS_OPEN;
             }
-        }
-        else if(featureClass == Field.class){
+        } else if (featureClass == Field.class) {
             score += calculateFieldScore(feature);
-        }
-        else if(featureClass == Monastery.class){
-            if(isClosed){
+        } else if (featureClass == Monastery.class) {
+            if (isClosed) {
                 score += 9;
-            }
-            else{
-                // Tile monasteryTile = getTileFromFeature(vertex);
+            } else {
                 score += 1 + getSurroundingTiles(feature.vertexSet().iterator().next().getBelongingTile());
             }
-        }
-        else{
+        } else {
             throw new IllegalArgumentException("Feature class not recognized");
         }
 
         return score;
     }
-
-    // // Calculates the value of a closed feature
-    // private int calculateClosedFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
-    //     // HashSet<Tile>
-    //     int score = 0;
-    //     for (Feature vertex : feature.vertexSet()) {
-    //         if (vertex.getClass() == Castle.class && ((Castle) vertex).hasShield()) {
-    //             score += Rules.SHIELD_POINTS_CLOSED + vertex.getPointsClosed();
-    //             continue;
-    //         } else if (vertex.getClass() == Monastery.class) {
-    //             score += 9;
-    //             continue;
-    //         }
-
-    //         score += vertex.getPointsClosed();
-    //     }
-
-    //     return score;
-    // }
-
-    // // Calculates the value of an open feature
-    // private int calculateOpenFeatureValue(SimpleGraph<Feature, DefaultEdge> feature) {
-    //     int score = 0;
-    //     Feature v = feature.vertexSet().iterator().next();
-
-    //     if (v.getClass() != Field.class) {
-    //         for (Feature vertex : feature.vertexSet()) {
-    //             if (vertex.getClass() == Castle.class && ((Castle) vertex).hasShield()) {
-    //                 score += Rules.SHIELD_POINTS_OPEN + vertex.getPointsClosed();
-    //                 continue;
-    //             } else if (vertex.getClass() == Monastery.class) {
-    //                 Tile monasteryTile = getTileFromFeature(vertex);
-    //                 score += 1 + getSurroundingTiles(monasteryTile);
-    //                 continue;
-    //             }
-    //             score += vertex.getPointsOpen();
-    //         }
-    //     } else {
-    //         score += calculateFieldScore(feature);
-    //     }
-
-    //     return score;
-    // }
 
     // Scores all the fields on the board
     private int calculateFieldScore(SimpleGraph<Feature, DefaultEdge> feature) {
