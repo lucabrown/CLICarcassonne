@@ -3,7 +3,7 @@ package luca.carcassonne.tile;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import luca.carcassonne.Rules;
+import luca.carcassonne.Settings;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.feature.Feature;
 
@@ -39,8 +39,8 @@ public class Tile {
 
     public Tile(Integer x, Integer y) {
         this.coordinates = new Coordinates(x, y);
-        this.sideFeatures = Rules.getStartingTile().getSideFeatures();
-        features = Rules.getStartingTile().getFeatures();
+        this.sideFeatures = Settings.getStartingTile().getSideFeatures();
+        features = Settings.getStartingTile().getFeatures();
     }
 
     public Coordinates getCoordinates() {

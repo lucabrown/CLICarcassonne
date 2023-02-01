@@ -13,7 +13,7 @@ import luca.carcassonne.tile.feature.Field;
 import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 
-public class Rules {
+public class Settings {
     // Feature score constants
     public static final int ROAD_POINTS_OPEN = 1;
     public static final int ROAD_POINTS_CLOSED = 1;

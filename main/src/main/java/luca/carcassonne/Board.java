@@ -85,7 +85,7 @@ public class Board {
     }
 
     public Board() {
-        new Board(Rules.getStartingTile());
+        new Board(Settings.getStartingTile());
     }
 
     // Tries to place a tile in the given coordinates. Returns true if the placement
@@ -124,7 +124,7 @@ public class Board {
             }
         }
 
-        players = getPlayersOnFeature(feature);
+        players = Feature.getPlayersOnFeature(feature);
 
         if (!players.isEmpty() && !players.containsKey(currentPlayer)) {
             return false;
@@ -380,169 +380,6 @@ public class Board {
         }
     }
 
-    // Scores all closed features
-    public void scoreClosedFeatures() {
-        if (newlyClosedFeatures.isEmpty()) {
-            return;
-        }
-
-        for (SimpleGraph<Feature, DefaultEdge> feature : newlyClosedFeatures) {
-            if (feature.vertexSet().iterator().next().getClass() == Field.class) {
-                continue;
-            }
-
-            List<Player> owners = new ArrayList<>();
-            int score = 0;
-
-            owners = getFeatureOwners(feature);
-            score = calculateFeatureValue(feature, true);
-
-            if (owners.isEmpty()) {
-                continue;
-            }
-
-            for (Player owner : owners) {
-                owner.addScore(score);
-            }
-
-        }
-    }
-
-    // Scores all the open features
-    public void scoreOpenFeatures() {
-        if (openFeatures.isEmpty()) {
-            return;
-        }
-
-        for (SimpleGraph<Feature, DefaultEdge> feature : openFeatures) {
-            Set<Player> owners = new HashSet<>();
-            int score = 0;
-
-            owners = getPlayersOnFeature(feature).keySet();
-            score = calculateFeatureValue(feature, false);
-
-            if (owners.isEmpty() || score == 0) {
-                continue;
-            }
-
-            for (Player owner : owners) {
-                owner.addScore(score);
-            }
-
-        }
-    }
-
-    // Returns a list of players who own the feature
-    private List<Player> getFeatureOwners(SimpleGraph<Feature, DefaultEdge> feature) {
-        ArrayList<Player> owners = new ArrayList<>();
-        HashMap<Player, Integer> players = new HashMap<>();
-        int maxMeeples = 0;
-
-        players = getPlayersOnFeature(feature);
-
-        // Find the player(s) with the most meeples on the feature
-        if (!players.isEmpty()) {
-            int nMeeples = 0;
-            maxMeeples = players.values().stream().max(Integer::compare).get();
-
-            for (Player p : players.keySet()) {
-                nMeeples = players.get(p);
-                p.incrementMeeples(nMeeples);
-
-                if (nMeeples == maxMeeples) {
-                    owners.add(p);
-                }
-            }
-
-        }
-
-        return owners;
-    }
-
-    // Returns a map of players and the number of meeples they have on the feature
-    private HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature) {
-        HashMap<Player, Integer> players = new HashMap<>();
-
-        // Map each player to the number of meeples they have on the feature
-        feature.vertexSet().stream().map(v -> v.getOwner()).forEach(p -> {
-            if (players.containsKey(p)) {
-                players.put(p, players.get(p) + 1);
-            } else {
-                if (p != null) {
-                    players.put(p, 1);
-                }
-            }
-        });
-
-        return players;
-    }
-
-    // Calculates the value of a feature
-    private int calculateFeatureValue(SimpleGraph<Feature, DefaultEdge> feature, boolean isClosed) {
-        HashSet<Tile> belongingTiles = new HashSet<>();
-        Class<?> featureClass = feature.vertexSet().iterator().next().getClass();
-        int score = 0;
-
-        for (Feature vertex : feature.vertexSet()) {
-            belongingTiles.add(vertex.getBelongingTile());
-        }
-
-        if (featureClass == Road.class) {
-            score += belongingTiles.size();
-        } else if (featureClass == Castle.class) {
-            int shields = 0;
-
-            for (Feature vertex : feature.vertexSet()) {
-                if (((Castle) vertex).hasShield()) {
-                    shields++;
-                }
-            }
-
-            if (isClosed) {
-                score += belongingTiles.size() * Rules.CASTLE_POINTS_CLOSED + shields * Rules.SHIELD_POINTS_CLOSED;
-            } else {
-                score += belongingTiles.size() * Rules.CASTLE_POINTS_OPEN + shields * Rules.SHIELD_POINTS_OPEN;
-            }
-        } else if (featureClass == Field.class) {
-            score += calculateFieldScore(feature);
-        } else if (featureClass == Monastery.class) {
-            if (isClosed) {
-                score += 9;
-            } else {
-                score += 1 + getSurroundingTiles(feature.vertexSet().iterator().next().getBelongingTile());
-            }
-        } else {
-            throw new IllegalArgumentException("Feature class not recognized");
-        }
-
-        return score;
-    }
-
-    // Scores all the fields on the board
-    private int calculateFieldScore(SimpleGraph<Feature, DefaultEdge> feature) {
-        HashSet<SimpleGraph<Feature, DefaultEdge>> adjacentCastles = new HashSet<>();
-        int score = 0;
-
-        for (Feature vertex : feature.vertexSet()) {
-            Field field = (Field) vertex;
-
-            if (!field.hasAdjacentCastle()) {
-                continue;
-            }
-
-            for (SimpleGraph<Feature, DefaultEdge> castle : closedFeatures) {
-                for (Feature castleVertex : field.getAdjacentCastles()) {
-                    if (castle.containsVertex(castleVertex)) {
-                        adjacentCastles.add(castle);
-                    }
-                }
-            }
-        }
-        score += Rules.FIELD_POINTS_PER_CASTLE * adjacentCastles.size();
-
-        return score;
-    }
-
     // Returns a number between 0 and 3 that represents the clockwise position of a
     // tile relative to the given coordinates
     private int getRelativePosition(Tile tile, Coordinates coordinates) {
@@ -563,9 +400,22 @@ public class Board {
         return pos;
     }
 
+
+    private Tile getTileFromFeature(Feature feature) {
+        for (Tile tile : placedTiles) {
+            for (Feature f : tile.getFeatures()) {
+                if (f.equals(feature)) {
+                    return tile;
+                }
+            }
+        }
+
+        return null;
+    }
+
     // Returns the number of tiles surrounding the given tile (used for scoring
     // monasteries)
-    private int getSurroundingTiles(Tile tile) {
+    public int getSurroundingTiles(Tile tile) {
         int nSurroundingTiles = 0;
         HashSet<Coordinates> surroundingCoordinates = new HashSet<>() {
             {
@@ -587,18 +437,6 @@ public class Board {
             }
         }
         return nSurroundingTiles;
-    }
-
-    private Tile getTileFromFeature(Feature feature) {
-        for (Tile tile : placedTiles) {
-            for (Feature f : tile.getFeatures()) {
-                if (f.equals(feature)) {
-                    return tile;
-                }
-            }
-        }
-
-        return null;
     }
 
     public Tile getTileFromCoordinates(Coordinates coordinates) {
