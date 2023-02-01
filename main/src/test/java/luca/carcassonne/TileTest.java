@@ -35,7 +35,7 @@ class TileTest {
     // Test that a tile has the correct number of cardinal points
     @Test
     void testTileHasCorrectNumberOfCardinalPoints() {
-        Stack<Tile> tiles = Rules.getStandardDeck().stream().distinct().collect(Collectors.toCollection(Stack::new));
+        Stack<Tile> tiles = Settings.getStandardDeck().stream().distinct().collect(Collectors.toCollection(Stack::new));
         HashSet<CardinalPoint> cardinalPoints;
 
         for (Tile tile : tiles) {
@@ -55,7 +55,7 @@ class TileTest {
 
     @Test
     void testTileHasAllCardinalPoints() {
-        Stack<Tile> tiles = Rules.getStandardDeck();
+        Stack<Tile> tiles = Settings.getStandardDeck();
         HashSet<CardinalPoint> cardinalPoints;
 
         for (Tile tile : tiles) {

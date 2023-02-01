@@ -50,7 +50,7 @@ public class Game {
                 // add(new Player(Colour.BLUE));
             }
         };
-        this.availableTiles = Rules.getStandardDeck();
+        this.availableTiles = Settings.getStandardDeck();
         currentTile = new Tile(0, 0);
         Game.failedTiles = 0;
     }
@@ -66,7 +66,7 @@ public class Game {
         for (int i = 0; i < times; i++) {
             System.out.print(i);
 
-            Game game = new Game(new Board(Rules.getSingleCastleWithStraightRoad()));
+            Game game = new Game(new Board(Settings.getSingleCastleWithStraightRoad()));
             game.play();
             whiteTotalScore += game.players.get(0).getScore();
             redTotalScore += game.players.get(1).getScore();
@@ -153,7 +153,7 @@ public class Game {
 
                 currentTile.setOwner(currentPlayer); // to delete
 
-                board.scoreClosedFeatures();
+                Scoring.scoreClosedFeatures(board);
                 updatePlayerQueue();
             }
 
@@ -161,7 +161,7 @@ public class Game {
 
         }
 
-        board.scoreOpenFeatures();
+        Scoring.scoreOpenFeatures(board);
 
         // board.printOpenFeatures();
         // board.printClosedFeatures();
