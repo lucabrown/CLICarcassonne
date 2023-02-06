@@ -21,4 +21,5 @@ public class Field extends Feature{
         return adjacentCastles;
     }
 
+
 }

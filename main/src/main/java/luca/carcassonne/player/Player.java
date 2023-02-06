@@ -1,6 +1,6 @@
 package luca.carcassonne.player;
 
-public class Player {
+public class Player implements Cloneable {
     public static final Integer MAX_MEEPLES = 7;
     private Behaviour behaviour;
     private Colour colour;
@@ -29,6 +29,7 @@ public class Player {
     public void incrementMeeples(int amount) {
         availableMeeples += amount;
     }
+
     public void incrementMeeples() {
         availableMeeples++;
     }
@@ -44,4 +45,5 @@ public class Player {
     public boolean isHuman() {
         return true;
     }
+
 }

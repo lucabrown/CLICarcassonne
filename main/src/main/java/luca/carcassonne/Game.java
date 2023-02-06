@@ -10,12 +10,9 @@ import java.util.Stack;
 import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Coordinates;
-import luca.carcassonne.tile.SideFeature;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
 import luca.carcassonne.tile.feature.Field;
-
-import java.util.Scanner;
 
 // Starts the game and handles turns and available tiles
 public class Game {
@@ -199,7 +196,7 @@ public class Game {
     }
 
     // * * * * * * * * * * * *
-    // *   PRINTING METHODS  *
+    // * PRINTING METHODS *
     // * * * * * * * * * * * *
 
     // Prints all the players' scores

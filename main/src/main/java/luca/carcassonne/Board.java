@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jgrapht.EdgeFactory;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
@@ -24,12 +25,13 @@ import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 
 // Holds all played tiles and tracks the relation between them
-public class Board {
+public class Board implements Cloneable {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_RED = "\u001B[31m";
+    public static final int IN_PROGRESS = -1;
 
     private Integer height;
     private Integer width;
@@ -86,6 +88,24 @@ public class Board {
 
     public Board() {
         new Board(Settings.getStartingTile());
+    }
+
+    // Create a Board copy constructor
+    @SuppressWarnings("unchecked")
+    public Board(Board board) throws CloneNotSupportedException {
+        this.height = board.height;
+        this.width = board.width;
+        this.maxY = board.maxY;
+        this.maxX = board.maxX;
+        this.minY = board.minY;
+        this.minX = board.minX;
+        this.startingTile = (Tile) board.startingTile.clone();
+        this.placedTiles = (ArrayList<Tile>) board.placedTiles.clone();
+        this.monasteryTiles = (HashSet<Tile>) board.monasteryTiles.clone();
+        this.openFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) board.openFeatures.clone();
+        this.closedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) board.closedFeatures.clone();
+        this.newlyClosedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) board.newlyClosedFeatures.clone();
+        this.possibleCoordinates = (ArrayList<Coordinates>) board.possibleCoordinates.clone();
     }
 
     // Tries to place a tile in the given coordinates. Returns true if the placement
@@ -400,8 +420,7 @@ public class Board {
         return pos;
     }
 
-
-    private Tile getTileFromFeature(Feature feature) {
+    public Tile getTileFromFeature(Feature feature) {
         for (Tile tile : placedTiles) {
             for (Feature f : tile.getFeatures()) {
                 if (f.equals(feature)) {
@@ -473,6 +492,14 @@ public class Board {
 
     public HashSet<SimpleGraph<Feature, DefaultEdge>> getOpenFeatures() {
         return openFeatures;
+    }
+
+    public int checkStatus() {
+        if (placedTiles.size() <= 72) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     // * * * * * * *

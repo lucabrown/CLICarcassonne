@@ -1,115 +1,116 @@
-package luca.carcassonne.MCTS;
+// package luca.carcassonne.MCTS;
 
-/*
- * All the code in this file is from 
- * 
- * https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-searching/src/main/java/com/baeldung/algorithms/mcts
- * 
- * unless clearly stated otherwise.
- */
+// /*
+// * All the code in this file is from
+// *
+// *
+// https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-searching/src/main/java/com/baeldung/algorithms/mcts
+// *
+// * unless clearly stated otherwise.
+// */
 
-import java.util.List;
+// import java.util.List;
 
-import luca.carcassonne.Board;
+// import luca.carcassonne.Board;
 
-public class MonteCarloTreeSearch {
+// public class MonteCarloTreeSearch {
 
-    private static final int WIN_SCORE = 10;
-    private int level;
-    private int opponent;
+// private static final int WIN_SCORE = 10;
+// private int level;
+// private int opponent;
 
-    public MonteCarloTreeSearch() {
-        this.level = 3;
-    }
+// public MonteCarloTreeSearch() {
+// this.level = 3;
+// }
 
-    public int getLevel() {
-        return level;
-    }
+// public int getLevel() {
+// return level;
+// }
 
-    public void setLevel(int level) {
-        this.level = level;
-    }
+// public void setLevel(int level) {
+// this.level = level;
+// }
 
-    private int getMillisForCurrentLevel() {
-        return 2 * (this.level - 1) + 1;
-    }
+// private int getMillisForCurrentLevel() {
+// return 2 * (this.level - 1) + 1;
+// }
 
-    public Board findNextMove(Board board, int playerNo) {
-        long start = System.currentTimeMillis();
-        long end = start + 60 * getMillisForCurrentLevel();
+// public Board findNextMove(Board board, int playerNo) {
+// long start = System.currentTimeMillis();
+// long end = start + 60 * getMillisForCurrentLevel();
 
-        opponent = 3 - playerNo;
-        Tree tree = new Tree();
-        Node rootNode = tree.getRoot();
-        rootNode.getState().setBoard(board);
-        rootNode.getState().setPlayerNo(opponent);
+// opponent = 3 - playerNo;
+// Tree tree = new Tree();
+// Node rootNode = tree.getRoot();
+// rootNode.getState().setBoard(board);
+// rootNode.getState().setPlayerNo(opponent);
 
-        while (System.currentTimeMillis() < end) {
-            // Phase 1 - Selection
-            Node promisingNode = selectPromisingNode(rootNode);
-            // Phase 2 - Expansion
-            if (promisingNode.getState().getBoard().checkStatus() == Board.IN_PROGRESS)
-                expandNode(promisingNode);
+// while (System.currentTimeMillis() < end) {
+// // Phase 1 - Selection
+// Node promisingNode = selectPromisingNode(rootNode);
+// // Phase 2 - Expansion
+// if (promisingNode.getState().getBoard().checkStatus() == Board.IN_PROGRESS)
+// expandNode(promisingNode);
 
-            // Phase 3 - Simulation
-            Node nodeToExplore = promisingNode;
-            if (promisingNode.getChildArray().size() > 0) {
-                nodeToExplore = promisingNode.getRandomChildNode();
-            }
-            int playoutResult = simulateRandomPlayout(nodeToExplore);
-            // Phase 4 - Update
-            backPropogation(nodeToExplore, playoutResult);
-        }
+// // Phase 3 - Simulation
+// Node nodeToExplore = promisingNode;
+// if (promisingNode.getChildArray().size() > 0) {
+// nodeToExplore = promisingNode.getRandomChildNode();
+// }
+// int playoutResult = simulateRandomPlayout(nodeToExplore);
+// // Phase 4 - Update
+// backPropogation(nodeToExplore, playoutResult);
+// }
 
-        Node winnerNode = rootNode.getChildWithMaxScore();
-        tree.setRoot(winnerNode);
-        return winnerNode.getState().getBoard();
-    }
+// Node winnerNode = rootNode.getChildWithMaxScore();
+// tree.setRoot(winnerNode);
+// return winnerNode.getState().getBoard();
+// }
 
-    private Node selectPromisingNode(Node rootNode) {
-        Node node = rootNode;
-        while (node.getChildArray().size() != 0) {
-            node = UCT.findBestNodeWithUCT(node);
-        }
-        return node;
-    }
+// private Node selectPromisingNode(Node rootNode) {
+// Node node = rootNode;
+// while (node.getChildArray().size() != 0) {
+// node = UCT.findBestNodeWithUCT(node);
+// }
+// return node;
+// }
 
-    private void expandNode(Node node) {
-        List<State> possibleStates = node.getState().getAllPossibleStates();
-        possibleStates.forEach(state -> {
-            Node newNode = new Node(state);
-            newNode.setParent(node);
-            newNode.getState().setPlayerNo(node.getState().getOpponent());
-            node.getChildArray().add(newNode);
-        });
-    }
+// private void expandNode(Node node) {
+// List<State> possibleStates = node.getState().getAllPossibleStates();
+// possibleStates.forEach(state -> {
+// Node newNode = new Node(state);
+// newNode.setParent(node);
+// newNode.getState().setPlayerNo(node.getState().getOpponent());
+// node.getChildArray().add(newNode);
+// });
+// }
 
-    private void backPropogation(Node nodeToExplore, int playerNo) {
-        Node tempNode = nodeToExplore;
-        while (tempNode != null) {
-            tempNode.getState().incrementVisit();
-            if (tempNode.getState().getPlayerNo() == playerNo)
-                tempNode.getState().addScore(WIN_SCORE);
-            tempNode = tempNode.getParent();
-        }
-    }
+// private void backPropogation(Node nodeToExplore, int playerNo) {
+// Node tempNode = nodeToExplore;
+// while (tempNode != null) {
+// tempNode.getState().incrementVisit();
+// if (tempNode.getState().getPlayerNo() == playerNo)
+// tempNode.getState().addScore(WIN_SCORE);
+// tempNode = tempNode.getParent();
+// }
+// }
 
-    private int simulateRandomPlayout(Node node) {
-        Node tempNode = new Node(node);
-        State tempState = tempNode.getState();
-        int boardStatus = tempState.getBoard().checkStatus();
+// private int simulateRandomPlayout(Node node) {
+// Node tempNode = new Node(node);
+// State tempState = tempNode.getState();
+// int boardStatus = tempState.getBoard().checkStatus();
 
-        if (boardStatus == opponent) {
-            tempNode.getParent().getState().setWinScore(Integer.MIN_VALUE);
-            return boardStatus;
-        }
-        while (boardStatus == Board.IN_PROGRESS) {
-            tempState.togglePlayer();
-            tempState.randomPlay();
-            boardStatus = tempState.getBoard().checkStatus();
-        }
+// if (boardStatus == opponent) {
+// tempNode.getParent().getState().setWinScore(Integer.MIN_VALUE);
+// return boardStatus;
+// }
+// while (boardStatus == Board.IN_PROGRESS) {
+// tempState.togglePlayer();
+// tempState.randomPlay();
+// boardStatus = tempState.getBoard().checkStatus();
+// }
 
-        return boardStatus;
-    }
+// return boardStatus;
+// }
 
-}
+// }

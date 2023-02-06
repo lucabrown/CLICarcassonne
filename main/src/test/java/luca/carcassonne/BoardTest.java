@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.Player;
+import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.SideFeature;
 import luca.carcassonne.tile.Tile;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import org.jgrapht.graph.DefaultEdge;
@@ -1036,5 +1038,26 @@ class BoardTest {
         Scoring.scoreClosedFeatures(board);
 
         assertEquals(Settings.MONASTERY_POINTS_PER_TILE * 9, player.getScore());
+    }
+
+    @Test
+    void testBoardClone() throws CloneNotSupportedException{
+        Board board = new Board(Settings.getSingleCastle());
+
+        Board clone = new Board(board);
+
+        Tile tile = Settings.getSingleCastle();
+
+        assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
+
+        System.out.println(board.getOpenFeatures().size());
+        System.out.println(clone.getOpenFeatures().size());
+
+        tile = Settings.getTwoSingleCastlesAdjacent();
+
+        assertTrue(clone.placeTile(new Coordinates(1, 0), tile));
+
+        System.out.println(board.getOpenFeatures().size());
+        System.out.println(clone.getOpenFeatures().size());
     }
 }

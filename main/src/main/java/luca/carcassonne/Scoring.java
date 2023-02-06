@@ -132,7 +132,8 @@ public class Scoring {
             if (isClosed) {
                 score += 9;
             } else {
-                score += 1 + board.getSurroundingTiles(feature.vertexSet().iterator().next().getBelongingTile());
+                Tile monasteryTile = board.getTileFromFeature(feature.vertexSet().iterator().next());
+                score += 1 + board.getSurroundingTiles(monasteryTile);
             }
         } else {
             throw new IllegalArgumentException("Feature class not recognized");

@@ -9,7 +9,7 @@ import luca.carcassonne.tile.feature.Feature;
 
 // The main Tile object. The 4 sides are represented by side features, arranged clockwise 
 // from the top: north, east, south, west.
-public class Tile {
+public class Tile implements Cloneable {
     private String id;
     private ArrayList<SideFeature> sideFeatures;
     private Coordinates coordinates;
@@ -17,22 +17,27 @@ public class Tile {
     private Player owner;
 
     public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west) {
-        this.sideFeatures = new ArrayList<>() {{
-            add(north);
-            add(east);
-            add(south);
-            add(west);
-        }};
+        this.sideFeatures = new ArrayList<>() {
+            {
+                add(north);
+                add(east);
+                add(south);
+                add(west);
+            }
+        };
         features = new HashSet<>();
     }
 
-    public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, HashSet<Feature> features, String id) {
-        this.sideFeatures = new ArrayList<>() {{
-            add(north);
-            add(east);
-            add(south);
-            add(west);
-        }};
+    public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, HashSet<Feature> features,
+            String id) {
+        this.sideFeatures = new ArrayList<>() {
+            {
+                add(north);
+                add(east);
+                add(south);
+                add(west);
+            }
+        };
         this.features = features;
         this.id = id;
     }
@@ -64,7 +69,7 @@ public class Tile {
 
     public void rotateClockwise(int times) {
         SideFeature west;
-        for(int i = 0; i < times; i++){
+        for (int i = 0; i < times; i++) {
             west = sideFeatures.remove(3);
             sideFeatures.add(0, west);
             rotateSideFeaturesClockwise();
@@ -79,7 +84,7 @@ public class Tile {
         for (Feature feature : features) {
             ArrayList<CardinalPoint> cardinalPoints = feature.getCardinalPoints();
 
-            for(CardinalPoint point : cardinalPoints){
+            for (CardinalPoint point : cardinalPoints) {
                 switch (point) {
                     case NNE:
                         feature.setCardinalPoints(cardinalPoints.indexOf(point), CardinalPoint.ESE);
@@ -162,4 +167,16 @@ public class Tile {
     public String toString() {
         return "Tile" + sideFeatures;
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Tile newTile = (Tile) super.clone();
+        newTile.id = id;
+        newTile.coordinates = (Coordinates) coordinates.clone();
+        newTile.sideFeatures = (ArrayList<SideFeature>) sideFeatures.clone();
+        newTile.features = (HashSet<Feature>) features.clone();
+
+        return newTile;
+    }
+
 }

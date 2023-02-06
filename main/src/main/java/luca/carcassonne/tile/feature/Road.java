@@ -11,4 +11,5 @@ public class Road extends Feature{
         super.setPointsClosed(Settings.ROAD_POINTS_CLOSED);
         super.setPointsOpen(Settings.ROAD_POINTS_OPEN);
     }
+
 }

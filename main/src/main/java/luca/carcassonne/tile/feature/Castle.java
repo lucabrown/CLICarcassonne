@@ -2,10 +2,11 @@ package luca.carcassonne.tile.feature;
 
 import java.util.ArrayList;
 
+
 import luca.carcassonne.Settings;
 import luca.carcassonne.tile.CardinalPoint;
 
-public class Castle extends Feature{
+public class Castle extends Feature {
     private boolean HAS_SHIELD;
 
     public Castle(ArrayList<CardinalPoint> cardinalPoints, boolean hasShield) {
@@ -18,4 +19,9 @@ public class Castle extends Feature{
     public boolean hasShield() {
         return HAS_SHIELD;
     }
+
+    public void addCardinalPoint(CardinalPoint cardinalPoint) {
+        super.getCardinalPoints().add(cardinalPoint);
+    }
+
 }

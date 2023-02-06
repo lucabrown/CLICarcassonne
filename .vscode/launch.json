@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Test",
+            "request": "launch",
+            "mainClass": "luca.carcassonne.gson.Test",
+            "projectName": "main"
+        },
+        {
+            "type": "java",
             "name": "Launch Game",
             "request": "launch",
             "mainClass": "luca.carcassonne.Game",

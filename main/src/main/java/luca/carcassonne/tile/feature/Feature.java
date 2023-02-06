@@ -6,11 +6,12 @@ import java.util.HashMap;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Tile;
 
-public abstract class Feature {
+public abstract class Feature implements Cloneable {
     private Player owner;
     private ArrayList<CardinalPoint> cardinalPoints;
     private Tile belongingTile;
@@ -78,6 +79,20 @@ public abstract class Feature {
 
     public Integer getPointsClosed() {
         return pointsClosed;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object clone() throws CloneNotSupportedException{
+        Feature newFeature = (Feature) super.clone();
+
+        newFeature.owner = this.owner;
+        newFeature.cardinalPoints = (ArrayList<CardinalPoint>) this.cardinalPoints.clone();
+        newFeature.pointsClosed = this.pointsClosed;
+        newFeature.pointsOpen = this.pointsOpen;
+        newFeature.belongingTile = this.belongingTile;
+
+        return newFeature;
     }
 
 }
