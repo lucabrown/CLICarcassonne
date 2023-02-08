@@ -3,10 +3,12 @@ package luca.carcassonne;
 import org.junit.jupiter.api.Test;
 
 import luca.carcassonne.tile.CardinalPoint;
+import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -74,75 +76,99 @@ class TileTest {
 
     // @Test
     // void testTileRotation(){
-    //     Field westField = new Field(new ArrayList<CardinalPoint>() {
-    //         {
-    //             add(CardinalPoint.WNW);
-    //             add(CardinalPoint.W);
-    //             add(CardinalPoint.WSW);
-    //         }
-    //     }, null);
-    //     Field eastField = new Field(new ArrayList<CardinalPoint>() {
-    //         {
-    //             add(CardinalPoint.ENE);
-    //             add(CardinalPoint.E);
-    //             add(CardinalPoint.ESE);
-    //         }
-    //     }, null);
-    //     Road northRoad = new Road(new ArrayList<CardinalPoint>() {
-    //         {
-    //             add(CardinalPoint.NNW);
-    //             add(CardinalPoint.N);
-    //             add(CardinalPoint.NNE);
-    //         }
-    //     });
-    //     Road southRoad = new Road(new ArrayList<CardinalPoint>() {
-    //         {
-    //             add(CardinalPoint.SSW);
-    //             add(CardinalPoint.S);
-    //             add(CardinalPoint.SSE);
-    //         }
-    //     });
-        
-    //     Tile tileToRotate = new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD, new HashSet<>(){
-    //         {
-    //             add(westField);
-    //             add(eastField);
-    //             add(northRoad);
-    //             add(southRoad);
-    //         }
-    //     }, "null");
-        
-    //     Field rotatedWestField = westField;
-    //     rotatedWestField.setCardinalPoints(rotatedWestField.getCardinalPoints().indexOf(CardinalPoint.WNW), CardinalPoint.NNE);
-    //     rotatedWestField.setCardinalPoints(rotatedWestField.getCardinalPoints().indexOf(CardinalPoint.W), CardinalPoint.N);
-    //     rotatedWestField.setCardinalPoints(rotatedWestField.getCardinalPoints().indexOf(CardinalPoint.WSW), CardinalPoint.NNW);
-    //     Field rotatedEastField = eastField;
-    //     rotatedEastField.setCardinalPoints(rotatedEastField.getCardinalPoints().indexOf(CardinalPoint.ENE), CardinalPoint.SSE);
-    //     rotatedEastField.setCardinalPoints(rotatedEastField.getCardinalPoints().indexOf(CardinalPoint.E), CardinalPoint.S);
-    //     rotatedEastField.setCardinalPoints(rotatedEastField.getCardinalPoints().indexOf(CardinalPoint.ESE), CardinalPoint.SSW);
-    //     Road rotatedNorthRoad = northRoad;
-    //     rotatedNorthRoad.setCardinalPoints(rotatedNorthRoad.getCardinalPoints().indexOf(CardinalPoint.NNE), CardinalPoint.ESE);
-    //     rotatedNorthRoad.setCardinalPoints(rotatedNorthRoad.getCardinalPoints().indexOf(CardinalPoint.N), CardinalPoint.E);
-    //     rotatedNorthRoad.setCardinalPoints(rotatedNorthRoad.getCardinalPoints().indexOf(CardinalPoint.NNW), CardinalPoint.ENE);
-    //     Road rotatedSouthRoad = southRoad;
-    //     rotatedSouthRoad.setCardinalPoints(rotatedSouthRoad.getCardinalPoints().indexOf(CardinalPoint.SSE), CardinalPoint.WSW);
-    //     rotatedSouthRoad.setCardinalPoints(rotatedSouthRoad.getCardinalPoints().indexOf(CardinalPoint.S), CardinalPoint.W);
-    //     rotatedSouthRoad.setCardinalPoints(rotatedSouthRoad.getCardinalPoints().indexOf(CardinalPoint.SSW), CardinalPoint.WNW);
+    // Field westField = new Field(new ArrayList<CardinalPoint>() {
+    // {
+    // add(CardinalPoint.WNW);
+    // add(CardinalPoint.W);
+    // add(CardinalPoint.WSW);
+    // }
+    // }, null);
+    // Field eastField = new Field(new ArrayList<CardinalPoint>() {
+    // {
+    // add(CardinalPoint.ENE);
+    // add(CardinalPoint.E);
+    // add(CardinalPoint.ESE);
+    // }
+    // }, null);
+    // Road northRoad = new Road(new ArrayList<CardinalPoint>() {
+    // {
+    // add(CardinalPoint.NNW);
+    // add(CardinalPoint.N);
+    // add(CardinalPoint.NNE);
+    // }
+    // });
+    // Road southRoad = new Road(new ArrayList<CardinalPoint>() {
+    // {
+    // add(CardinalPoint.SSW);
+    // add(CardinalPoint.S);
+    // add(CardinalPoint.SSE);
+    // }
+    // });
 
+    // Tile tileToRotate = new Tile(SideFeature.ROAD, SideFeature.FIELD,
+    // SideFeature.ROAD, SideFeature.FIELD, new HashSet<>(){
+    // {
+    // add(westField);
+    // add(eastField);
+    // add(northRoad);
+    // add(southRoad);
+    // }
+    // }, "null");
 
-    //     Tile rotatedTile = new Tile(SideFeature.FIELD, SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD, new HashSet<>(){
-    //         {
-    //             add(rotatedWestField);
-    //             add(rotatedEastField);
-    //             add(rotatedNorthRoad);
-    //             add(rotatedSouthRoad);
-    //         }
-    //     }, "null");
-    
-    //     tileToRotate.rotateClockwise(1);
+    // Field rotatedWestField = westField;
+    // rotatedWestField.setCardinalPoints(rotatedWestField.getCardinalPoints().indexOf(CardinalPoint.WNW),
+    // CardinalPoint.NNE);
+    // rotatedWestField.setCardinalPoints(rotatedWestField.getCardinalPoints().indexOf(CardinalPoint.W),
+    // CardinalPoint.N);
+    // rotatedWestField.setCardinalPoints(rotatedWestField.getCardinalPoints().indexOf(CardinalPoint.WSW),
+    // CardinalPoint.NNW);
+    // Field rotatedEastField = eastField;
+    // rotatedEastField.setCardinalPoints(rotatedEastField.getCardinalPoints().indexOf(CardinalPoint.ENE),
+    // CardinalPoint.SSE);
+    // rotatedEastField.setCardinalPoints(rotatedEastField.getCardinalPoints().indexOf(CardinalPoint.E),
+    // CardinalPoint.S);
+    // rotatedEastField.setCardinalPoints(rotatedEastField.getCardinalPoints().indexOf(CardinalPoint.ESE),
+    // CardinalPoint.SSW);
+    // Road rotatedNorthRoad = northRoad;
+    // rotatedNorthRoad.setCardinalPoints(rotatedNorthRoad.getCardinalPoints().indexOf(CardinalPoint.NNE),
+    // CardinalPoint.ESE);
+    // rotatedNorthRoad.setCardinalPoints(rotatedNorthRoad.getCardinalPoints().indexOf(CardinalPoint.N),
+    // CardinalPoint.E);
+    // rotatedNorthRoad.setCardinalPoints(rotatedNorthRoad.getCardinalPoints().indexOf(CardinalPoint.NNW),
+    // CardinalPoint.ENE);
+    // Road rotatedSouthRoad = southRoad;
+    // rotatedSouthRoad.setCardinalPoints(rotatedSouthRoad.getCardinalPoints().indexOf(CardinalPoint.SSE),
+    // CardinalPoint.WSW);
+    // rotatedSouthRoad.setCardinalPoints(rotatedSouthRoad.getCardinalPoints().indexOf(CardinalPoint.S),
+    // CardinalPoint.W);
+    // rotatedSouthRoad.setCardinalPoints(rotatedSouthRoad.getCardinalPoints().indexOf(CardinalPoint.SSW),
+    // CardinalPoint.WNW);
 
-    //     assertEquals(rotatedTile.getFeatures(), tileToRotate.getFeatures());
+    // Tile rotatedTile = new Tile(SideFeature.FIELD, SideFeature.ROAD,
+    // SideFeature.FIELD, SideFeature.ROAD, new HashSet<>(){
+    // {
+    // add(rotatedWestField);
+    // add(rotatedEastField);
+    // add(rotatedNorthRoad);
+    // add(rotatedSouthRoad);
+    // }
+    // }, "null");
 
+    // tileToRotate.rotateClockwise(1);
+
+    // assertEquals(rotatedTile.getFeatures(), tileToRotate.getFeatures());
 
     // }
+
+    @Test
+    void testTileClone() throws CloneNotSupportedException {
+        Tile singleCastle = Settings.getSingleCastle();
+        singleCastle.setCoordinates(new Coordinates(0, 0));
+        Tile clone = (Tile) singleCastle.clone();
+
+        assertEquals(singleCastle.getNorthSideFeature(), clone.getNorthSideFeature());
+        singleCastle.rotateClockwise(1);
+        assertNotEquals(singleCastle.getNorthSideFeature(), clone.getNorthSideFeature());
+
+    }
 }

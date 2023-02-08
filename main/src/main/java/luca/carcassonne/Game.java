@@ -31,7 +31,7 @@ public class Game {
     private final ArrayList<Player> players;
     private Stack<Tile> availableTiles;
     private Tile currentTile;
-    private Player currentPlayer;
+    private int currentPlayer = 0;
     private HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
     private HashSet<Integer> checkedRotations;
 
@@ -103,8 +103,22 @@ public class Game {
             checkedCombinations = new HashMap<>();
             checkedRotations = new HashSet<Integer>();
 
-            currentPlayer = players.get(0);
             currentTile = availableTiles.pop();
+
+            /*
+             * 
+             * 
+             * Start MCTS by passing in:
+             * - the current board
+             * - the current tile
+             * - the current player
+             * - the available tiles
+             * - the players
+             * 
+             * MCTS = new MCTS(board, currentTile, currentPlayer, availableTiles, players);
+             * 
+             * Move move = mcts.findNextMove();
+             */
 
             while (!isPlaced) {
                 triedPlacements++;
@@ -145,13 +159,13 @@ public class Game {
 
                 // place meeple with 30% chance
                 if (random.nextInt(10) < 3) {
-                    meeplePlaced = board.placeMeeple(randomFeature, currentPlayer);
+                    meeplePlaced = board.placeMeeple(randomFeature, players.get(currentPlayer));
                 }
 
-                currentTile.setOwner(currentPlayer); // to delete
+                currentTile.setOwner(players.get(currentPlayer)); // to delete
 
                 Scoring.scoreClosedFeatures(board);
-                updatePlayerQueue();
+                currentPlayer = (currentPlayer + 1) % players.size();
             }
 
             // printProgressBarStep();
@@ -187,12 +201,6 @@ public class Game {
         }
 
         return false;
-    }
-
-    // Moves the current player to the back of the queue
-    private void updatePlayerQueue() {
-        players.remove(0);
-        players.add(currentPlayer);
     }
 
     // * * * * * * * * * * * *
