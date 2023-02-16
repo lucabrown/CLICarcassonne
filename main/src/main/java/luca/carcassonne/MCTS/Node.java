@@ -17,32 +17,32 @@ import java.util.List;
 public class Node {
     State state;
     Node parent;
-    List<Node> childArray;
+    ArrayList<Node> children;
 
     public Node() {
         this.state = new State();
-        childArray = new ArrayList<>();
+        children = new ArrayList<>();
     }
 
     public Node(State state) {
         this.state = state;
-        childArray = new ArrayList<>();
+        children = new ArrayList<>();
     }
 
-    public Node(State state, Node parent, List<Node> childArray) {
+    public Node(State state, Node parent, ArrayList<Node> children) {
         this.state = state;
         this.parent = parent;
-        this.childArray = childArray;
+        this.children = children;
     }
 
     public Node(Node node) throws CloneNotSupportedException {
-        this.childArray = new ArrayList<>();
+        this.children = new ArrayList<>();
         this.state = new State(node.getState());
         if (node.getParent() != null)
             this.parent = node.getParent();
-        List<Node> childArray = node.getChildArray();
-        for (Node child : childArray) {
-            this.childArray.add(new Node(child));
+        List<Node> children = node.getChildren();
+        for (Node child : children) {
+            this.children.add(new Node(child));
         }
     }
 
@@ -62,26 +62,27 @@ public class Node {
         this.parent = parent;
     }
 
-    public List<Node> getChildArray() {
-        return childArray;
+    public ArrayList<Node> getChildren() {
+        return children;
     }
 
-    public void setChildArray(List<Node> childArray) {
-        this.childArray = childArray;
+    public void setChildren(ArrayList<Node> children) {
+        this.children = children;
     }
 
     public boolean hasChildren() {
-        return childArray.size() > 0;
+        return children.size() > 0;
     }
 
     public Node getRandomChildNode() {
-        int noOfPossibleMoves = this.childArray.size();
+        int noOfPossibleMoves = this.children.size();
         int selectRandom = (int) (Math.random() * noOfPossibleMoves);
-        return this.childArray.get(selectRandom);
+
+        return this.children.get(selectRandom);
     }
 
     public Node getChildWithMaxScore() {
-        return Collections.max(this.childArray, Comparator.comparing(c -> {
+        return Collections.max(this.children, Comparator.comparing(c -> {
             return c.getState().getVisitCount();
         }));
     }

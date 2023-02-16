@@ -39,4 +39,9 @@ public class Move {
     public Feature getFeature() {
         return feature;
     }
+
+    @Override
+    public String toString() {
+        return "Move [" + coordinate + ", " + tile + ", " + feature.getClass().getSimpleName() + "]";
+    }
 }

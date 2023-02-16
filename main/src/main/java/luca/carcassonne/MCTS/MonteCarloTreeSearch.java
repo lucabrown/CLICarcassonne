@@ -32,44 +32,80 @@ public class MonteCarloTreeSearch {
         this.availableTiles = availableTiles;
     }
 
-    public Move findNextMove() {
+    public Move findNextMove() throws CloneNotSupportedException {
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
+        double startTime = System.currentTimeMillis();
+        double timeForOneMove = 5000;
 
         rootNode.getState().initialise(startingBoard, startingPlayer, currentTile, players, availableTiles);
 
-        // Selection
-        Node promisingNode = selectPromisingNode(rootNode);
+        while (System.currentTimeMillis() - startTime < timeForOneMove) {
 
-        // Expansion
-        if (promisingNode.getState().getBoard().checkStatus() == Board.IN_PROGRESS)
-            expandNode(promisingNode);
+            // Selection
+            Node promisingNode = selectPromisingNode(rootNode);
 
-        // Simulation
-        Node nodeToExplore = promisingNode;
+            // Expansion
+            if (!promisingNode.getState().getBoard().isFinished())
+                expandNode(promisingNode);
 
-        if (promisingNode.hasChildren())
-            nodeToExplore = promisingNode.getRandomChildNode();
+            // Simulation
+            Node nodeToExplore = promisingNode;
 
-        int playoutResult = simulateRandomPlayout(nodeToExplore);
+            if (promisingNode.hasChildren()) {
+                nodeToExplore = promisingNode.getRandomChildNode(); // Random??
+            }
 
-        // Backpropagation
-        backPropagation(nodeToExplore, playoutResult);
+            simulateRandomPlayout(nodeToExplore);
 
-        return null;
+            // Backpropagation
+            backPropagation(nodeToExplore);
+        }
+
+        Node bestNode = rootNode.getChildWithMaxScore();
+        return bestNode.getState().getMove();
     }
 
-    private Node selectPromisingNode(Node rootNode) {
-        return null;
+    private Node selectPromisingNode(Node parentNode) {
+        if (parentNode.getChildren().isEmpty())
+            return parentNode;
+
+        Node node = null;
+
+        node = UCT.findBestNodeWithUCT(parentNode);
+
+        return node;
     }
 
-    private void expandNode(Node promisingNode) {
+    private void expandNode(Node promisingNode) throws CloneNotSupportedException {
+        ArrayList<State> possibleStates = promisingNode.getState().getAllPossibleChildStates();
+
+        for (State state : possibleStates) {
+            Node newNode = new Node(state);
+
+            newNode.setParent(promisingNode);
+            promisingNode.getChildren().add(newNode);
+        }
     }
 
-    private int simulateRandomPlayout(Node nodeToExplore) {
-        return 0;
+    private void simulateRandomPlayout(Node nodeToExplore) throws CloneNotSupportedException {
+        Node tempNode = new Node(nodeToExplore);
+        State tempState = tempNode.getState();
+
+        tempState.randomPlay();
     }
 
-    private void backPropagation(Node nodeToExplore, int playoutResult) {
+    private void backPropagation(Node exploredNode) {
+        Node tempNode = exploredNode;
+        double playoutResult = exploredNode.getState().getFinalScoreDifference();
+
+        while (tempNode != null) {
+            tempNode.getState().incrementVisit();
+            if (tempNode.getState().getCurrentPlayer() == startingPlayer) {
+                tempNode.getState().setFinalScoreDifference((int) playoutResult);
+            }
+
+            tempNode = tempNode.getParent();
+        }
     }
 }

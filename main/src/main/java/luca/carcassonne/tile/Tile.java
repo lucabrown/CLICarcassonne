@@ -169,10 +169,15 @@ public class Tile implements Cloneable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object clone() throws CloneNotSupportedException {
         Tile newTile = (Tile) super.clone();
         newTile.id = id;
-        newTile.coordinates = (Coordinates) coordinates.clone();
+        if (coordinates != null) {
+            newTile.coordinates = (Coordinates) coordinates.clone();
+        } else {
+            newTile.coordinates = null;
+        }
         newTile.sideFeatures = (ArrayList<SideFeature>) sideFeatures.clone();
         newTile.features = (HashSet<Feature>) features.clone();
 

@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jgrapht.EdgeFactory;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
@@ -31,7 +29,6 @@ public class Board implements Cloneable {
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_RED = "\u001B[31m";
-    public static final int IN_PROGRESS = -1;
 
     private Integer height;
     private Integer width;
@@ -494,12 +491,9 @@ public class Board implements Cloneable {
         return openFeatures;
     }
 
-    public int checkStatus() {
-        if (placedTiles.size() <= 72) {
-            return -1;
-        } else {
-            return 1;
-        }
+    public boolean isFinished() {
+        System.out.println("Is finished?: " + placedTiles.size());
+        return placedTiles.size() == 74;
     }
 
     // * * * * * * *

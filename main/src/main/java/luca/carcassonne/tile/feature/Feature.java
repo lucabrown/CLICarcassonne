@@ -6,7 +6,6 @@ import java.util.HashMap;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Tile;
@@ -83,7 +82,7 @@ public abstract class Feature implements Cloneable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object clone() throws CloneNotSupportedException{
+    public Object clone() throws CloneNotSupportedException {
         Feature newFeature = (Feature) super.clone();
 
         newFeature.owner = this.owner;

@@ -17,9 +17,8 @@ import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 import luca.carcassonne.tile.feature.Field;
 
-
 // A class that handles the game's score
-public class Scoring {
+public class ScoreManager {
 
     // Scores all closed features
     public static void scoreClosedFeatures(Board board) {
@@ -98,7 +97,7 @@ public class Scoring {
         }
 
         return owners;
-    }    
+    }
 
     // Calculates the value of a feature
     private static int calculateFeatureValue(Board board, SimpleGraph<Feature, DefaultEdge> feature, boolean isClosed) {
@@ -122,7 +121,8 @@ public class Scoring {
             }
 
             if (isClosed) {
-                score += belongingTiles.size() * Settings.CASTLE_POINTS_CLOSED + shields * Settings.SHIELD_POINTS_CLOSED;
+                score += belongingTiles.size() * Settings.CASTLE_POINTS_CLOSED
+                        + shields * Settings.SHIELD_POINTS_CLOSED;
             } else {
                 score += belongingTiles.size() * Settings.CASTLE_POINTS_OPEN + shields * Settings.SHIELD_POINTS_OPEN;
             }

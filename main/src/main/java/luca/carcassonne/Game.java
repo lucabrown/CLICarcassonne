@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
 
+import luca.carcassonne.MCTS.MonteCarloTreeSearch;
+import luca.carcassonne.MCTS.Move;
 import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Coordinates;
@@ -52,7 +54,7 @@ public class Game {
         Game.failedTiles = 0;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CloneNotSupportedException {
         float times = 1;
         float whiteTotalScore = 0;
         float redTotalScore = 0;
@@ -85,15 +87,23 @@ public class Game {
         System.out.println("Red won " + redWR + "% of games with an average score of " + redTotalScore / times);
         System.out.println("Ties: " + ties + "%");
 
+        System.out.println(Settings.getStandardDeck().size());
+
     }
 
     // The main game loop
-    public void play() {
+    public void play() throws CloneNotSupportedException {
         Collections.shuffle(availableTiles);
 
         startTime = System.currentTimeMillis();
         progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
+        currentTile = Settings.getCurvyCastleWithCurvyRoad();
+        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer, currentTile,
+                players, availableTiles);
+
+        Move move = mcts.findNextMove();
+        System.out.println("Move: " + move);
 
         // Each loop iteration corresponds to one turn
         while (!availableTiles.empty()) {
@@ -145,10 +155,6 @@ public class Game {
             }
 
             if (playerPlacedTile) {
-
-                // Take a feature node from the current tile and place a meeple
-                boolean meeplePlaced = false;
-
                 Object[] filteredFeature = currentTile.getFeatures().stream().toArray();
 
                 Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
@@ -159,12 +165,12 @@ public class Game {
 
                 // place meeple with 30% chance
                 if (random.nextInt(10) < 3) {
-                    meeplePlaced = board.placeMeeple(randomFeature, players.get(currentPlayer));
+                    board.placeMeeple(randomFeature, players.get(currentPlayer));
                 }
 
                 currentTile.setOwner(players.get(currentPlayer)); // to delete
 
-                Scoring.scoreClosedFeatures(board);
+                ScoreManager.scoreClosedFeatures(board);
                 currentPlayer = (currentPlayer + 1) % players.size();
             }
 
@@ -172,7 +178,7 @@ public class Game {
 
         }
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         // board.printOpenFeatures();
         // board.printClosedFeatures();

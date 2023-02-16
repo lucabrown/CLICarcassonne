@@ -9,26 +9,32 @@ https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-se
 * unless clearly stated otherwise.
 */
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 public class UCT {
 
-    public static double uctValue(int totalVisit, double nodeWinScore, int nodeVisit) {
+    public static double uctValue(int totalVisit, double nodeScoreDifference, int nodeVisit) {
         if (nodeVisit == 0) {
             return Integer.MAX_VALUE;
         }
-        return (nodeWinScore / (double) nodeVisit) + 1.41 *
+        return (nodeScoreDifference / (double) nodeVisit) + 1.41 *
                 Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
     }
 
-    static Node findBestNodeWithUCT(Node node) {
-        int parentVisit = node.getState().getVisitCount();
-        return Collections.max(
-                node.getChildArray(),
-                Comparator.comparing(
-                        c -> uctValue(parentVisit, c.getState().getFinalPointDifference(),
-                                c.getState().getVisitCount())));
+    static Node findBestNodeWithUCT(Node parentNode) {
+        int parentVisit = parentNode.getState().getVisitCount();
+        double bestValue = Integer.MIN_VALUE;
+        Node bestNode = null;
+
+        System.out.println("Children: " + parentNode.getChildren().size());
+
+        for (Node childNode : parentNode.getChildren()) {
+            double nodeValue = uctValue(parentVisit, childNode.getState().getFinalScoreDifference(),
+                    childNode.getState().getVisitCount());
+            if (nodeValue > bestValue) {
+                bestNode = childNode;
+                bestValue = nodeValue;
+            }
+        }
+
+        return bestNode;
     }
 }

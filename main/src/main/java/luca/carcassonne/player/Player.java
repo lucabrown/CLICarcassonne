@@ -2,7 +2,6 @@ package luca.carcassonne.player;
 
 public class Player implements Cloneable {
     public static final Integer MAX_MEEPLES = 7;
-    private Behaviour behaviour;
     private Colour colour;
     private Integer score;
     private Integer availableMeeples;
@@ -11,7 +10,6 @@ public class Player implements Cloneable {
         this.colour = colour;
         this.score = 0;
         this.availableMeeples = MAX_MEEPLES;
-        behaviour = new Behaviour();
     }
 
     public Integer getScore() {

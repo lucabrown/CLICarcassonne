@@ -1,7 +1,10 @@
 package luca.carcassonne.MCTS;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -15,10 +18,12 @@ https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-se
 */
 
 import luca.carcassonne.Board;
+import luca.carcassonne.ScoreManager;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
+import luca.carcassonne.tile.feature.Field;
 
 public class State {
     private Board board;
@@ -28,21 +33,21 @@ public class State {
     private Stack<Tile> availableTiles;
     private ArrayList<Player> players;
     private int visitCount;
-    private int finalPointDifference;
+    private double finalScoreDifference;
 
     public State() {
         board = new Board();
     }
 
-    public State(State state) throws CloneNotSupportedException {
+    public State(State state) throws CloneNotSupportedException { // TODO: clone everything?
         this.board = new Board(state.getBoard());
-        this.move = null;
+        this.move = state.getMove();
         this.currentPlayer = 0;
-        this.currentTile = null;
-        this.availableTiles = null;
-        this.players = null;
-        this.visitCount = 0;
-        this.finalPointDifference = 0;
+        this.currentTile = state.getCurrentTile();
+        this.availableTiles = state.getAvailableTiles();
+        this.players = state.getPlayers();
+        this.visitCount = state.getVisitCount();
+        this.finalScoreDifference = state.getFinalScoreDifference();
     }
 
     public State(Board board) throws CloneNotSupportedException {
@@ -55,6 +60,7 @@ public class State {
         this.board = startingBoard;
         this.currentPlayer = startingPlayer;
         this.currentTile = currentTile;
+        this.players = players;
         this.availableTiles = availableTiles;
     }
 
@@ -65,90 +71,147 @@ public class State {
 
         for (Coordinates coordinates : possibleCoordinates) {
             for (int i = 0; i < 4; i++) {
-                State newState = new State(this);
-                Tile newTile = (Tile) currentTile.clone();
-
-                newTile.rotateClockwise(i);
-
-                if (newState.getBoard().placeTile((Coordinates) coordinates.clone(), newTile)) {
-                    Stack<Tile> availableTilesClone = (Stack<Tile>) availableTiles.clone();
-                    ArrayList<Player> playersClone = (ArrayList<Player>) this.players.clone();
-
-                    newState.setCurrentPlayer((currentPlayer + 1) % players.size());
-                    newState.setAvailableTiles(availableTilesClone);
-                    newState.setCurrentTile(availableTilesClone.pop());
-                    newState.setPlayers(playersClone);
-
+                for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
+                    State newState = new State(this);
+                    Tile newTile = (Tile) currentTile.clone();
                     ArrayList<Feature> featuresList = newTile.getFeatures().stream()
                             .collect(Collectors.toCollection(ArrayList::new));
 
-                    for (int j = 0; j < featuresList.size(); j++) {
-                        State newerState = new State(newState);
+                    newTile.rotateClockwise(i);
+                    Coordinates newCoordinates = (Coordinates) coordinates.clone();
 
-                        // if (newerState.getBoard().placeMeeple(newerState.getBoard().get(j),
-                        // newerState.getPlayers().get(currentPlayer))) {
-                        // }
+                    if (newState.getBoard().placeTile(newCoordinates, newTile)) {
+                        Stack<Tile> availableTilesClone = (Stack<Tile>) availableTiles.clone();
+                        ArrayList<Player> playersClone = (ArrayList<Player>) this.players.clone();
 
+                        newState.setCurrentPlayer((currentPlayer + 1) % players.size());
+                        newState.setAvailableTiles(availableTilesClone);
+                        newState.setCurrentTile(availableTilesClone.pop());
+                        newState.setPlayers(playersClone);
+
+                        if (j < currentTile.getFeatures().size()) {
+                            newState.getBoard().placeMeeple(featuresList.get(j), players.get(currentPlayer));
+                            newState.setMove(new Move(newCoordinates, newTile, i, featuresList.get(j)));
+                        } else {
+                            newState.setMove(new Move(newCoordinates, newTile, i));
+
+                        }
+
+                        possibleChildStates.add(newState);
                     }
-
-                    possibleChildStates.add(newState);
-
                 }
             }
         }
 
         return possibleChildStates;
     }
-    // @SuppressWarnings("unchecked")
-    // public ArrayList<State> getAllPossibleChildStates() throws
-    // CloneNotSupportedException {
-    // ArrayList<State> possibleChildStates = new ArrayList<>();
-    // List<Coordinates> possibleCoordinates = this.board.getPossibleCoordinates();
-
-    // for (Coordinates coordinates : possibleCoordinates) {
-    // for (int i = 0; i < 4; i++) {
-    // for (Feature feature : currentTile.getFeatures()) {
-    // State newState = new State(this);
-    // Tile newTile = (Tile) currentTile.clone();
-
-    // newTile.rotateClockwise(i);
-    // if (newState.getBoard().placeTile((Coordinates) coordinates.clone(), (Tile)
-    // newTile.clone())) {
-    // boolean meeplePlaced = newState.getBoard().placeMeeple(feature,
-    // players.get(currentPlayer));
-
-    // Stack<Tile> availableTilesClone = (Stack<Tile>) availableTiles.clone();
-    // ArrayList<Player> playersClone = (ArrayList<Player>) this.players.clone();
-
-    // newState.setCurrentPlayer((currentPlayer + 1) % players.size());
-    // newState.setAvailableTiles(availableTilesClone);
-    // newState.setCurrentTile(availableTilesClone.pop());
-    // newState.setPlayers(playersClone);
-
-    // if (meeplePlaced) {
-
-    // } else {
-
-    // }
-    // possibleChildStates.add(newState);
-
-    // }
-    // }
-    // }
-    // }
-
-    // return possibleChildStates;
-    // }
 
     void incrementVisit() {
-        this.visitCount++;
+        visitCount++;
     }
 
-    void randomPlay() {
-        List<Coordinates> availablePositions = this.board.getPossibleCoordinates();
-        int totalPossibilities = availablePositions.size();
-        int selectRandom = (int) (Math.random() * totalPossibilities);
-        // this.board.performMove(this.playerNo, availablePositions.get(selectRandom));
+    @SuppressWarnings("unchecked")
+    void randomPlay() throws CloneNotSupportedException {
+        Board newBoard = new Board(board);
+        Tile newCurrentTile = (Tile) currentTile.clone();
+        Stack<Tile> newAvailableTiles = (Stack<Tile>) availableTiles.clone();
+        ArrayList<Player> newPlayers = (ArrayList<Player>) this.players.clone();
+        int newCurrentPlayer = currentPlayer;
+
+        Random random = new Random();
+        HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
+        HashSet<Integer> checkedRotations;
+
+        while (!newAvailableTiles.empty()) {
+            boolean isPlaced = false;
+            boolean playerPlacedTile = true;
+
+            checkedCombinations = new HashMap<>();
+            checkedRotations = new HashSet<Integer>();
+
+            newCurrentTile = newAvailableTiles.pop();
+
+            while (!isPlaced) {
+
+                Coordinates randomCoordinates = newBoard.getPossibleCoordinates()
+                        .get(random.nextInt(newBoard.getPossibleCoordinates()
+                                .size()));
+
+                int randomRotation = random.nextInt(4);
+                newCurrentTile.rotateClockwise(randomRotation);
+
+                // Check if the tile can go in the given coordinates with the given rotation
+                isPlaced = newBoard.placeTile(randomCoordinates, newCurrentTile);
+                if (!isPlaced) {
+                    // If tile is not placed, keep a record of checked combination
+                    if (updateCheckedCombinations(checkedCombinations, checkedRotations, randomCoordinates,
+                            randomRotation)) {
+                        System.out.println("- - Tile not placed");
+                        isPlaced = true;
+                        playerPlacedTile = false;
+                    }
+                }
+            }
+
+            if (playerPlacedTile) {
+                Object[] filteredFeature = newCurrentTile.getFeatures().stream().toArray();
+
+                Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
+
+                while (randomFeature.getClass() == Field.class && random.nextInt(10) < 7) {
+                    randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
+                }
+
+                // place meeple with 30% chance
+                if (random.nextInt(10) < 3) {
+                    board.placeMeeple(randomFeature, newPlayers.get(newCurrentPlayer));
+                }
+
+                currentTile.setOwner(newPlayers.get(newCurrentPlayer)); // to delete
+
+                ScoreManager.scoreClosedFeatures(newBoard);
+                newCurrentPlayer = (newCurrentPlayer + 1) % newPlayers.size();
+            }
+
+        }
+
+        ScoreManager.scoreOpenFeatures(newBoard);
+
+        finalScoreDifference = calculateScoreDifference(newPlayers, currentPlayer);
+
+    }
+
+    private boolean updateCheckedCombinations(HashMap<Coordinates, HashSet<Integer>> checkedCombinations,
+            HashSet<Integer> checkedRotations,
+            Coordinates randomCoordinates, Integer randomRotation) {
+        if (!checkedCombinations.containsKey(randomCoordinates)) {
+            checkedCombinations.put(randomCoordinates, new HashSet<>());
+        }
+
+        checkedRotations = checkedCombinations.get(randomCoordinates);
+        checkedRotations.add(randomRotation);
+        checkedCombinations.put(randomCoordinates, checkedRotations);
+
+        if (checkedCombinations.size() == board.getPossibleCoordinates().size()
+                && checkedCombinations.get(randomCoordinates).size() == 4) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private double calculateScoreDifference(ArrayList<Player> players, int currentPlayer) {
+        double pointDifference = 0;
+
+        for (int i = 0; i < players.size(); i++) {
+            if (i != currentPlayer) {
+                pointDifference += players.get(i).getScore();
+            } else {
+                pointDifference -= players.get(i).getScore();
+            }
+        }
+
+        return pointDifference;
     }
 
     Board getBoard() {
@@ -211,11 +274,11 @@ public class State {
         this.visitCount = visitCount;
     }
 
-    double getFinalPointDifference() {
-        return finalPointDifference;
+    double getFinalScoreDifference() {
+        return finalScoreDifference;
     }
 
-    void setFinalPointDifference(int finalPointDifference) {
-        this.finalPointDifference = finalPointDifference;
+    void setFinalScoreDifference(int finalScoreDifference) {
+        this.finalScoreDifference = finalScoreDifference;
     }
 }

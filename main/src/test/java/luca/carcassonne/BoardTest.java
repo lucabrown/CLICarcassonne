@@ -327,7 +327,7 @@ class BoardTest {
                 System.out.println("Yes");
             }
         }
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
         assertEquals(3, board.getOpenFeatures().size());
         assertEquals(1, board.getClosedFeatures().size());
         assertEquals(1, board.getNewlyClosedFeatures().size());
@@ -595,7 +595,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
 
         assertEquals(Settings.ROAD_POINTS_CLOSED * 2, player.getScore());
     }
@@ -618,7 +618,7 @@ class BoardTest {
         assertEquals(0, board.getNewlyClosedFeatures().size());
         assertEquals(0, player.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(Settings.ROAD_POINTS_OPEN * 2, player.getScore());
     }
@@ -654,7 +654,7 @@ class BoardTest {
         assertEquals(0, player1.getScore());
         assertEquals(0, player2.getScore());
 
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
 
         assertEquals(Settings.ROAD_POINTS_CLOSED * 4, player1.getScore());
         assertEquals(Settings.ROAD_POINTS_CLOSED * 4, player2.getScore());
@@ -663,7 +663,7 @@ class BoardTest {
     }
 
     @Test
-    void testScoreClosedFourTileFiveEdgeRoad(){
+    void testScoreClosedFourTileFiveEdgeRoad() {
         board = new Board(Settings.getFourRoadIntersection());
         Player player = new Player(Colour.RED);
 
@@ -685,15 +685,15 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
 
         assertEquals(Settings.ROAD_POINTS_CLOSED * 4, player.getScore());
     }
-    
+
     // CASTLE
 
     @Test
-    void testScoreClosedTwoTileCastle(){
+    void testScoreClosedTwoTileCastle() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
@@ -712,13 +712,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
 
         assertEquals(Settings.CASTLE_POINTS_CLOSED * 2, player.getScore());
     }
 
     @Test
-    void testScoreOpenTwoTileCastle(){
+    void testScoreOpenTwoTileCastle() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
@@ -737,13 +737,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(Settings.CASTLE_POINTS_OPEN * 2, player.getScore());
     }
 
     @Test
-    void testScoreOpenTwoTileCastleWithShield(){
+    void testScoreOpenTwoTileCastleWithShield() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
@@ -762,13 +762,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(Settings.CASTLE_POINTS_OPEN * 2 + Settings.SHIELD_POINTS_OPEN, player.getScore());
     }
 
     @Test
-    void testScoreClosedThreeTileCastleWithShield(){
+    void testScoreClosedThreeTileCastleWithShield() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
@@ -793,13 +793,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
 
         assertEquals(Settings.CASTLE_POINTS_CLOSED * 3 + Settings.SHIELD_POINTS_CLOSED, player.getScore());
     }
 
     @Test
-    void testScoreFourTileFiveEdgeCastle(){
+    void testScoreFourTileFiveEdgeCastle() {
         Tile startingCastle = Settings.getTwoSingleCastlesAdjacent();
         startingCastle.rotateClockwise();
         board = new Board(startingCastle);
@@ -823,7 +823,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
 
         assertEquals(Settings.CASTLE_POINTS_CLOSED * 4, player.getScore());
     }
@@ -831,7 +831,7 @@ class BoardTest {
     // FIELD
 
     @Test
-    void testScoreFieldWithOpenAdjacentCastle(){
+    void testScoreFieldWithOpenAdjacentCastle() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
@@ -850,13 +850,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(0, player.getScore());
     }
-    
+
     @Test
-    void testScoreFieldWithOneClosedAdjacentCastle(){
+    void testScoreFieldWithOneClosedAdjacentCastle() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
@@ -880,13 +880,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE, player.getScore());
     }
 
     @Test
-    void testScoreFieldWithTwoClosedAdjacentCastle(){
+    void testScoreFieldWithTwoClosedAdjacentCastle() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
@@ -903,7 +903,7 @@ class BoardTest {
         singleCastle.rotateClockwise(2);
 
         assertTrue(board.placeTile(new Coordinates(0, 1), singleCastle));
-        
+
         singleCastle = Settings.getSingleCastle();
         singleCastle.rotateClockwise(3);
 
@@ -915,13 +915,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE * 2, player.getScore());
     }
-    
+
     @Test
-    void testScoreContestedField(){
+    void testScoreContestedField() {
         board = new Board(Settings.getSingleCastle());
         Player player1 = new Player(Colour.RED);
         Player player2 = new Player(Colour.BLUE);
@@ -957,21 +957,22 @@ class BoardTest {
         assertEquals(0, player1.getScore());
         assertEquals(0, player2.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE, player1.getScore());
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE, player2.getScore());
     }
-    
+
     // MONASTERY
 
     @Test
-    void testOpenMonastery(){
+    void testOpenMonastery() {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
         Tile monastery = Settings.getMonastery();
-        Feature monasteryFeature = monastery.getFeatures().stream().filter(f -> f instanceof Monastery).findFirst().get();
+        Feature monasteryFeature = monastery.getFeatures().stream().filter(f -> f instanceof Monastery).findFirst()
+                .get();
 
         monastery.setOwner(player);
         monastery.rotateClockwise();
@@ -985,13 +986,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board);
 
         assertEquals(Settings.MONASTERY_POINTS_PER_TILE * 2, player.getScore());
     }
 
     @Test
-    void testClosedMonastery(){
+    void testClosedMonastery() {
         Tile startingRoad = Settings.getStraightRoad();
         startingRoad.rotateClockwise();
         board = new Board(startingRoad);
@@ -1024,7 +1025,8 @@ class BoardTest {
         assertTrue(board.placeTile(new Coordinates(0, -2), road));
 
         Tile monastery = Settings.getMonastery();
-        Feature monasteryFeature = monastery.getFeatures().stream().filter(f -> f instanceof Monastery).findFirst().get();
+        Feature monasteryFeature = monastery.getFeatures().stream().filter(f -> f instanceof Monastery).findFirst()
+                .get();
 
         assertTrue(board.placeTile(new Coordinates(0, -1), monastery));
         assertTrue(board.placeMeeple(monasteryFeature, player));
@@ -1035,13 +1037,13 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        Scoring.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board);
 
         assertEquals(Settings.MONASTERY_POINTS_PER_TILE * 9, player.getScore());
     }
 
     @Test
-    void testBoardClone() throws CloneNotSupportedException{
+    void testBoardClone() throws CloneNotSupportedException {
         Board board = new Board(Settings.getSingleCastle());
 
         Board clone = new Board(board);
