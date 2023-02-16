@@ -2,6 +2,10 @@ package luca.carcassonne.MCTS;
 
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.stream.Collectors;
+
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
 
 /*
 * All the code in this file is from
@@ -15,6 +19,7 @@ https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-se
 import luca.carcassonne.Board;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Tile;
+import luca.carcassonne.tile.feature.Feature;
 
 public class MonteCarloTreeSearch {
     private Board startingBoard;
@@ -25,11 +30,23 @@ public class MonteCarloTreeSearch {
 
     public MonteCarloTreeSearch(Board startingBoard, int startingPlayer, Tile currentTile,
             ArrayList<Player> players, Stack<Tile> availableTiles) {
-        this.startingBoard = startingBoard;
+        this.startingBoard = (Board) startingBoard.clone();
         this.startingPlayer = startingPlayer;
-        this.currentTile = currentTile;
-        this.players = players;
-        this.availableTiles = availableTiles;
+        this.currentTile = (Tile) currentTile.clone();
+        this.players = (ArrayList<Player>) players.stream().map(p -> (Player) p.clone())
+                .collect(Collectors.toCollection(ArrayList::new));
+        this.availableTiles = (Stack<Tile>) availableTiles.stream().map(t -> (Tile) t.clone())
+                .collect(Collectors.toCollection(Stack::new));
+
+        for (SimpleGraph<Feature, DefaultEdge> featureGraph : this.startingBoard.getOpenFeatures()) {
+            for (Feature feature : featureGraph.vertexSet()) {
+                if (feature.getOwner() == null) {
+                    continue;
+                }
+                int playerIndex = players.indexOf(feature.getOwner());
+                feature.setOwner(this.players.get(playerIndex));
+            }
+        }
     }
 
     public Move findNextMove() {

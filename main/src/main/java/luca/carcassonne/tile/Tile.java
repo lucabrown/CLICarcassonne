@@ -2,6 +2,8 @@ package luca.carcassonne.tile;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import luca.carcassonne.Settings;
 import luca.carcassonne.player.Player;
@@ -187,7 +189,8 @@ public class Tile implements Cloneable {
             newTile.coordinates = null;
         }
         newTile.sideFeatures = (ArrayList<SideFeature>) sideFeatures.clone();
-        newTile.features = (HashSet<Feature>) features.clone();
+        newTile.features = (HashSet<Feature>) features.stream().map(f -> (Feature) f.clone())
+                .collect(Collectors.toCollection(HashSet::new));
 
         return newTile;
     }

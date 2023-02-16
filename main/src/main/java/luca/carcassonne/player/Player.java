@@ -44,4 +44,12 @@ public class Player implements Cloneable {
         return true;
     }
 
+    @Override
+    public Object clone() {
+        Player clone = new Player(colour);
+        clone.score = score;
+        clone.availableMeeples = availableMeeples;
+        return clone;
+    }
+
 }

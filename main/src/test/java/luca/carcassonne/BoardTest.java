@@ -179,7 +179,7 @@ class BoardTest {
             if (feature.vertexSet().iterator().next().getClass() == Road.class) {
                 System.out.println(
                         feature.vertexSet().stream().map(f -> f.getClass().getSimpleName())
-                                .collect(Collectors.toList()));
+                                .collect(Collectors.toCollection(ArrayList::new)));
                 System.out.println(feature.vertexSet().stream().map(f -> f.getCardinalPoints().size()));
                 System.out.println(feature.edgeSet().size());
 
@@ -273,7 +273,7 @@ class BoardTest {
             if (feature.vertexSet().iterator().next().getClass() == Road.class) {
                 System.out.println(
                         feature.vertexSet().stream().map(f -> f.getClass().getSimpleName())
-                                .collect(Collectors.toList()));
+                                .collect(Collectors.toCollection(ArrayList::new)));
                 System.out.println(feature.vertexSet().stream().map(f -> f.getCardinalPoints().size()));
                 System.out.println(feature.edgeSet().size());
 
@@ -1061,5 +1061,45 @@ class BoardTest {
 
         System.out.println(board.getOpenFeatures().size());
         System.out.println(clone.getOpenFeatures().size());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testBoardCloneWithNewPlayers() {
+        Board board = new Board(Settings.getSingleCastleWithStraightRoad());
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(new Player(Colour.RED));
+
+        Tile tile = Settings.getSingleCastleWithStraightRoad();
+
+        assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
+        assertTrue(board.placeMeeple(tile.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get(),
+                players.get(0)));
+
+        Board boardClone = (Board) board.clone();
+        ArrayList<Player> playersClone = (ArrayList<Player>) players.stream().map(p -> (Player) p.clone())
+                .collect(Collectors.toList());
+
+        for (SimpleGraph<Feature, DefaultEdge> featureGraph : boardClone.getOpenFeatures()) {
+            for (Feature feature : featureGraph.vertexSet()) {
+                if (feature.getOwner() == null) {
+                    continue;
+                }
+                int playerIndex = players.indexOf(feature.getOwner());
+                System.out.println(playerIndex);
+                System.out.println(players.get(playerIndex));
+                System.out.println(playersClone.get(playerIndex));
+                feature.setOwner(playersClone.get(playerIndex));
+            }
+        }
+
+        assertEquals(0, players.get(0).getScore());
+        assertEquals(0, playersClone.get(0).getScore());
+
+        ScoreManager.scoreOpenFeatures(boardClone);
+
+        assertEquals(0, players.get(0).getScore());
+        assertEquals(Settings.ROAD_POINTS_OPEN * 2, playersClone.get(0).getScore());
+
     }
 }

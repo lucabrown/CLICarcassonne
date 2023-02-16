@@ -43,7 +43,7 @@ public class Game {
             {
                 add(new Player(Colour.WHITE));
                 add(new Player(Colour.RED));
-                // add(new Player(Colour.GREEN));
+                add(new Player(Colour.GREEN));
                 // add(new Player(Colour.YELLOW));
                 // add(new Player(Colour.BLACK));
                 // add(new Player(Colour.BLUE));

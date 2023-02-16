@@ -74,7 +74,8 @@ public class State implements Cloneable {
                     Coordinates newCoordinates = (Coordinates) coordinates.clone();
 
                     if (newState.getBoard().placeTile(newCoordinates, newTile)) {
-                        Stack<Tile> availableTilesClone = (Stack<Tile>) availableTiles.clone();
+                        Stack<Tile> availableTilesClone = (Stack<Tile>) availableTiles.stream()
+                                .collect(Collectors.toCollection(Stack::new));
                         ArrayList<Player> playersClone = (ArrayList<Player>) this.players.clone();
 
                         newState.setCurrentPlayer((currentPlayer + 1) % players.size());
@@ -103,7 +104,6 @@ public class State implements Cloneable {
         visitCount++;
     }
 
-    @SuppressWarnings("unchecked")
     void randomPlay() {
         State newState = (State) this.clone();
         Board newBoard = newState.getBoard();
@@ -295,7 +295,6 @@ public class State implements Cloneable {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Object clone() {
         State newState = new State();
 
@@ -303,8 +302,11 @@ public class State implements Cloneable {
         newState.setMove(move == null ? null : (Move) move.clone());
         newState.setCurrentPlayer(currentPlayer);
         newState.setCurrentTile(currentTile == null ? null : (Tile) currentTile.clone());
-        newState.setAvailableTiles((Stack<Tile>) availableTiles.clone());
-        newState.setPlayers((ArrayList<Player>) players.clone());
+        newState.setAvailableTiles(
+                (Stack<Tile>) availableTiles.stream().map(t -> (Tile) t.clone())
+                        .collect(Collectors.toCollection(Stack::new)));
+        newState.setPlayers((ArrayList<Player>) players.stream().map(p -> (Player) p.clone())
+                .collect(Collectors.toCollection(ArrayList::new)));
         newState.setVisitCount(visitCount);
         newState.setFinalScoreDifference((int) finalScoreDifference);
 

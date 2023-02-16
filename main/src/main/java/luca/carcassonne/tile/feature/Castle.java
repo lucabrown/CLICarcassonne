@@ -1,6 +1,7 @@
 package luca.carcassonne.tile.feature;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import luca.carcassonne.Settings;
 import luca.carcassonne.tile.CardinalPoint;

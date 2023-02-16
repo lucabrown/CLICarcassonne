@@ -58,7 +58,7 @@ public class ScoreManager {
             Set<Player> owners = new HashSet<>();
             int score = 0;
 
-            owners = Feature.getPlayersOnFeature(feature).keySet();
+            owners = getPlayersOnFeature(feature).keySet();
             score = calculateFeatureValue(board, feature, false);
 
             if (owners.isEmpty() || score == 0) {
@@ -78,7 +78,7 @@ public class ScoreManager {
         HashMap<Player, Integer> players = new HashMap<>();
         int maxMeeples = 0;
 
-        players = Feature.getPlayersOnFeature(feature);
+        players = getPlayersOnFeature(feature);
 
         // Find the player(s) with the most meeples on the feature
         if (!players.isEmpty()) {
@@ -97,6 +97,24 @@ public class ScoreManager {
         }
 
         return owners;
+    }
+
+    // Returns a map of players and the number of meeples they have on the feature
+    public static HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature) {
+        HashMap<Player, Integer> players = new HashMap<>();
+
+        // Map each player to the number of meeples they have on the feature
+        feature.vertexSet().stream().map(v -> v.getOwner()).forEach(p -> {
+            if (players.containsKey(p)) {
+                players.put(p, players.get(p) + 1);
+            } else {
+                if (p != null) {
+                    players.put(p, 1);
+                }
+            }
+        });
+
+        return players;
     }
 
     // Calculates the value of a feature

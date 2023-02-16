@@ -25,24 +25,6 @@ public abstract class Feature implements Cloneable {
     Feature() {
     }
 
-    // Returns a map of players and the number of meeples they have on the feature
-    public static HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature) {
-        HashMap<Player, Integer> players = new HashMap<>();
-
-        // Map each player to the number of meeples they have on the feature
-        feature.vertexSet().stream().map(v -> v.getOwner()).forEach(p -> {
-            if (players.containsKey(p)) {
-                players.put(p, players.get(p) + 1);
-            } else {
-                if (p != null) {
-                    players.put(p, 1);
-                }
-            }
-        });
-
-        return players;
-    }
-
     public ArrayList<CardinalPoint> getCardinalPoints() {
         return cardinalPoints;
     }
@@ -84,17 +66,6 @@ public abstract class Feature implements Cloneable {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Object clone() throws CloneNotSupportedException {
-        Feature newFeature = (Feature) super.clone();
-
-        newFeature.owner = this.owner;
-        newFeature.cardinalPoints = (ArrayList<CardinalPoint>) this.cardinalPoints.clone();
-        newFeature.pointsClosed = this.pointsClosed;
-        newFeature.pointsOpen = this.pointsOpen;
-        newFeature.belongingTile = this.belongingTile;
-
-        return newFeature;
-    }
+    public abstract Object clone();
 
 }
