@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Node {
+public class Node implements Cloneable {
     State state;
     Node parent;
     ArrayList<Node> children;
@@ -33,17 +33,6 @@ public class Node {
         this.state = state;
         this.parent = parent;
         this.children = children;
-    }
-
-    public Node(Node node) throws CloneNotSupportedException {
-        this.children = new ArrayList<>();
-        this.state = new State(node.getState());
-        if (node.getParent() != null)
-            this.parent = node.getParent();
-        List<Node> children = node.getChildren();
-        for (Node child : children) {
-            this.children.add(new Node(child));
-        }
     }
 
     public State getState() {
@@ -85,6 +74,19 @@ public class Node {
         return Collections.max(this.children, Comparator.comparing(c -> {
             return c.getState().getVisitCount();
         }));
+    }
+
+    @Override
+    public Object clone() {
+        Node newNode = new Node();
+
+        newNode.setState((State) state.clone());
+        newNode.setParent(parent);
+        for (Node child : children) {
+            newNode.getChildren().add((Node) child.clone());
+        }
+
+        return newNode;
     }
 
 }

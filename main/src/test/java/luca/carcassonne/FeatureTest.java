@@ -14,7 +14,7 @@ import luca.carcassonne.tile.feature.Field;
 public class FeatureTest {
 
     @Test
-    void testCastleClone() throws CloneNotSupportedException {
+    void testCastleClone() {
         ArrayList<CardinalPoint> list = new ArrayList<CardinalPoint>() {
             {
                 add(CardinalPoint.NNE);
@@ -34,7 +34,7 @@ public class FeatureTest {
     }
 
     @Test
-    void testFieldClone() throws CloneNotSupportedException {
+    void testFieldClone() {
         HashSet<Castle> castles = new HashSet<>() {
             {
                 add(new Castle(new ArrayList<CardinalPoint>() {

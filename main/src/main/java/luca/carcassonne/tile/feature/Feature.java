@@ -11,15 +11,18 @@ import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Tile;
 
 public abstract class Feature implements Cloneable {
-    private Player owner;
-    private ArrayList<CardinalPoint> cardinalPoints;
-    private Tile belongingTile;
-    private Integer pointsOpen;
-    private Integer pointsClosed;
+    protected Player owner;
+    protected ArrayList<CardinalPoint> cardinalPoints;
+    protected Tile belongingTile;
+    protected Integer pointsOpen;
+    protected Integer pointsClosed;
 
     Feature(ArrayList<CardinalPoint> cardinalPoints) {
         this.cardinalPoints = cardinalPoints;
         this.belongingTile = null;
+    }
+
+    Feature() {
     }
 
     // Returns a map of players and the number of meeples they have on the feature

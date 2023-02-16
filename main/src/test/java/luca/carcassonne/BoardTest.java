@@ -1043,10 +1043,10 @@ class BoardTest {
     }
 
     @Test
-    void testBoardClone() throws CloneNotSupportedException {
+    void testBoardClone() {
         Board board = new Board(Settings.getSingleCastle());
 
-        Board clone = new Board(board);
+        Board clone = (Board) board.clone();
 
         Tile tile = Settings.getSingleCastle();
 

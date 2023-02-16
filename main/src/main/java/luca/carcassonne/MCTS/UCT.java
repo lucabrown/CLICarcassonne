@@ -24,8 +24,6 @@ public class UCT {
         double bestValue = Integer.MIN_VALUE;
         Node bestNode = null;
 
-        System.out.println("Children: " + parentNode.getChildren().size());
-
         for (Node childNode : parentNode.getChildren()) {
             double nodeValue = uctValue(parentVisit, childNode.getState().getFinalScoreDifference(),
                     childNode.getState().getVisitCount());

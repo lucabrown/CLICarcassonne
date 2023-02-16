@@ -87,24 +87,6 @@ public class Board implements Cloneable {
         new Board(Settings.getStartingTile());
     }
 
-    // Create a Board copy constructor
-    @SuppressWarnings("unchecked")
-    public Board(Board board) throws CloneNotSupportedException {
-        this.height = board.height;
-        this.width = board.width;
-        this.maxY = board.maxY;
-        this.maxX = board.maxX;
-        this.minY = board.minY;
-        this.minX = board.minX;
-        this.startingTile = (Tile) board.startingTile.clone();
-        this.placedTiles = (ArrayList<Tile>) board.placedTiles.clone();
-        this.monasteryTiles = (HashSet<Tile>) board.monasteryTiles.clone();
-        this.openFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) board.openFeatures.clone();
-        this.closedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) board.closedFeatures.clone();
-        this.newlyClosedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) board.newlyClosedFeatures.clone();
-        this.possibleCoordinates = (ArrayList<Coordinates>) board.possibleCoordinates.clone();
-    }
-
     // Tries to place a tile in the given coordinates. Returns true if the placement
     // was legal.
     public boolean placeTile(Coordinates coordinates, Tile newTile) {
@@ -492,7 +474,6 @@ public class Board implements Cloneable {
     }
 
     public boolean isFinished() {
-        System.out.println("Is finished?: " + placedTiles.size());
         return placedTiles.size() == 74;
     }
 
@@ -538,8 +519,12 @@ public class Board implements Cloneable {
                         System.out.print(highlightColour + "X " + ANSI_RESET);
                         n += 1;
                     } else {
-                        System.out.print(
-                                getTileFromCoordinates(c).getOwner().getColour().getSymbol() + "X " + ANSI_RESET);
+                        if (getTileFromCoordinates(c).getOwner() == null) {
+                            System.out.print("X ");
+                        } else {
+                            System.out.print(
+                                    getTileFromCoordinates(c).getOwner().getColour().getSymbol() + "X " + ANSI_RESET);
+                        }
                     }
                 } else {
                     System.out.print(ANSI_CYAN + ". " + ANSI_RESET);
@@ -548,17 +533,17 @@ public class Board implements Cloneable {
 
             System.out.println();
         }
-        System.out.println("Ratio: " + n / (placedTiles.size() - 1));
+        // System.out.println("Ratio: " + n / (placedTiles.size() - 1));
 
         // Print highlight, height and width
         if (SideFeature != null) {
             System.out.println("Highlighting " + highlightColour + SideFeature.getSymbol() + "s" + ANSI_RESET + ".");
         }
 
-        System.out.println("Height: " + height);
-        System.out.println("Width: " + width);
-        System.out.println("Closed features: " + closedFeatures.size());
-        System.out.println("Open features: " + openFeatures.size());
+        // System.out.println("Height: " + height);
+        // System.out.println("Width: " + width);
+        // System.out.println("Closed features: " + closedFeatures.size());
+        // System.out.println("Open features: " + openFeatures.size());
     }
 
     // Prints all the closed features on the board
@@ -600,5 +585,26 @@ public class Board implements Cloneable {
             minY = y;
             height++;
         }
+    }
+
+    // Create a Board copy constructor
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object clone() {
+        Board newBoard = new Board();
+        newBoard.height = this.height;
+        newBoard.width = this.width;
+        newBoard.maxY = this.maxY;
+        newBoard.maxX = this.maxX;
+        newBoard.minY = this.minY;
+        newBoard.minX = this.minX;
+        newBoard.startingTile = (Tile) this.startingTile.clone();
+        newBoard.placedTiles = (ArrayList<Tile>) this.placedTiles.clone();
+        newBoard.monasteryTiles = (HashSet<Tile>) this.monasteryTiles.clone();
+        newBoard.openFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) this.openFeatures.clone();
+        newBoard.closedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) this.closedFeatures.clone();
+        newBoard.newlyClosedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) this.newlyClosedFeatures.clone();
+        newBoard.possibleCoordinates = (ArrayList<Coordinates>) this.possibleCoordinates.clone();
+        return newBoard;
     }
 }

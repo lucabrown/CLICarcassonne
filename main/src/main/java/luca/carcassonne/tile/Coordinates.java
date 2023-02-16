@@ -10,6 +10,11 @@ public class Coordinates implements Cloneable {
         this.y = y;
     }
 
+    public Coordinates() {
+        this.x = 0;
+        this.y = 0;
+    }
+
     public Integer getX() {
         return x;
     }
@@ -44,11 +49,13 @@ public class Coordinates implements Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        Coordinates newCoordinates = (Coordinates) super.clone();
+    public Object clone() {
+        Coordinates newCoordinates = new Coordinates();
+
         newCoordinates.setX(x);
         newCoordinates.setY(y);
 
         return newCoordinates;
+
     }
 }

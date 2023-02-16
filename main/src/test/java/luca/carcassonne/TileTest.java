@@ -161,7 +161,7 @@ class TileTest {
     // }
 
     @Test
-    void testTileClone() throws CloneNotSupportedException {
+    void testTileClone() {
         Tile singleCastle = Settings.getSingleCastle();
         singleCastle.setCoordinates(new Coordinates(0, 0));
         Tile clone = (Tile) singleCastle.clone();

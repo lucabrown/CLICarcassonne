@@ -32,33 +32,38 @@ public class MonteCarloTreeSearch {
         this.availableTiles = availableTiles;
     }
 
-    public Move findNextMove() throws CloneNotSupportedException {
-        Tree tree = new Tree();
-        Node rootNode = tree.getRoot();
+    public Move findNextMove() {
+        Node rootNode = new Node();
         double startTime = System.currentTimeMillis();
-        double timeForOneMove = 5000;
+        double timeForOneMove = 60000;
 
         rootNode.getState().initialise(startingBoard, startingPlayer, currentTile, players, availableTiles);
 
-        while (System.currentTimeMillis() - startTime < timeForOneMove) {
-
+        int iterations = 0;
+        while (iterations < 500) {
+            System.out.println("\n\n********* ITERATION " + iterations++ + " *********");
             // Selection
+            System.out.println("\n- - - SELECTION - - -");
             Node promisingNode = selectPromisingNode(rootNode);
 
             // Expansion
+            System.out.println("\n- - - EXPANSION - - -");
             if (!promisingNode.getState().getBoard().isFinished())
                 expandNode(promisingNode);
 
             // Simulation
+            System.out.println("\n- - - SIMULATION - - -");
             Node nodeToExplore = promisingNode;
 
             if (promisingNode.hasChildren()) {
                 nodeToExplore = promisingNode.getRandomChildNode(); // Random??
+                System.out.println("- Chosen random child");
             }
 
             simulateRandomPlayout(nodeToExplore);
 
             // Backpropagation
+            System.out.println("\n- - - BACKPROPAGATION - - -");
             backPropagation(nodeToExplore);
         }
 
@@ -72,13 +77,19 @@ public class MonteCarloTreeSearch {
 
         Node node = null;
 
-        node = UCT.findBestNodeWithUCT(parentNode);
+        while (!parentNode.getChildren().isEmpty()) {
+            node = UCT.findBestNodeWithUCT(parentNode);
+            parentNode = node;
+        }
 
+        System.out.println("- Selected node from " + parentNode.getChildren().size() + " children");
+        System.out.println("- Node tile: " + node.getState().getCurrentTile());
         return node;
     }
 
-    private void expandNode(Node promisingNode) throws CloneNotSupportedException {
+    private void expandNode(Node promisingNode) {
         ArrayList<State> possibleStates = promisingNode.getState().getAllPossibleChildStates();
+        System.out.println("- Getting all children: " + possibleStates.size());
 
         for (State state : possibleStates) {
             Node newNode = new Node(state);
@@ -88,18 +99,20 @@ public class MonteCarloTreeSearch {
         }
     }
 
-    private void simulateRandomPlayout(Node nodeToExplore) throws CloneNotSupportedException {
-        Node tempNode = new Node(nodeToExplore);
+    private void simulateRandomPlayout(Node nodeToExplore) {
+        Node tempNode = (Node) nodeToExplore.clone();
         State tempState = tempNode.getState();
-
+        System.out.println("- Simulating random playout");
         tempState.randomPlay();
+        System.out.println("- Playout terminated");
     }
 
     private void backPropagation(Node exploredNode) {
         Node tempNode = exploredNode;
         double playoutResult = exploredNode.getState().getFinalScoreDifference();
-
+        int i = 0;
         while (tempNode != null) {
+            i++;
             tempNode.getState().incrementVisit();
             if (tempNode.getState().getCurrentPlayer() == startingPlayer) {
                 tempNode.getState().setFinalScoreDifference((int) playoutResult);
@@ -107,5 +120,6 @@ public class MonteCarloTreeSearch {
 
             tempNode = tempNode.getParent();
         }
+        System.out.println("- Backpropagated " + i + " nodes");
     }
 }

@@ -8,6 +8,9 @@ import java.util.Random;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+
 /*
 * All the code in this file is from
 *
@@ -19,13 +22,15 @@ https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-se
 
 import luca.carcassonne.Board;
 import luca.carcassonne.ScoreManager;
+import luca.carcassonne.Settings;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Coordinates;
+import luca.carcassonne.tile.SideFeature;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
 import luca.carcassonne.tile.feature.Field;
 
-public class State {
+public class State implements Cloneable {
     private Board board;
     private Move move;
     private int currentPlayer;
@@ -39,21 +44,6 @@ public class State {
         board = new Board();
     }
 
-    public State(State state) throws CloneNotSupportedException { // TODO: clone everything?
-        this.board = new Board(state.getBoard());
-        this.move = state.getMove();
-        this.currentPlayer = 0;
-        this.currentTile = state.getCurrentTile();
-        this.availableTiles = state.getAvailableTiles();
-        this.players = state.getPlayers();
-        this.visitCount = state.getVisitCount();
-        this.finalScoreDifference = state.getFinalScoreDifference();
-    }
-
-    public State(Board board) throws CloneNotSupportedException {
-        this.board = new Board(board);
-    }
-
     public void initialise(Board startingBoard, int startingPlayer, Tile currentTile,
             ArrayList<Player> players,
             Stack<Tile> availableTiles) {
@@ -65,14 +55,17 @@ public class State {
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayList<State> getAllPossibleChildStates() throws CloneNotSupportedException {
+    public ArrayList<State> getAllPossibleChildStates() {
         ArrayList<State> possibleChildStates = new ArrayList<>();
         List<Coordinates> possibleCoordinates = this.board.getPossibleCoordinates();
 
+        board.printBoard();
+
+        System.out.println("Parent tile: " + currentTile.getId());
         for (Coordinates coordinates : possibleCoordinates) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = getSymmetricRotations(currentTile) - 1; i < 4; i++) {
                 for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
-                    State newState = new State(this);
+                    State newState = (State) this.clone();
                     Tile newTile = (Tile) currentTile.clone();
                     ArrayList<Feature> featuresList = newTile.getFeatures().stream()
                             .collect(Collectors.toCollection(ArrayList::new));
@@ -90,7 +83,7 @@ public class State {
                         newState.setPlayers(playersClone);
 
                         if (j < currentTile.getFeatures().size()) {
-                            newState.getBoard().placeMeeple(featuresList.get(j), players.get(currentPlayer));
+                            newState.getBoard().placeMeeple(featuresList.get(j), playersClone.get(currentPlayer));
                             newState.setMove(new Move(newCoordinates, newTile, i, featuresList.get(j)));
                         } else {
                             newState.setMove(new Move(newCoordinates, newTile, i));
@@ -111,26 +104,25 @@ public class State {
     }
 
     @SuppressWarnings("unchecked")
-    void randomPlay() throws CloneNotSupportedException {
-        Board newBoard = new Board(board);
-        Tile newCurrentTile = (Tile) currentTile.clone();
-        Stack<Tile> newAvailableTiles = (Stack<Tile>) availableTiles.clone();
-        ArrayList<Player> newPlayers = (ArrayList<Player>) this.players.clone();
+    void randomPlay() {
+        State newState = (State) this.clone();
+        Board newBoard = newState.getBoard();
+        Tile newCurrentTile = newState.getCurrentTile();
+        Stack<Tile> newAvailableTiles = newState.getAvailableTiles();
+        ArrayList<Player> newPlayers = newState.getPlayers();
         int newCurrentPlayer = currentPlayer;
 
         Random random = new Random();
-        HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
-        HashSet<Integer> checkedRotations;
+        HashMap<Coordinates, HashSet<Integer>> checkedCombinations = new HashMap<>();
+        HashSet<Integer> checkedRotations = new HashSet<Integer>();
 
+        int i = 0;
         while (!newAvailableTiles.empty()) {
+            i++;
             boolean isPlaced = false;
             boolean playerPlacedTile = true;
 
-            checkedCombinations = new HashMap<>();
-            checkedRotations = new HashSet<Integer>();
-
             newCurrentTile = newAvailableTiles.pop();
-
             while (!isPlaced) {
 
                 Coordinates randomCoordinates = newBoard.getPossibleCoordinates()
@@ -142,6 +134,7 @@ public class State {
 
                 // Check if the tile can go in the given coordinates with the given rotation
                 isPlaced = newBoard.placeTile(randomCoordinates, newCurrentTile);
+
                 if (!isPlaced) {
                     // If tile is not placed, keep a record of checked combination
                     if (updateCheckedCombinations(checkedCombinations, checkedRotations, randomCoordinates,
@@ -179,6 +172,7 @@ public class State {
 
         finalScoreDifference = calculateScoreDifference(newPlayers, currentPlayer);
 
+        System.out.println("Playout iterations: " + i);
     }
 
     private boolean updateCheckedCombinations(HashMap<Coordinates, HashSet<Integer>> checkedCombinations,
@@ -212,6 +206,24 @@ public class State {
         }
 
         return pointDifference;
+    }
+
+    private int getSymmetricRotations(Tile tile) {
+        int symmetricRotations = 1;
+        ArrayList<SideFeature> sideFeatures = tile.getSideFeatures();
+
+        if (sideFeatures.get(0).getClass() == sideFeatures.get(2).getClass()
+                && sideFeatures.get(1).getClass() == sideFeatures
+                        .get(3).getClass()
+                && sideFeatures.get(0).getClass() == sideFeatures.get(3).getClass()) {
+            symmetricRotations = 4;
+        } else if (sideFeatures.get(0).getClass() == sideFeatures.get(2).getClass()
+                && sideFeatures.get(1).getClass() == sideFeatures
+                        .get(3).getClass()) {
+            symmetricRotations = 2;
+        }
+
+        return symmetricRotations;
     }
 
     Board getBoard() {
@@ -280,5 +292,32 @@ public class State {
 
     void setFinalScoreDifference(int finalScoreDifference) {
         this.finalScoreDifference = finalScoreDifference;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object clone() {
+        State newState = new State();
+
+        newState.setBoard((Board) board.clone());
+        newState.setMove(move == null ? null : (Move) move.clone());
+        newState.setCurrentPlayer(currentPlayer);
+        newState.setCurrentTile(currentTile == null ? null : (Tile) currentTile.clone());
+        newState.setAvailableTiles((Stack<Tile>) availableTiles.clone());
+        newState.setPlayers((ArrayList<Player>) players.clone());
+        newState.setVisitCount(visitCount);
+        newState.setFinalScoreDifference((int) finalScoreDifference);
+
+        for (SimpleGraph<Feature, DefaultEdge> featureGraph : newState.getBoard().getOpenFeatures()) {
+            for (Feature feature : featureGraph.vertexSet()) {
+                if (feature.getOwner() == null) {
+                    continue;
+                }
+                int playerIndex = players.indexOf(feature.getOwner());
+                feature.setOwner(newState.getPlayers().get(playerIndex));
+            }
+        }
+
+        return newState;
     }
 }

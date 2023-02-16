@@ -42,6 +42,14 @@ public class Tile implements Cloneable {
         this.id = id;
     }
 
+    public Tile() {
+        this.id = null;
+        this.sideFeatures = null;
+        this.coordinates = null;
+        this.features = null;
+        this.owner = null;
+    }
+
     public Tile(Integer x, Integer y) {
         this.coordinates = new Coordinates(x, y);
         this.sideFeatures = Settings.getStartingTile().getSideFeatures();
@@ -170,8 +178,8 @@ public class Tile implements Cloneable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object clone() throws CloneNotSupportedException {
-        Tile newTile = (Tile) super.clone();
+    public Object clone() {
+        Tile newTile = new Tile();
         newTile.id = id;
         if (coordinates != null) {
             newTile.coordinates = (Coordinates) coordinates.clone();
@@ -183,5 +191,4 @@ public class Tile implements Cloneable {
 
         return newTile;
     }
-
 }

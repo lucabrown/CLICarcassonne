@@ -54,7 +54,7 @@ public class Game {
         Game.failedTiles = 0;
     }
 
-    public static void main(String[] args) throws CloneNotSupportedException {
+    public static void main(String[] args) {
         float times = 1;
         float whiteTotalScore = 0;
         float redTotalScore = 0;
@@ -92,13 +92,13 @@ public class Game {
     }
 
     // The main game loop
-    public void play() throws CloneNotSupportedException {
+    public void play() {
         Collections.shuffle(availableTiles);
 
         startTime = System.currentTimeMillis();
         progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
-        currentTile = Settings.getCurvyCastleWithCurvyRoad();
+        currentTile = Settings.getMonastery();
         MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer, currentTile,
                 players, availableTiles);
 
