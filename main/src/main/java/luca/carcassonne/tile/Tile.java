@@ -11,11 +11,11 @@ import luca.carcassonne.tile.feature.Feature;
 
 // The main Tile object. The 4 sides are represented by side features, arranged clockwise 
 // from the top: north, east, south, west.
-public class Tile implements Cloneable {
+public class Tile {
     private String id;
     private ArrayList<SideFeature> sideFeatures;
     private Coordinates coordinates;
-    private HashSet<Feature> features;
+    private ArrayList<Feature> features;
     private Player owner;
 
     public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west) {
@@ -27,10 +27,10 @@ public class Tile implements Cloneable {
                 add(west);
             }
         };
-        features = new HashSet<>();
+        features = new ArrayList<>();
     }
 
-    public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, HashSet<Feature> features,
+    public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west, ArrayList<Feature> features,
             String id) {
         this.sideFeatures = new ArrayList<>() {
             {
@@ -137,8 +137,12 @@ public class Tile implements Cloneable {
         }
     }
 
-    public HashSet<Feature> getFeatures() {
+    public ArrayList<Feature> getFeatures() {
         return features;
+    }
+
+    public void setFeatures(ArrayList<Feature> features) {
+        this.features = features;
     }
 
     public Player getOwner() {
@@ -169,8 +173,16 @@ public class Tile implements Cloneable {
         return sideFeatures;
     }
 
+    public void setSideFeatures(ArrayList<SideFeature> sideFeatures) {
+        this.sideFeatures = sideFeatures;
+    }
+
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -178,20 +190,21 @@ public class Tile implements Cloneable {
         return "Tile" + sideFeatures;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object clone() {
-        Tile newTile = new Tile();
-        newTile.id = id;
-        if (coordinates != null) {
-            newTile.coordinates = (Coordinates) coordinates.clone();
-        } else {
-            newTile.coordinates = null;
-        }
-        newTile.sideFeatures = (ArrayList<SideFeature>) sideFeatures.clone();
-        newTile.features = (HashSet<Feature>) features.stream().map(f -> (Feature) f.clone())
-                .collect(Collectors.toCollection(HashSet::new));
+    // @Override
+    // @SuppressWarnings("unchecked")
+    // public Object clone() {
+    // Tile newTile = new Tile();
+    // newTile.id = id;
+    // if (coordinates != null) {
+    // newTile.coordinates = (Coordinates) coordinates.clone();
+    // } else {
+    // newTile.coordinates = null;
+    // }
+    // newTile.sideFeatures = (ArrayList<SideFeature>) sideFeatures.clone();
+    // newTile.features = (ArrayList<Feature>) features.stream().map(f -> (Feature)
+    // f.clone())
+    // .collect(Collectors.toCollection(ArrayList::new));
 
-        return newTile;
-    }
+    // return newTile;
+    // }
 }

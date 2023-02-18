@@ -26,17 +26,18 @@ public class Field extends Feature {
         return adjacentCastles;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object clone() {
-        Field newField = new Field();
+    // @Override
+    // @SuppressWarnings("unchecked")
+    // public Object clone() {
+    // Field newField = new Field();
 
-        newField.cardinalPoints = (ArrayList<CardinalPoint>) this.cardinalPoints.clone();
-        newField.pointsClosed = this.pointsClosed;
-        newField.pointsOpen = this.pointsOpen;
-        newField.adjacentCastles = (HashSet<Castle>) this.adjacentCastles.stream()
-                .map(c -> (Castle) c.clone()).collect(Collectors.toCollection(HashSet::new));
+    // newField.cardinalPoints = (ArrayList<CardinalPoint>)
+    // this.cardinalPoints.clone();
+    // newField.pointsClosed = this.pointsClosed;
+    // newField.pointsOpen = this.pointsOpen;
+    // newField.adjacentCastles = (HashSet<Castle>) this.adjacentCastles.stream()
+    // .map(c -> (Castle) c.clone()).collect(Collectors.toCollection(HashSet::new));
 
-        return newField;
-    }
+    // return newField;
+    // }
 }

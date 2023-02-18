@@ -28,17 +28,18 @@ public class Castle extends Feature {
         super.getCardinalPoints().add(cardinalPoint);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object clone() {
-        Castle newCastle = new Castle();
+    // @Override
+    // @SuppressWarnings("unchecked")
+    // public Object clone() {
+    // Castle newCastle = new Castle();
 
-        newCastle.cardinalPoints = (ArrayList<CardinalPoint>) this.cardinalPoints.clone();
-        newCastle.pointsClosed = this.pointsClosed;
-        newCastle.pointsOpen = this.pointsOpen;
-        newCastle.HAS_SHIELD = this.HAS_SHIELD;
+    // newCastle.cardinalPoints = (ArrayList<CardinalPoint>)
+    // this.cardinalPoints.clone();
+    // newCastle.pointsClosed = this.pointsClosed;
+    // newCastle.pointsOpen = this.pointsOpen;
+    // newCastle.HAS_SHIELD = this.HAS_SHIELD;
 
-        return newCastle;
-    }
+    // return newCastle;
+    // }
 
 }

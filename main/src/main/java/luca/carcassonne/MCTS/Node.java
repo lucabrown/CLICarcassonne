@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Node implements Cloneable {
+public class Node {
     State state;
     Node parent;
     ArrayList<Node> children;
@@ -76,17 +76,17 @@ public class Node implements Cloneable {
         }));
     }
 
-    @Override
-    public Object clone() {
-        Node newNode = new Node();
+    // @Override
+    // public Object clone() {
+    // Node newNode = new Node();
 
-        newNode.setState((State) state.clone());
-        newNode.setParent(parent);
-        for (Node child : children) {
-            newNode.getChildren().add((Node) child.clone());
-        }
+    // newNode.setState((State) state.clone());
+    // newNode.setParent(parent);
+    // for (Node child : children) {
+    // newNode.getChildren().add((Node) child.clone());
+    // }
 
-        return newNode;
-    }
+    // return newNode;
+    // }
 
 }

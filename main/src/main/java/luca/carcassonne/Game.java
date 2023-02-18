@@ -99,7 +99,8 @@ public class Game {
         progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
         currentTile = Settings.getMonastery();
-        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer, currentTile,
+        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer,
+                currentTile,
                 players, availableTiles);
 
         Move move = mcts.findNextMove();
@@ -109,6 +110,9 @@ public class Game {
         while (!availableTiles.empty()) {
             boolean isPlaced = false;
             boolean playerPlacedTile = true;
+            boolean meeplePlaced = false;
+            Coordinates randomCoordinates = null;
+            int randomRotation = -1;
 
             checkedCombinations = new HashMap<>();
             checkedRotations = new HashSet<Integer>();
@@ -134,12 +138,12 @@ public class Game {
                 triedPlacements++;
 
                 // Get coordinates from mouse click
-                Coordinates randomCoordinates = board.getPossibleCoordinates()
+                randomCoordinates = board.getPossibleCoordinates()
                         .get(random.nextInt(board.getPossibleCoordinates()
                                 .size()));
 
                 // Get rotation from mouse click
-                int randomRotation = random.nextInt(4);
+                randomRotation = random.nextInt(4);
                 currentTile.rotateClockwise(randomRotation);
 
                 // Check if the tile can go in the given coordinates with the given rotation
@@ -165,10 +169,19 @@ public class Game {
 
                 // place meeple with 30% chance
                 if (random.nextInt(10) < 3) {
-                    board.placeMeeple(randomFeature, players.get(currentPlayer));
+                    meeplePlaced = board.placeMeeple(randomFeature, players.get(currentPlayer));
                 }
 
                 currentTile.setOwner(players.get(currentPlayer)); // to delete
+
+                if (meeplePlaced) {
+                    Move newMove = new Move(randomCoordinates, currentTile, randomRotation, currentPlayer,
+                            currentTile.getFeatures().indexOf(randomFeature));
+                    board.addNewMove(newMove);
+                } else {
+                    Move newMove = new Move(randomCoordinates, currentTile, randomRotation, currentPlayer);
+                    board.addNewMove(newMove);
+                }
 
                 ScoreManager.scoreClosedFeatures(board);
                 currentPlayer = (currentPlayer + 1) % players.size();

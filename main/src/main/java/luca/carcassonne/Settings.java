@@ -14,6 +14,9 @@ import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 
 public class Settings {
+    // Player constants
+    public static final int MAX_MEEPLES = 7;
+
     // Feature score constants
     public static final int ROAD_POINTS_OPEN = 1;
     public static final int ROAD_POINTS_CLOSED = 1;
@@ -36,7 +39,7 @@ public class Settings {
     private static final int N_SINGLE_CASTLE_WITH_CURVY_ROAD_LEFT = 3;
     private static final int N_SINGLE_CASTLE_WITH_CURVY_ROAD_RIGHT = 3;
     private static final int N_SINGLE_CASTLE_WITH_THREE_ROAD_INTERSECTION = 3;
-    private static final int N_LONG_CASTLE = 1;
+    private static final int N_STRAIGHT_CASTLE = 1;
     private static final int N_CURVY_CASTLE = 3;
     private static final int N_TWO_SINGLE_CASTLES_OPPOSITE = 3;
     private static final int N_TWO_SINGLE_CASTLES_ADJACENT = 3;
@@ -54,7 +57,7 @@ public class Settings {
     public static final Tile getMonastery() {
         return new Tile(SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD,
                 SideFeature.FIELD,
-                new HashSet<>() {
+                new ArrayList<>() {
                     {
                         add(new Field(new ArrayList<CardinalPoint>() {
                             {
@@ -81,7 +84,7 @@ public class Settings {
     public static final Tile getMonasteryWithRoad() {
         return new Tile(SideFeature.FIELD, SideFeature.FIELD, SideFeature.ROAD,
                 SideFeature.FIELD,
-                new HashSet<>() {
+                new ArrayList<>() {
                     {
                         add(new Field(new ArrayList<CardinalPoint>() {
                             {
@@ -112,7 +115,7 @@ public class Settings {
     public static final Tile getStraightRoad() {
         return new Tile(SideFeature.ROAD, SideFeature.FIELD, SideFeature.ROAD,
                 SideFeature.FIELD,
-                new HashSet<>() {
+                new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
@@ -147,7 +150,7 @@ public class Settings {
     public static final Tile getCurvyRoad() {
         return new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.FIELD,
                 SideFeature.FIELD,
-                new HashSet<>() {
+                new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
@@ -182,7 +185,7 @@ public class Settings {
     public static final Tile getThreeRoadIntersection() {
         return new Tile(SideFeature.FIELD, SideFeature.ROAD, SideFeature.ROAD,
                 SideFeature.ROAD,
-                new HashSet<>() {
+                new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
@@ -228,8 +231,7 @@ public class Settings {
     // [ROAD, ROAD, ROAD, ROAD]
     public static final Tile getFourRoadIntersection() {
         return new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD,
-                SideFeature.ROAD,
-                new HashSet<>() {
+                SideFeature.ROAD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
@@ -283,8 +285,7 @@ public class Settings {
     // [CASTLE, FIELD, FIELD, FIELD]
     public static final Tile getSingleCastle() {
         return new Tile(SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD,
-                SideFeature.FIELD,
-                new HashSet<>() {
+                SideFeature.FIELD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -319,8 +320,7 @@ public class Settings {
 
     public static final Tile getSingleCastleWithStraightRoad() {
         return new Tile(SideFeature.CASTLE, SideFeature.ROAD,
-                SideFeature.FIELD, SideFeature.ROAD,
-                new HashSet<Feature>() {
+                SideFeature.FIELD, SideFeature.ROAD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<Castle>() {
                             {
@@ -363,8 +363,7 @@ public class Settings {
 
     public static final Tile getSingleCastleWithCurvyRoadLeft() {
         return new Tile(SideFeature.CASTLE, SideFeature.FIELD,
-                SideFeature.ROAD, SideFeature.ROAD,
-                new HashSet<Feature>() {
+                SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<Castle>() {
                             {
@@ -407,8 +406,7 @@ public class Settings {
 
     public static final Tile getSingleCastleWithCurvyRoadRight() {
         return new Tile(SideFeature.CASTLE, SideFeature.ROAD,
-                SideFeature.ROAD, SideFeature.FIELD,
-                new HashSet<Feature>() {
+                SideFeature.ROAD, SideFeature.FIELD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<Castle>() {
                             {
@@ -451,8 +449,7 @@ public class Settings {
 
     public static final Tile getSingleCastleWithThreeRoadIntersection() {
         return new Tile(SideFeature.CASTLE,
-                SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD,
-                new HashSet<>() {
+                SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -508,10 +505,9 @@ public class Settings {
                 }, "Single castle with three road intersection");
     }
 
-    public static final Tile getLongCastle() {
+    public static final Tile getStraightCastle() {
         return new Tile(SideFeature.FIELD, SideFeature.CASTLE, SideFeature.FIELD,
-                SideFeature.CASTLE,
-                new HashSet<Feature>() {
+                SideFeature.CASTLE, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<Castle>() {
                             {
@@ -545,53 +541,12 @@ public class Settings {
                             add(castle);
                         }
                     }
-                }, "Long castle");
-    }
-
-    public static final Tile getLongCastleWithShield() {
-        return new Tile(SideFeature.FIELD, SideFeature.CASTLE, SideFeature.FIELD,
-                SideFeature.CASTLE,
-                new HashSet<Feature>() {
-                    {
-                        HashSet<Castle> castles = new HashSet<Castle>() {
-                            {
-                                add(new Castle(new ArrayList<CardinalPoint>() {
-                                    {
-                                        add(CardinalPoint.WNW);
-                                        add(CardinalPoint.W);
-                                        add(CardinalPoint.WSW);
-                                        add(CardinalPoint.ENE);
-                                        add(CardinalPoint.E);
-                                        add(CardinalPoint.ESE);
-                                    }
-                                }, true));
-                            }
-                        };
-                        add(new Field(new ArrayList<CardinalPoint>() {
-                            {
-                                add(CardinalPoint.NNW);
-                                add(CardinalPoint.N);
-                                add(CardinalPoint.NNE);
-                            }
-                        }, castles));
-                        add(new Field(new ArrayList<CardinalPoint>() {
-                            {
-                                add(CardinalPoint.SSW);
-                                add(CardinalPoint.S);
-                                add(CardinalPoint.SSE);
-                            }
-                        }, castles));
-                        for (Castle castle : castles) {
-                            add(castle);
-                        }
-                    }
-                }, "Long castle with shield");
+                }, "Straight castle");
     }
 
     public static final Tile getCurvyCastle() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD,
-                SideFeature.FIELD,
-                new HashSet<>() {
+                SideFeature.FIELD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -624,8 +579,7 @@ public class Settings {
 
     public static final Tile getTwoSingleCastlesOpposite() {
         return new Tile(SideFeature.CASTLE, SideFeature.FIELD,
-                SideFeature.CASTLE, SideFeature.FIELD,
-                new HashSet<>() {
+                SideFeature.CASTLE, SideFeature.FIELD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -664,8 +618,7 @@ public class Settings {
 
     public static final Tile getTwoSingleCastlesAdjacent() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
-                SideFeature.FIELD, SideFeature.FIELD,
-                new HashSet<>() {
+                SideFeature.FIELD, SideFeature.FIELD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -704,8 +657,7 @@ public class Settings {
 
     public static final Tile getCurvyCastleWithCurvyRoad() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
-                SideFeature.ROAD, SideFeature.ROAD,
-                new HashSet<>() {
+                SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -746,8 +698,7 @@ public class Settings {
 
     public static final Tile getStraightCastleWithShield() {
         return new Tile(SideFeature.FIELD, SideFeature.CASTLE,
-                SideFeature.FIELD, SideFeature.CASTLE,
-                new HashSet<Feature>() {
+                SideFeature.FIELD, SideFeature.CASTLE, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<Castle>() {
                             {
@@ -786,8 +737,7 @@ public class Settings {
 
     public static final Tile getCurvyCastleWithShield() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
-                SideFeature.FIELD, SideFeature.FIELD,
-                new HashSet<>() {
+                SideFeature.FIELD, SideFeature.FIELD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -820,8 +770,7 @@ public class Settings {
 
     public static final Tile getCurvyCastleWithShieldWithCurvyRoad() {
         return new Tile(SideFeature.CASTLE,
-                SideFeature.CASTLE, SideFeature.ROAD, SideFeature.ROAD,
-                new HashSet<>() {
+                SideFeature.CASTLE, SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -862,8 +811,7 @@ public class Settings {
 
     public static final Tile getBigCastle() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD,
-                SideFeature.CASTLE,
-                new HashSet<>() {
+                SideFeature.CASTLE, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -896,8 +844,7 @@ public class Settings {
 
     public static final Tile getBigCastleWithRoad() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.ROAD,
-                SideFeature.CASTLE,
-                new HashSet<>() {
+                SideFeature.CASTLE, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -938,8 +885,7 @@ public class Settings {
 
     public static final Tile getBigCastleWithShield() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
-                SideFeature.FIELD, SideFeature.CASTLE,
-                new HashSet<>() {
+                SideFeature.FIELD, SideFeature.CASTLE, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -972,8 +918,7 @@ public class Settings {
 
     public static final Tile getBigCastleWithShieldWithRoad() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
-                SideFeature.ROAD, SideFeature.CASTLE,
-                new HashSet<>() {
+                SideFeature.ROAD, SideFeature.CASTLE, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -1014,8 +959,7 @@ public class Settings {
 
     public static final Tile getHugeCastle() {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.CASTLE,
-                SideFeature.CASTLE,
-                new HashSet<>() {
+                SideFeature.CASTLE, new ArrayList<>() {
                     {
                         HashSet<Castle> castles = new HashSet<>() {
                             {
@@ -1046,10 +990,10 @@ public class Settings {
         return getSingleCastleWithStraightRoad();
     }
 
-    public static final Stack<Tile> getMonasteryDeck(){
+    public static final Stack<Tile> getMonasteryDeck() {
         return new Stack<>() {
             {
-                for(int i = 0; i < 72; i++){
+                for (int i = 0; i < 72; i++) {
                     push(getMonastery());
                 }
             }
@@ -1116,8 +1060,8 @@ public class Settings {
                 }
 
                 // 1x Long castle
-                for (int i = 0; i < N_LONG_CASTLE; i++) {
-                    push(getLongCastle());
+                for (int i = 0; i < N_STRAIGHT_CASTLE; i++) {
+                    push(getStraightCastle());
                 }
 
                 // 3x Curvy castle
@@ -1181,5 +1125,60 @@ public class Settings {
                 }
             }
         };
+    }
+
+    public static Tile getTileFromId(String id) {
+        switch (id) {
+            case "Monastery":
+                return getMonastery();
+            case "Monastery with road":
+                return getMonasteryWithRoad();
+            case "Straight road":
+                return getStraightRoad();
+            case "Curvy road":
+                return getCurvyRoad();
+            case "Three road intersection":
+                return getThreeRoadIntersection();
+            case "Four road intersection":
+                return getFourRoadIntersection();
+            case "Single castle":
+                return getSingleCastle();
+            case "Single castle with straight road":
+                return getSingleCastleWithStraightRoad();
+            case "Single castle with curvy road left":
+                return getSingleCastleWithCurvyRoadLeft();
+            case "Single castle with curvy road right":
+                return getSingleCastleWithCurvyRoadRight();
+            case "Single castle with three road intersection":
+                return getSingleCastleWithThreeRoadIntersection();
+            case "Straight castle":
+                return getStraightCastle();
+            case "Curvy castle":
+                return getCurvyCastle();
+            case "Curvy castle with curvy road":
+                return getCurvyCastleWithCurvyRoad();
+            case "Two single castles opposite":
+                return getTwoSingleCastlesOpposite();
+            case "Two single castles adjacent":
+                return getTwoSingleCastlesAdjacent();
+            case "Straight castle with shield":
+                return getStraightCastleWithShield();
+            case "Curvy castle with shield":
+                return getCurvyCastleWithShield();
+            case "Curvy castle with shield with curvy road":
+                return getCurvyCastleWithShieldWithCurvyRoad();
+            case "Big castle":
+                return getBigCastle();
+            case "Big castle with road":
+                return getBigCastleWithRoad();
+            case "Big castle with shield":
+                return getBigCastleWithShield();
+            case "Big castle with shield with road":
+                return getBigCastleWithShieldWithRoad();
+            case "Huge castle":
+                return getHugeCastle();
+            default:
+                throw new IllegalArgumentException("Invalid tile id: " + id);
+        }
     }
 }

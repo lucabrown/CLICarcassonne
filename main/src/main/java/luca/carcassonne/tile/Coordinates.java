@@ -1,11 +1,11 @@
 package luca.carcassonne.tile;
 
 // The tile's coordinate system
-public class Coordinates implements Cloneable {
-    private Integer x;
-    private Integer y;
+public class Coordinates {
+    private int x;
+    private int y;
 
-    public Coordinates(Integer x, Integer y) {
+    public Coordinates(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -15,19 +15,19 @@ public class Coordinates implements Cloneable {
         this.y = 0;
     }
 
-    public Integer getX() {
+    public int getX() {
         return x;
     }
 
-    public Integer getY() {
+    public int getY() {
         return y;
     }
 
-    public void setX(Integer x) {
+    public void setX(int x) {
         this.x = x;
     }
 
-    public void setY(Integer y) {
+    public void setY(int y) {
         this.y = y;
     }
 
@@ -48,14 +48,14 @@ public class Coordinates implements Cloneable {
         return c.getX() == x && c.getY() == y;
     }
 
-    @Override
-    public Object clone() {
-        Coordinates newCoordinates = new Coordinates();
+    // @Override
+    // public Object clone() {
+    // Coordinates newCoordinates = new Coordinates();
 
-        newCoordinates.setX(x);
-        newCoordinates.setY(y);
+    // newCoordinates.setX(x);
+    // newCoordinates.setY(y);
 
-        return newCoordinates;
+    // return newCoordinates;
 
-    }
+    // }
 }

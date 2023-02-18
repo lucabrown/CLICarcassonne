@@ -160,15 +160,17 @@ class TileTest {
 
     // }
 
-    @Test
-    void testTileClone() {
-        Tile singleCastle = Settings.getSingleCastle();
-        singleCastle.setCoordinates(new Coordinates(0, 0));
-        Tile clone = (Tile) singleCastle.clone();
+    // @Test
+    // void testTileClone() {
+    // Tile singleCastle = Settings.getSingleCastle();
+    // singleCastle.setCoordinates(new Coordinates(0, 0));
+    // Tile clone = (Tile) singleCastle.clone();
 
-        assertEquals(singleCastle.getNorthSideFeature(), clone.getNorthSideFeature());
-        singleCastle.rotateClockwise(1);
-        assertNotEquals(singleCastle.getNorthSideFeature(), clone.getNorthSideFeature());
+    // assertEquals(singleCastle.getNorthSideFeature(),
+    // clone.getNorthSideFeature());
+    // singleCastle.rotateClockwise(1);
+    // assertNotEquals(singleCastle.getNorthSideFeature(),
+    // clone.getNorthSideFeature());
 
-    }
+    // }
 }

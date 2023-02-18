@@ -1,27 +1,42 @@
 package luca.carcassonne.player;
 
-public class Player implements Cloneable {
-    public static final Integer MAX_MEEPLES = 7;
+import luca.carcassonne.Settings;
+
+public class Player {
     private Colour colour;
-    private Integer score;
-    private Integer availableMeeples;
+    private int score;
+    private int availableMeeples;
 
     public Player(Colour colour) {
         this.colour = colour;
         this.score = 0;
-        this.availableMeeples = MAX_MEEPLES;
+        this.availableMeeples = Settings.MAX_MEEPLES;
     }
 
-    public Integer getScore() {
+    public Player() {
+        this.colour = null;
+        this.score = 0;
+        this.availableMeeples = Settings.MAX_MEEPLES;
+    }
+
+    public int getScore() {
         return score;
     }
 
-    public void addScore(Integer score) {
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void addScore(int score) {
         this.score += score;
     }
 
-    public Integer getAvailableMeeples() {
+    public int getAvailableMeeples() {
         return availableMeeples;
+    }
+
+    public void setAvailableMeeples(int availableMeeples) {
+        this.availableMeeples = availableMeeples;
     }
 
     public void incrementMeeples(int amount) {
@@ -44,12 +59,12 @@ public class Player implements Cloneable {
         return true;
     }
 
-    @Override
-    public Object clone() {
-        Player clone = new Player(colour);
-        clone.score = score;
-        clone.availableMeeples = availableMeeples;
-        return clone;
-    }
+    // @Override
+    // public Object clone() {
+    // Player clone = new Player(colour);
+    // clone.score = score;
+    // clone.availableMeeples = availableMeeples;
+    // return clone;
+    // }
 
 }

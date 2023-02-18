@@ -11,6 +11,7 @@ import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+import luca.carcassonne.MCTS.Move;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Coordinates;
@@ -23,19 +24,19 @@ import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 
 // Holds all played tiles and tracks the relation between them
-public class Board implements Cloneable {
+public class Board {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_RED = "\u001B[31m";
 
-    private Integer height;
-    private Integer width;
-    private Integer maxY;
-    private Integer maxX;
-    private Integer minY;
-    private Integer minX;
+    private int height;
+    private int width;
+    private int maxY;
+    private int maxX;
+    private int minY;
+    private int minX;
     private Tile startingTile;
     private ArrayList<Tile> placedTiles;
     private HashSet<Tile> monasteryTiles;
@@ -43,6 +44,7 @@ public class Board implements Cloneable {
     private HashSet<SimpleGraph<Feature, DefaultEdge>> closedFeatures;
     private HashSet<SimpleGraph<Feature, DefaultEdge>> newlyClosedFeatures;
     private ArrayList<Coordinates> possibleCoordinates;
+    private ArrayList<Move> pastMoves;
 
     public Board(Tile startingTile) {
         this.height = 1;
@@ -81,10 +83,11 @@ public class Board implements Cloneable {
         }
         this.closedFeatures = new HashSet<>();
         this.newlyClosedFeatures = new HashSet<>();
+        this.pastMoves = new ArrayList<>();
     }
 
     public Board() {
-        new Board(Settings.getStartingTile());
+        this(Settings.getStartingTile());
     }
 
     // Tries to place a tile in the given coordinates. Returns true if the placement
@@ -112,7 +115,7 @@ public class Board implements Cloneable {
         // (HashSet<SimpleGraph<Feature, DefaultEdge>>) openFeatures
         // .clone();
         HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) openFeatures
-                .stream().map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone())
+                .stream().map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone()) // TODO fix
                 .collect(Collectors.toCollection(HashSet::new));
         allFeatures.addAll(closedFeatures);
 
@@ -438,8 +441,24 @@ public class Board implements Cloneable {
                 nSurroundingTiles++;
             }
         }
-        
+
         return nSurroundingTiles;
+    }
+
+    public ArrayList<Move> getPastMoves() {
+        return pastMoves;
+    }
+
+    public Move getLastMove() {
+        return pastMoves.get(pastMoves.size() - 1);
+    }
+
+    public void setPastMoves(ArrayList<Move> pastMoves) {
+        this.pastMoves = pastMoves;
+    }
+
+    public void addNewMove(Move move) {
+        pastMoves.add(move);
     }
 
     public Tile getTileFromCoordinates(Coordinates coordinates) {
@@ -458,12 +477,52 @@ public class Board implements Cloneable {
         return placedTiles;
     }
 
-    public Integer getWidth() {
+    public int getWidth() {
         return width;
     }
 
-    public Integer getHeight() {
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
         return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getMaxY() {
+        return maxY;
+    }
+
+    public void setMaxY(int maxY) {
+        this.maxY = maxY;
+    }
+
+    public int getMinY() {
+        return minY;
+    }
+
+    public void setMinY(int minY) {
+        this.minY = minY;
+    }
+
+    public int getMaxX() {
+        return maxX;
+    }
+
+    public void setMaxX(int maxX) {
+        this.maxX = maxX;
+    }
+
+    public int getMinX() {
+        return minX;
+    }
+
+    public void setMinX(int minX) {
+        this.minX = minX;
     }
 
     public HashSet<SimpleGraph<Feature, DefaultEdge>> getNewlyClosedFeatures() {
@@ -512,7 +571,7 @@ public class Board implements Cloneable {
                 .map(t -> t.getCoordinates())
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        System.out.println("\n");
+        System.out.println();
         double n = 0.0;
         for (int i = maxY; i >= minY; i--) {
             for (int j = minX; j <= maxX; j++) {
@@ -594,31 +653,53 @@ public class Board implements Cloneable {
         }
     }
 
-    // Create a Board copy constructor
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object clone() {
-        Board newBoard = new Board();
-        newBoard.height = this.height;
-        newBoard.width = this.width;
-        newBoard.maxY = this.maxY;
-        newBoard.maxX = this.maxX;
-        newBoard.minY = this.minY;
-        newBoard.minX = this.minX;
-        newBoard.startingTile = (Tile) this.startingTile.clone();
-        newBoard.placedTiles = (ArrayList<Tile>) this.placedTiles.stream().map(t -> (Tile) t.clone())
-                .collect(Collectors.toCollection(ArrayList::new));
-        newBoard.monasteryTiles = (HashSet<Tile>) this.monasteryTiles.stream().map(t -> (Tile) t.clone())
-                .collect(Collectors.toCollection(HashSet::new));
-        newBoard.openFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) this.openFeatures.stream()
-                .map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone()).collect(Collectors.toCollection(HashSet::new));
-        newBoard.closedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) this.closedFeatures.stream()
-                .map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone()).collect(Collectors.toCollection(HashSet::new));
-        newBoard.newlyClosedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) this.newlyClosedFeatures.stream()
-                .map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone()).collect(Collectors.toCollection(HashSet::new));
-        newBoard.possibleCoordinates = (ArrayList<Coordinates>) this.possibleCoordinates.stream()
-                .map(c -> (Coordinates) c.clone())
-                .collect(Collectors.toCollection(ArrayList::new));
-        return newBoard;
+    public Tile getStartingTile() {
+        return startingTile;
     }
+
+    // Create a Board copy constructor
+    // @Override
+    // @SuppressWarnings("unchecked")
+    // public Object clone() {
+    // Board newBoard = new Board();
+    // newBoard.height = this.height;
+    // newBoard.width = this.width;
+    // newBoard.maxY = this.maxY;
+    // newBoard.maxX = this.maxX;
+    // newBoard.minY = this.minY;
+    // newBoard.minX = this.minX;
+    // newBoard.startingTile = (Tile) this.startingTile.clone();
+    // newBoard.placedTiles = (ArrayList<Tile>) this.placedTiles.stream().map(t ->
+    // (Tile) t.clone())
+    // .collect(Collectors.toCollection(ArrayList::new));
+    // newBoard.openFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
+    // this.openFeatures.stream()
+    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
+    // g.clone()).collect(Collectors.toCollection(HashSet::new));
+    // newBoard.closedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
+    // this.closedFeatures.stream()
+    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
+    // g.clone()).collect(Collectors.toCollection(HashSet::new));
+    // newBoard.newlyClosedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
+    // this.newlyClosedFeatures.stream()
+    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
+    // g.clone()).collect(Collectors.toCollection(HashSet::new));
+    // newBoard.possibleCoordinates = (ArrayList<Coordinates>)
+    // this.possibleCoordinates.stream()
+    // .map(c -> (Coordinates) c.clone())
+    // .collect(Collectors.toCollection(ArrayList::new));
+    // newBoard.monasteryTiles = new HashSet<Tile>() {
+    // {
+    // for (Tile tile : placedTiles) {
+    // if (tile.getFeatures().stream().anyMatch(feature -> feature.getClass() ==
+    // Monastery.class)) {
+    // add(tile);
+    // }
+    // }
+    // }
+    // };
+
+    // return newBoard;
+    // }
+
 }

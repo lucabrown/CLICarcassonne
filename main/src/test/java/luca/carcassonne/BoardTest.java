@@ -121,7 +121,7 @@ class BoardTest {
         board = new Board(startingTile);
 
         Tile singleCastle = Settings.getSingleCastle();
-        Tile longCastle = Settings.getLongCastle();
+        Tile longCastle = Settings.getStraightCastle();
 
         int nOpenFeatures = board.getOpenFeatures().size();
         int nClosedFeatures = board.getClosedFeatures().size();
@@ -507,12 +507,12 @@ class BoardTest {
 
     @Test
     void testJoiningTwoSeparatelyOwnedCastles() {
-        board = new Board(Settings.getLongCastle());
+        board = new Board(Settings.getStraightCastle());
 
         Player player1 = new Player(Colour.RED);
         Player player2 = new Player(Colour.BLUE);
 
-        Tile castle = Settings.getLongCastle();
+        Tile castle = Settings.getStraightCastle();
         Feature castleFeature = castle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
 
         castle.setOwner(player1);
@@ -722,7 +722,7 @@ class BoardTest {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
-        Tile singleCastle = Settings.getLongCastle();
+        Tile singleCastle = Settings.getStraightCastle();
         Feature castleFeature = singleCastle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
 
         singleCastle.rotateClockwise(1);
@@ -747,7 +747,7 @@ class BoardTest {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
-        Tile singleCastle = Settings.getLongCastleWithShield();
+        Tile singleCastle = Settings.getStraightCastleWithShield();
         Feature castleFeature = singleCastle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
 
         singleCastle.rotateClockwise(1);
@@ -772,7 +772,7 @@ class BoardTest {
         board = new Board(Settings.getSingleCastle());
         Player player = new Player(Colour.RED);
 
-        Tile singleCastle = Settings.getLongCastleWithShield();
+        Tile singleCastle = Settings.getStraightCastleWithShield();
         Feature castleFeature = singleCastle.getFeatures().stream().filter(f -> f instanceof Castle).findFirst().get();
 
         singleCastle.rotateClockwise(1);
@@ -1042,64 +1042,67 @@ class BoardTest {
         assertEquals(Settings.MONASTERY_POINTS_PER_TILE * 9, player.getScore());
     }
 
-    @Test
-    void testBoardClone() {
-        Board board = new Board(Settings.getSingleCastle());
+    // @Test
+    // void testBoardClone() {
+    // Board board = new Board(Settings.getSingleCastle());
 
-        Board clone = (Board) board.clone();
+    // Board clone = (Board) board.clone();
 
-        Tile tile = Settings.getSingleCastle();
+    // Tile tile = Settings.getSingleCastle();
 
-        assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
+    // assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
 
-        System.out.println(board.getOpenFeatures().size());
-        System.out.println(clone.getOpenFeatures().size());
+    // System.out.println(board.getOpenFeatures().size());
+    // System.out.println(clone.getOpenFeatures().size());
 
-        tile = Settings.getTwoSingleCastlesAdjacent();
+    // tile = Settings.getTwoSingleCastlesAdjacent();
 
-        assertTrue(clone.placeTile(new Coordinates(1, 0), tile));
+    // assertTrue(clone.placeTile(new Coordinates(1, 0), tile));
 
-        System.out.println(board.getOpenFeatures().size());
-        System.out.println(clone.getOpenFeatures().size());
-    }
+    // System.out.println(board.getOpenFeatures().size());
+    // System.out.println(clone.getOpenFeatures().size());
+    // }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    void testBoardCloneWithNewPlayers() {
-        Board board = new Board(Settings.getSingleCastleWithStraightRoad());
-        ArrayList<Player> players = new ArrayList<>();
-        players.add(new Player(Colour.RED));
+    // @Test
+    // @SuppressWarnings("unchecked")
+    // void testBoardCloneWithNewPlayers() {
+    // Board board = new Board(Settings.getSingleCastleWithStraightRoad());
+    // ArrayList<Player> players = new ArrayList<>();
+    // players.add(new Player(Colour.RED));
 
-        Tile tile = Settings.getSingleCastleWithStraightRoad();
+    // Tile tile = Settings.getSingleCastleWithStraightRoad();
 
-        assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
-        assertTrue(board.placeMeeple(tile.getFeatures().stream().filter(f -> f instanceof Road).findFirst().get(),
-                players.get(0)));
+    // assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
+    // assertTrue(board.placeMeeple(tile.getFeatures().stream().filter(f -> f
+    // instanceof Road).findFirst().get(),
+    // players.get(0)));
 
-        Board boardClone = (Board) board.clone();
-        ArrayList<Player> playersClone = (ArrayList<Player>) players.stream().map(p -> (Player) p.clone())
-                .collect(Collectors.toList());
+    // Board boardClone = (Board) board.clone();
+    // ArrayList<Player> playersClone = (ArrayList<Player>) players.stream().map(p
+    // -> (Player) p.clone())
+    // .collect(Collectors.toList());
 
-        for (SimpleGraph<Feature, DefaultEdge> featureGraph : boardClone.getOpenFeatures()) {
-            for (Feature feature : featureGraph.vertexSet()) {
-                if (feature.getOwner() == null) {
-                    continue;
-                }
-                int playerIndex = players.indexOf(feature.getOwner());
-                System.out.println(playerIndex);
-                System.out.println(players.get(playerIndex));
-                System.out.println(playersClone.get(playerIndex));
-                feature.setOwner(playersClone.get(playerIndex));
-            }
-        }
+    // for (SimpleGraph<Feature, DefaultEdge> featureGraph :
+    // boardClone.getOpenFeatures()) {
+    // for (Feature feature : featureGraph.vertexSet()) {
+    // if (feature.getOwner() == null) {
+    // continue;
+    // }
+    // int playerIndex = players.indexOf(feature.getOwner());
+    // System.out.println(playerIndex);
+    // System.out.println(players.get(playerIndex));
+    // System.out.println(playersClone.get(playerIndex));
+    // feature.setOwner(playersClone.get(playerIndex));
+    // }
+    // }
 
-        assertEquals(0, players.get(0).getScore());
-        assertEquals(0, playersClone.get(0).getScore());
+    // assertEquals(0, players.get(0).getScore());
+    // assertEquals(0, playersClone.get(0).getScore());
 
-        ScoreManager.scoreOpenFeatures(boardClone);
+    // ScoreManager.scoreOpenFeatures(boardClone);
 
-        assertEquals(0, players.get(0).getScore());
-        assertEquals(Settings.ROAD_POINTS_OPEN * 2, playersClone.get(0).getScore());
+    // assertEquals(0, players.get(0).getScore());
+    // assertEquals(Settings.ROAD_POINTS_OPEN * 2, playersClone.get(0).getScore());
 
-    }
+    // }
 }

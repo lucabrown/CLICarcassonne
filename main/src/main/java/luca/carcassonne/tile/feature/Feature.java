@@ -10,7 +10,7 @@ import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Tile;
 
-public abstract class Feature implements Cloneable {
+public abstract class Feature {
     protected Player owner;
     protected ArrayList<CardinalPoint> cardinalPoints;
     protected Tile belongingTile;
@@ -31,6 +31,10 @@ public abstract class Feature implements Cloneable {
 
     public void setCardinalPoints(int indexOf, CardinalPoint cardinalPoint) {
         this.cardinalPoints.set(indexOf, cardinalPoint);
+    }
+
+    public void setCardinalPoints(ArrayList<CardinalPoint> cardinalPoints) {
+        this.cardinalPoints = cardinalPoints;
     }
 
     public Tile getBelongingTile() {
@@ -65,7 +69,7 @@ public abstract class Feature implements Cloneable {
         return pointsClosed;
     }
 
-    @Override
-    public abstract Object clone();
+    // @Override
+    // public abstract Object clone();
 
 }

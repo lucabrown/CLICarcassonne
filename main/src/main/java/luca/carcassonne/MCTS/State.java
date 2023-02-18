@@ -21,6 +21,7 @@ https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-se
 */
 
 import luca.carcassonne.Board;
+import luca.carcassonne.CloneManager;
 import luca.carcassonne.ScoreManager;
 import luca.carcassonne.Settings;
 import luca.carcassonne.player.Player;
@@ -30,21 +31,26 @@ import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
 import luca.carcassonne.tile.feature.Field;
 
-public class State implements Cloneable {
+public class State {
     private Board board;
-    private Move move;
     private int currentPlayer;
     private Tile currentTile;
     private Stack<Tile> availableTiles;
     private ArrayList<Player> players;
     private int visitCount;
-    private double finalScoreDifference;
+    private int finalScoreDifference;
 
     public State() {
-        board = new Board();
+        this.board = null;
+        this.currentPlayer = 0;
+        this.currentTile = null;
+        this.availableTiles = null;
+        this.players = null;
+        this.visitCount = 0;
+        this.finalScoreDifference = 0;
     }
 
-    public void initialise(Board startingBoard, int startingPlayer, Tile currentTile,
+    public State(Board startingBoard, int startingPlayer, Tile currentTile,
             ArrayList<Player> players,
             Stack<Tile> availableTiles) {
         this.board = startingBoard;
@@ -54,58 +60,50 @@ public class State implements Cloneable {
         this.availableTiles = availableTiles;
     }
 
-    @SuppressWarnings("unchecked")
     public ArrayList<State> getAllPossibleChildStates() {
         ArrayList<State> possibleChildStates = new ArrayList<>();
         List<Coordinates> possibleCoordinates = this.board.getPossibleCoordinates();
-
-        board.printBoard();
 
         System.out.println("Parent tile: " + currentTile.getId());
         for (Coordinates coordinates : possibleCoordinates) {
             for (int i = getSymmetricRotations(currentTile) - 1; i < 4; i++) {
                 for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
-                    State newState = (State) this.clone();
-                    Tile newTile = (Tile) currentTile.clone();
-                    ArrayList<Feature> featuresList = newTile.getFeatures().stream()
-                            .collect(Collectors.toCollection(ArrayList::new));
+                    State newState = CloneManager.clone(this);
+                    Tile newTile = CloneManager.clone(newState.getCurrentTile());
+                    Coordinates newCoordinates = CloneManager.clone(coordinates);
 
                     newTile.rotateClockwise(i);
-                    Coordinates newCoordinates = (Coordinates) coordinates.clone();
 
                     if (newState.getBoard().placeTile(newCoordinates, newTile)) {
-                        Stack<Tile> availableTilesClone = (Stack<Tile>) availableTiles.stream()
-                                .collect(Collectors.toCollection(Stack::new));
-                        ArrayList<Player> playersClone = (ArrayList<Player>) this.players.clone();
-
                         newState.setCurrentPlayer((currentPlayer + 1) % players.size());
-                        newState.setAvailableTiles(availableTilesClone);
-                        newState.setCurrentTile(availableTilesClone.pop());
-                        newState.setPlayers(playersClone);
+                        newState.setCurrentTile(newState.getAvailableTiles().pop());
 
                         if (j < currentTile.getFeatures().size()) {
-                            newState.getBoard().placeMeeple(featuresList.get(j), playersClone.get(currentPlayer));
-                            newState.setMove(new Move(newCoordinates, newTile, i, featuresList.get(j)));
-                        } else {
-                            newState.setMove(new Move(newCoordinates, newTile, i));
 
+                            newState.getBoard().placeMeeple(newTile.getFeatures().get(j),
+                                    newState.getPlayers().get(currentPlayer));
+                            newState.getBoard().addNewMove(new Move(newCoordinates, newTile, i, currentPlayer, j));
+                        } else {
+                            newState.getBoard().addNewMove(new Move(newCoordinates, newTile, i, currentPlayer));
                         }
+
+                        ScoreManager.scoreClosedFeatures(newState.getBoard());
 
                         possibleChildStates.add(newState);
                     }
                 }
             }
         }
-
+        System.out.println("Possible child states: " + possibleChildStates.size());
         return possibleChildStates;
     }
 
-    void incrementVisit() {
+    public void incrementVisit() {
         visitCount++;
     }
 
-    void randomPlay() {
-        State newState = (State) this.clone();
+    public int randomPlay() {
+        State newState = CloneManager.clone(this);
         Board newBoard = newState.getBoard();
         Tile newCurrentTile = newState.getCurrentTile();
         Stack<Tile> newAvailableTiles = newState.getAvailableTiles();
@@ -166,6 +164,7 @@ public class State implements Cloneable {
                 newCurrentPlayer = (newCurrentPlayer + 1) % newPlayers.size();
             }
 
+            // System.out.println("Place tile: " + i);
         }
 
         ScoreManager.scoreOpenFeatures(newBoard);
@@ -173,6 +172,8 @@ public class State implements Cloneable {
         finalScoreDifference = calculateScoreDifference(newPlayers, currentPlayer);
 
         System.out.println("Playout iterations: " + i);
+
+        return calculateScoreDifference(newPlayers, currentPlayer);
     }
 
     private boolean updateCheckedCombinations(HashMap<Coordinates, HashSet<Integer>> checkedCombinations,
@@ -194,8 +195,8 @@ public class State implements Cloneable {
         return false;
     }
 
-    private double calculateScoreDifference(ArrayList<Player> players, int currentPlayer) {
-        double pointDifference = 0;
+    private int calculateScoreDifference(ArrayList<Player> players, int currentPlayer) {
+        int pointDifference = 0;
 
         for (int i = 0; i < players.size(); i++) {
             if (i != currentPlayer) {
@@ -220,26 +221,18 @@ public class State implements Cloneable {
         } else if (sideFeatures.get(0).getClass() == sideFeatures.get(2).getClass()
                 && sideFeatures.get(1).getClass() == sideFeatures
                         .get(3).getClass()) {
-            symmetricRotations = 2;
+            symmetricRotations = 3;
         }
 
         return symmetricRotations;
     }
 
-    Board getBoard() {
+    public Board getBoard() {
         return board;
     }
 
-    void setBoard(Board board) {
+    public void setBoard(Board board) {
         this.board = board;
-    }
-
-    public Move getMove() {
-        return move;
-    }
-
-    public void setMove(Move move) {
-        this.move = move;
     }
 
     public int getCurrentPlayer() {
@@ -286,40 +279,43 @@ public class State implements Cloneable {
         this.visitCount = visitCount;
     }
 
-    double getFinalScoreDifference() {
+    public int getFinalScoreDifference() {
         return finalScoreDifference;
     }
 
-    void setFinalScoreDifference(int finalScoreDifference) {
+    public void setFinalScoreDifference(int finalScoreDifference) {
         this.finalScoreDifference = finalScoreDifference;
     }
 
-    @Override
-    public Object clone() {
-        State newState = new State();
+    // @Override
+    // public Object clone() {
+    // State newState = new State();
 
-        newState.setBoard((Board) board.clone());
-        newState.setMove(move == null ? null : (Move) move.clone());
-        newState.setCurrentPlayer(currentPlayer);
-        newState.setCurrentTile(currentTile == null ? null : (Tile) currentTile.clone());
-        newState.setAvailableTiles(
-                (Stack<Tile>) availableTiles.stream().map(t -> (Tile) t.clone())
-                        .collect(Collectors.toCollection(Stack::new)));
-        newState.setPlayers((ArrayList<Player>) players.stream().map(p -> (Player) p.clone())
-                .collect(Collectors.toCollection(ArrayList::new)));
-        newState.setVisitCount(visitCount);
-        newState.setFinalScoreDifference((int) finalScoreDifference);
+    // newState.setBoard((Board) board.clone());
+    // newState.setMove(move == null ? null : (Move) move.clone());
+    // newState.setCurrentPlayer(currentPlayer);
+    // newState.setCurrentTile(currentTile == null ? null : (Tile)
+    // currentTile.clone());
+    // newState.setAvailableTiles(
+    // (Stack<Tile>) availableTiles.stream().map(t -> (Tile) t.clone())
+    // .collect(Collectors.toCollection(Stack::new)));
+    // newState.setPlayers((ArrayList<Player>) players.stream().map(p -> (Player)
+    // p.clone())
+    // .collect(Collectors.toCollection(ArrayList::new)));
+    // newState.setVisitCount(visitCount);
+    // newState.setFinalScoreDifference(finalScoreDifference);
 
-        for (SimpleGraph<Feature, DefaultEdge> featureGraph : newState.getBoard().getOpenFeatures()) {
-            for (Feature feature : featureGraph.vertexSet()) {
-                if (feature.getOwner() == null) {
-                    continue;
-                }
-                int playerIndex = players.indexOf(feature.getOwner());
-                feature.setOwner(newState.getPlayers().get(playerIndex));
-            }
-        }
+    // for (SimpleGraph<Feature, DefaultEdge> featureGraph :
+    // newState.getBoard().getOpenFeatures()) {
+    // for (Feature feature : featureGraph.vertexSet()) {
+    // if (feature.getOwner() == null) {
+    // continue;
+    // }
+    // int playerIndex = players.indexOf(feature.getOwner());
+    // feature.setOwner(newState.getPlayers().get(playerIndex));
+    // }
+    // }
 
-        return newState;
-    }
+    // return newState;
+    // }
 }
