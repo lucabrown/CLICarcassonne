@@ -25,14 +25,13 @@ public class MonteCarloTreeSearch {
         startingState = new State(startingBoard, startingPlayer, currentTile, players, availableTiles);
     }
 
-    @SuppressWarnings("unused")
     public Move findNextMove() {
         Node rootNode = new Node(startingState);
         double startTime = System.currentTimeMillis();
-        double timeForOneMove = 60000;
+        double timeForOneMove = 1000;
         int iterations = 0;
 
-        while (iterations < 3) {
+        while (System.currentTimeMillis() - startTime < timeForOneMove || iterations < 1) {
             System.out.println("\n\n********* ITERATION " + iterations++ + " *********");
             // Selection
             System.out.println("\n- - - SELECTION - - -");
@@ -40,10 +39,12 @@ public class MonteCarloTreeSearch {
 
             // Expansion
             System.out.println("\n- - - EXPANSION - - -");
-            if (!promisingNode.getState().getBoard().isFinished())
+            if (!promisingNode.getState().getAvailableTiles().isEmpty()) {
                 promisingNode.getState().getBoard().printBoard();
-            System.out.println("Moves: " + promisingNode.getState().getBoard().getPastMoves().size());
-            expandNode(promisingNode);
+                // System.out.println("Moves: " +
+                // promisingNode.getState().getBoard().getPastMoves().size());
+                expandNode(promisingNode);
+            }
 
             // Simulation
             System.out.println("\n- - - SIMULATION - - -");
@@ -89,25 +90,18 @@ public class MonteCarloTreeSearch {
     private void expandNode(Node promisingNode) {
         ArrayList<State> possibleStates = promisingNode.getState().getAllPossibleChildStates();
         System.out.println("- New children: " + possibleStates.size());
-        int i = 0;
-        for (State state : possibleStates) {
-            i++;
 
+        for (State state : possibleStates) {
             Node newNode = new Node(state);
 
             newNode.setParent(promisingNode);
             promisingNode.getChildren().add(newNode);
-            System.out.println("- Child " + i + ": ");
-            state.getBoard().printBoard();
         }
     }
 
     private int simulateRandomPlayout(Node nodeToExplore) {
-        System.out.println("Node state: " + nodeToExplore.getState().getBoard().getPastMoves().size());
         State tempState = CloneManager.clone(nodeToExplore.getState());
-        System.out.println("- Simulating random playout");
         int playoutResult = tempState.randomPlay();
-        System.out.println("- Playout terminated");
 
         nodeToExplore.getState().setFinalScoreDifference(playoutResult);
 

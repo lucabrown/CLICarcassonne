@@ -537,10 +537,6 @@ public class Board {
         return openFeatures;
     }
 
-    public boolean isFinished() {
-        return placedTiles.size() == 74;
-    }
-
     // * * * * * * *
     // * PRINTING METHODS *
     // * * * * * * *

@@ -86,9 +86,13 @@ public class CloneManager {
             // System.out.println("- New board: " + (newBoard == null ? "null" :
             // newBoard.hashCode()));
             // System.out.println("- New move: " + (newMove == null ? "null" : newMove));
+            Tile tileToPlace = newMove.getTile();
+            tileToPlace.rotateClockwise(newMove.getRotation());
 
-            boolean placed = newBoard.placeTile(newMove.getCoordinates(), newMove.getTile());
-            System.out.println("- Placed: " + placed);
+            boolean placed = newBoard.placeTile(newMove.getCoordinates(), tileToPlace);
+            if (placed == false) {
+                throw new RuntimeException("Error cloning Board: tile could not be placed.");
+            }
 
             if (newMove.getFeatureIndex() != -1) {
                 Player newPlayer = newPlayers.get(newMove.getPlayerIndex());

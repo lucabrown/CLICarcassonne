@@ -39,7 +39,7 @@ public class Game {
 
     public Game(Board board) {
         this.board = board;
-        this.players = new ArrayList<>(numberOfPLayers) {
+        this.players = new ArrayList<>() {
             {
                 add(new Player(Colour.WHITE));
                 add(new Player(Colour.RED));
@@ -98,13 +98,13 @@ public class Game {
         startTime = System.currentTimeMillis();
         progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
-        currentTile = Settings.getMonastery();
-        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer,
-                currentTile,
-                players, availableTiles);
+        // currentTile = Settings.getMonastery();
+        // MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer,
+        // currentTile,
+        // players, availableTiles);
 
-        Move move = mcts.findNextMove();
-        System.out.println("Move: " + move);
+        // Move move = mcts.findNextMove();
+        // System.out.println("Move: " + move);
 
         // Each loop iteration corresponds to one turn
         while (!availableTiles.empty()) {
@@ -134,16 +134,18 @@ public class Game {
              * Move move = mcts.findNextMove();
              */
 
+            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer, currentTile, players,
+                    availableTiles);
+            Move move = mcts.findNextMove();
+
             while (!isPlaced) {
                 triedPlacements++;
 
                 // Get coordinates from mouse click
-                randomCoordinates = board.getPossibleCoordinates()
-                        .get(random.nextInt(board.getPossibleCoordinates()
-                                .size()));
+                randomCoordinates = move.getCoordinates();
 
                 // Get rotation from mouse click
-                randomRotation = random.nextInt(4);
+                randomRotation = move.getRotation();
                 currentTile.rotateClockwise(randomRotation);
 
                 // Check if the tile can go in the given coordinates with the given rotation
@@ -159,24 +161,36 @@ public class Game {
             }
 
             if (playerPlacedTile) {
-                Object[] filteredFeature = currentTile.getFeatures().stream().toArray();
+                // Object[] filteredFeature = currentTile.getFeatures().stream().toArray();
 
-                Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
+                // Feature randomFeature = (Feature)
+                // filteredFeature[random.nextInt(filteredFeature.length)];
 
-                while (randomFeature.getClass() == Field.class && random.nextInt(10) < 7) {
-                    randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
-                }
+                // while (randomFeature.getClass() == Field.class && random.nextInt(10) < 7) {
+                // randomFeature = (Feature)
+                // filteredFeature[random.nextInt(filteredFeature.length)];
+                // }
 
-                // place meeple with 30% chance
-                if (random.nextInt(10) < 3) {
-                    meeplePlaced = board.placeMeeple(randomFeature, players.get(currentPlayer));
+                // // place meeple with 30% chance
+                // if (random.nextInt(10) < 3) {
+                // meeplePlaced = board.placeMeeple(randomFeature, players.get(currentPlayer));
+                // }
+
+                Feature feature = null;
+                if (move.getFeatureIndex() != -1) {
+                    feature = currentTile.getFeatures().get(move.getFeatureIndex());
+
+                    meeplePlaced = board.placeMeeple(currentTile.getFeatures().get(move.getFeatureIndex()),
+                            players.get(currentPlayer));
+                } else {
+                    meeplePlaced = false;
                 }
 
                 currentTile.setOwner(players.get(currentPlayer)); // to delete
 
                 if (meeplePlaced) {
                     Move newMove = new Move(randomCoordinates, currentTile, randomRotation, currentPlayer,
-                            currentTile.getFeatures().indexOf(randomFeature));
+                            currentTile.getFeatures().indexOf(currentTile.getFeatures().get(move.getFeatureIndex())));
                     board.addNewMove(newMove);
                 } else {
                     Move newMove = new Move(randomCoordinates, currentTile, randomRotation, currentPlayer);

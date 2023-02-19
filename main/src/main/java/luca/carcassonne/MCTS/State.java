@@ -63,18 +63,28 @@ public class State {
     public ArrayList<State> getAllPossibleChildStates() {
         ArrayList<State> possibleChildStates = new ArrayList<>();
         List<Coordinates> possibleCoordinates = this.board.getPossibleCoordinates();
+        int rotations = getSymmetricRotations(currentTile);
 
-        System.out.println("Parent tile: " + currentTile.getId());
+        // System.out.println("Parent tile: " + currentTile.getId());
+        // System.out.println("- Possible coordinates: " + possibleCoordinates.size());
+        // System.out.println("- Possible rotations: " + rotations);
+        // System.out.println("- Possible features: " +
+        // currentTile.getFeatures().size());
+
         for (Coordinates coordinates : possibleCoordinates) {
-            for (int i = getSymmetricRotations(currentTile) - 1; i < 4; i++) {
+            // System.out.println("- Trying: " + coordinates);
+            for (int i = rotations - 1; i < 4; i++) {
+                // System.out.println("-- Rotation: " + i);
                 for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
+                    // System.out.println("--- Feature: " + j);
                     State newState = CloneManager.clone(this);
                     Tile newTile = CloneManager.clone(newState.getCurrentTile());
                     Coordinates newCoordinates = CloneManager.clone(coordinates);
 
                     newTile.rotateClockwise(i);
-
-                    if (newState.getBoard().placeTile(newCoordinates, newTile)) {
+                    boolean placed = false;
+                    placed = newState.getBoard().placeTile(newCoordinates, newTile);
+                    if (placed) {
                         newState.setCurrentPlayer((currentPlayer + 1) % players.size());
                         newState.setCurrentTile(newState.getAvailableTiles().pop());
 
@@ -91,6 +101,7 @@ public class State {
 
                         possibleChildStates.add(newState);
                     }
+                    // System.out.println("---- Placed: " + placed);
                 }
             }
         }
@@ -111,9 +122,9 @@ public class State {
         int newCurrentPlayer = currentPlayer;
 
         Random random = new Random();
-        HashMap<Coordinates, HashSet<Integer>> checkedCombinations = new HashMap<>();
-        HashSet<Integer> checkedRotations = new HashSet<Integer>();
-
+        HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
+        HashSet<Integer> checkedRotations;
+        // newAvailableTiles.push(newCurrentTile);
         int i = 0;
         while (!newAvailableTiles.empty()) {
             i++;
@@ -121,6 +132,9 @@ public class State {
             boolean playerPlacedTile = true;
 
             newCurrentTile = newAvailableTiles.pop();
+            checkedCombinations = new HashMap<>();
+            checkedRotations = new HashSet<>();
+
             while (!isPlaced) {
 
                 Coordinates randomCoordinates = newBoard.getPossibleCoordinates()
@@ -179,6 +193,7 @@ public class State {
     private boolean updateCheckedCombinations(HashMap<Coordinates, HashSet<Integer>> checkedCombinations,
             HashSet<Integer> checkedRotations,
             Coordinates randomCoordinates, Integer randomRotation) {
+
         if (!checkedCombinations.containsKey(randomCoordinates)) {
             checkedCombinations.put(randomCoordinates, new HashSet<>());
         }
@@ -213,14 +228,14 @@ public class State {
         int symmetricRotations = 1;
         ArrayList<SideFeature> sideFeatures = tile.getSideFeatures();
 
-        if (sideFeatures.get(0).getClass() == sideFeatures.get(2).getClass()
-                && sideFeatures.get(1).getClass() == sideFeatures
-                        .get(3).getClass()
-                && sideFeatures.get(0).getClass() == sideFeatures.get(3).getClass()) {
+        if (sideFeatures.get(0) == sideFeatures.get(2)
+                && sideFeatures.get(1) == sideFeatures
+                        .get(3)
+                && sideFeatures.get(0) == sideFeatures.get(3)) {
             symmetricRotations = 4;
-        } else if (sideFeatures.get(0).getClass() == sideFeatures.get(2).getClass()
-                && sideFeatures.get(1).getClass() == sideFeatures
-                        .get(3).getClass()) {
+        } else if (sideFeatures.get(0) == sideFeatures.get(2)
+                && sideFeatures.get(1) == sideFeatures
+                        .get(3)) {
             symmetricRotations = 3;
         }
 
