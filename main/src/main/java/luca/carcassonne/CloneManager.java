@@ -108,7 +108,7 @@ public class CloneManager {
     }
 
     public static Tile clone(Tile tile) {
-        return Settings.getTileFromId(tile.getId());
+        return (tile == null ? null : Settings.getTileFromId(tile.getId()));
     }
 
     public static Coordinates clone(Coordinates coordinates) {

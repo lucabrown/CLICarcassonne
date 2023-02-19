@@ -31,7 +31,8 @@ public class MonteCarloTreeSearch {
         double timeForOneMove = 1000;
         int iterations = 0;
 
-        while (System.currentTimeMillis() - startTime < timeForOneMove || iterations < 1) {
+        while (iterations < 1) {
+
             System.out.println("\n\n********* ITERATION " + iterations++ + " *********");
             // Selection
             System.out.println("\n- - - SELECTION - - -");
@@ -39,10 +40,9 @@ public class MonteCarloTreeSearch {
 
             // Expansion
             System.out.println("\n- - - EXPANSION - - -");
-            if (!promisingNode.getState().getAvailableTiles().isEmpty()) {
+
+            if (promisingNode.getState().getCurrentTile() != null) {
                 promisingNode.getState().getBoard().printBoard();
-                // System.out.println("Moves: " +
-                // promisingNode.getState().getBoard().getPastMoves().size());
                 expandNode(promisingNode);
             }
 

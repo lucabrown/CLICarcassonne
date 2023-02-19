@@ -86,7 +86,8 @@ public class State {
                     placed = newState.getBoard().placeTile(newCoordinates, newTile);
                     if (placed) {
                         newState.setCurrentPlayer((currentPlayer + 1) % players.size());
-                        newState.setCurrentTile(newState.getAvailableTiles().pop());
+                        newState.setCurrentTile(
+                                (newState.getAvailableTiles().isEmpty() ? null : newState.getAvailableTiles().pop()));
 
                         if (j < currentTile.getFeatures().size()) {
 
@@ -124,9 +125,10 @@ public class State {
         Random random = new Random();
         HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
         HashSet<Integer> checkedRotations;
-        // newAvailableTiles.push(newCurrentTile);
+        newAvailableTiles.push(newCurrentTile);
+
         int i = 0;
-        while (!newAvailableTiles.empty()) {
+        while (!newAvailableTiles.empty() && currentTile != null) {
             i++;
             boolean isPlaced = false;
             boolean playerPlacedTile = true;
@@ -210,7 +212,7 @@ public class State {
         return false;
     }
 
-    private int calculateScoreDifference(ArrayList<Player> players, int currentPlayer) {
+    public int calculateScoreDifference(ArrayList<Player> players, int currentPlayer) {
         int pointDifference = 0;
 
         for (int i = 0; i < players.size(); i++) {
