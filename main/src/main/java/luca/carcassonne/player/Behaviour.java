@@ -1,5 +1,7 @@
 package luca.carcassonne.player;
 
-public class Behaviour {
-    
+public enum Behaviour {
+    RANDOM,
+    MCTS;
+
 }

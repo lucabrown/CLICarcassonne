@@ -10,6 +10,7 @@ import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 
+// Magnificent aren't they?
 public class CloneManager {
     public static State clone(State state) {
         Board board = state.getBoard();
@@ -120,6 +121,7 @@ public class CloneManager {
 
         newPlayer.setScore(player.getScore());
         newPlayer.setAvailableMeeples(player.getAvailableMeeples());
+        newPlayer.setBehaviour(player.getBehaviour());
 
         return newPlayer;
     }

@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import luca.carcassonne.MCTS.MonteCarloTreeSearch;
 import luca.carcassonne.MCTS.Move;
+import luca.carcassonne.player.Behaviour;
 import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Coordinates;
@@ -41,9 +42,9 @@ public class Game {
         this.board = board;
         this.players = new ArrayList<>() {
             {
-                add(new Player(Colour.WHITE));
-                add(new Player(Colour.RED));
-                add(new Player(Colour.GREEN));
+                add(new Player(Colour.WHITE, Behaviour.RANDOM));
+                add(new Player(Colour.RED, Behaviour.MCTS));
+                // add(new Player(Colour.GREEN));
                 // add(new Player(Colour.YELLOW));
                 // add(new Player(Colour.BLACK));
                 // add(new Player(Colour.BLUE));
@@ -136,7 +137,7 @@ public class Game {
 
             MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer, currentTile, players,
                     availableTiles);
-            Move move = mcts.findNextMove();
+            Move move = mcts.findNextMove(players.get(currentPlayer).getBehaviour());
 
             while (!isPlaced) {
                 triedPlacements++;

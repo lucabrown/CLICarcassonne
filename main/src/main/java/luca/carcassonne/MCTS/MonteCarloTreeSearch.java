@@ -14,6 +14,7 @@ https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-se
 
 import luca.carcassonne.Board;
 import luca.carcassonne.CloneManager;
+import luca.carcassonne.player.Behaviour;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Tile;
 
@@ -25,13 +26,18 @@ public class MonteCarloTreeSearch {
         startingState = new State(startingBoard, startingPlayer, currentTile, players, availableTiles);
     }
 
-    public Move findNextMove() {
+    public Move findNextMove(Behaviour behaviour) {
         Node rootNode = new Node(startingState);
         double startTime = System.currentTimeMillis();
-        double timeForOneMove = 1000;
+        double timeForOneMove = 5000;
         int iterations = 0;
 
-        while (iterations < 1) {
+        if (behaviour == Behaviour.RANDOM) {
+            expandNode(rootNode);
+            return rootNode.getRandomChildNode().getState().getBoard().getLastMove();
+        }
+
+        while (System.currentTimeMillis() - startTime < timeForOneMove || iterations < 100) {
 
             System.out.println("\n\n********* ITERATION " + iterations++ + " *********");
             // Selection
@@ -100,8 +106,7 @@ public class MonteCarloTreeSearch {
     }
 
     private int simulateRandomPlayout(Node nodeToExplore) {
-        State tempState = CloneManager.clone(nodeToExplore.getState());
-        int playoutResult = tempState.randomPlay();
+        int playoutResult = nodeToExplore.getState().randomPlay();
 
         nodeToExplore.getState().setFinalScoreDifference(playoutResult);
 

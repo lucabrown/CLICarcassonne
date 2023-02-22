@@ -33,6 +33,7 @@ import luca.carcassonne.tile.feature.Field;
 
 public class State {
     private Board board;
+    private int originalPlayer;
     private int currentPlayer;
     private Tile currentTile;
     private Stack<Tile> availableTiles;
@@ -42,7 +43,8 @@ public class State {
 
     public State() {
         this.board = null;
-        this.currentPlayer = 0;
+        this.originalPlayer = -1;
+        this.currentPlayer = -1;
         this.currentTile = null;
         this.availableTiles = null;
         this.players = null;
@@ -54,6 +56,7 @@ public class State {
             ArrayList<Player> players,
             Stack<Tile> availableTiles) {
         this.board = startingBoard;
+        this.originalPlayer = startingPlayer;
         this.currentPlayer = startingPlayer;
         this.currentTile = currentTile;
         this.players = players;
@@ -71,21 +74,32 @@ public class State {
         // System.out.println("- Possible features: " +
         // currentTile.getFeatures().size());
 
-        for (Coordinates coordinates : possibleCoordinates) {
-            // System.out.println("- Trying: " + coordinates);
-            for (int i = rotations - 1; i < 4; i++) {
-                // System.out.println("-- Rotation: " + i);
-                for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
-                    // System.out.println("--- Feature: " + j);
-                    State newState = CloneManager.clone(this);
-                    Tile newTile = CloneManager.clone(newState.getCurrentTile());
-                    Coordinates newCoordinates = CloneManager.clone(coordinates);
+        State junkState = CloneManager.clone(this);
 
-                    newTile.rotateClockwise(i);
-                    boolean placed = false;
-                    placed = newState.getBoard().placeTile(newCoordinates, newTile);
+        for (Coordinates coordinates : possibleCoordinates) {
+            for (int i = rotations - 1; i < 4; i++) {
+                for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
+
+                    Tile junkTile = CloneManager.clone(currentTile);
+                    Coordinates junkCoordinates = CloneManager.clone(coordinates);
+
+                    junkTile.rotateClockwise(i);
+
+                    boolean placed = junkState.getBoard().placeTile(junkCoordinates, junkTile);
+
                     if (placed) {
+                        State newState = CloneManager.clone(this);
+                        Tile newTile = CloneManager.clone(newState.getCurrentTile());
+                        Coordinates newCoordinates = CloneManager.clone(coordinates);
+
+                        newTile.rotateClockwise(i);
+
+                        if (!newState.getBoard().placeTile(newCoordinates, newTile)) {
+                            throw new RuntimeException("Tile could not be placed to determine child.");
+                        }
+
                         newState.setCurrentPlayer((currentPlayer + 1) % players.size());
+                        newState.setOriginalPlayer(originalPlayer);
                         newState.setCurrentTile(
                                 (newState.getAvailableTiles().isEmpty() ? null : newState.getAvailableTiles().pop()));
 
@@ -101,6 +115,9 @@ public class State {
                         ScoreManager.scoreClosedFeatures(newState.getBoard());
 
                         possibleChildStates.add(newState);
+
+                        junkState.getBoard().getPlacedTiles().remove(junkTile);
+                        junkState.getBoard().getPossibleCoordinates().add(junkCoordinates);
                     }
                     // System.out.println("---- Placed: " + placed);
                 }
@@ -128,6 +145,7 @@ public class State {
         newAvailableTiles.push(newCurrentTile);
 
         int i = 0;
+        System.out.println("Random play");
         while (!newAvailableTiles.empty() && currentTile != null) {
             i++;
             boolean isPlaced = false;
@@ -150,9 +168,10 @@ public class State {
                 isPlaced = newBoard.placeTile(randomCoordinates, newCurrentTile);
 
                 if (!isPlaced) {
+
                     // If tile is not placed, keep a record of checked combination
                     if (updateCheckedCombinations(checkedCombinations, checkedRotations, randomCoordinates,
-                            randomRotation)) {
+                            randomRotation, newBoard.getPossibleCoordinates().size())) {
                         System.out.println("- - Tile not placed");
                         isPlaced = true;
                         playerPlacedTile = false;
@@ -185,16 +204,16 @@ public class State {
 
         ScoreManager.scoreOpenFeatures(newBoard);
 
-        finalScoreDifference = calculateScoreDifference(newPlayers, currentPlayer);
-
+        finalScoreDifference = calculateScoreDifference(newPlayers, originalPlayer);
+        this.setFinalScoreDifference(finalScoreDifference);
         System.out.println("Playout iterations: " + i);
 
         return calculateScoreDifference(newPlayers, currentPlayer);
     }
 
     private boolean updateCheckedCombinations(HashMap<Coordinates, HashSet<Integer>> checkedCombinations,
-            HashSet<Integer> checkedRotations,
-            Coordinates randomCoordinates, Integer randomRotation) {
+            HashSet<Integer> checkedRotations, Coordinates randomCoordinates, Integer randomRotation,
+            int possibleCoordinatesSize) {
 
         if (!checkedCombinations.containsKey(randomCoordinates)) {
             checkedCombinations.put(randomCoordinates, new HashSet<>());
@@ -204,7 +223,7 @@ public class State {
         checkedRotations.add(randomRotation);
         checkedCombinations.put(randomCoordinates, checkedRotations);
 
-        if (checkedCombinations.size() == board.getPossibleCoordinates().size()
+        if (checkedCombinations.size() == possibleCoordinatesSize
                 && checkedCombinations.get(randomCoordinates).size() == 4) {
             return true;
         }
@@ -212,11 +231,11 @@ public class State {
         return false;
     }
 
-    public int calculateScoreDifference(ArrayList<Player> players, int currentPlayer) {
+    public int calculateScoreDifference(ArrayList<Player> players, int originalPlayer) {
         int pointDifference = 0;
 
         for (int i = 0; i < players.size(); i++) {
-            if (i != currentPlayer) {
+            if (i != originalPlayer) {
                 pointDifference += players.get(i).getScore();
             } else {
                 pointDifference -= players.get(i).getScore();
@@ -250,6 +269,14 @@ public class State {
 
     public void setBoard(Board board) {
         this.board = board;
+    }
+
+    public int gerOriginalPlayer() {
+        return originalPlayer;
+    }
+
+    public void setOriginalPlayer(int originalPlayer) {
+        this.originalPlayer = originalPlayer;
     }
 
     public int getCurrentPlayer() {

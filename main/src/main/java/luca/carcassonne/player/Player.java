@@ -4,6 +4,7 @@ import luca.carcassonne.Settings;
 
 public class Player {
     private Colour colour;
+    private Behaviour behaviour;
     private int score;
     private int availableMeeples;
 
@@ -11,12 +12,21 @@ public class Player {
         this.colour = colour;
         this.score = 0;
         this.availableMeeples = Settings.MAX_MEEPLES;
+        this.behaviour = Behaviour.RANDOM;
+    }
+
+    public Player(Colour colour, Behaviour behaviour) {
+        this.colour = colour;
+        this.score = 0;
+        this.availableMeeples = Settings.MAX_MEEPLES;
+        this.behaviour = behaviour;
     }
 
     public Player() {
         this.colour = null;
         this.score = 0;
         this.availableMeeples = Settings.MAX_MEEPLES;
+        this.behaviour = Behaviour.RANDOM;
     }
 
     public int getScore() {
@@ -55,8 +65,12 @@ public class Player {
         return colour;
     }
 
-    public boolean isHuman() {
-        return true;
+    public void setBehaviour(Behaviour behaviour) {
+        this.behaviour = behaviour;
+    }
+
+    public Behaviour getBehaviour() {
+        return behaviour;
     }
 
     // @Override

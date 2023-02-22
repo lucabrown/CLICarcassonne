@@ -15,7 +15,7 @@ public class UCT {
         if (nodeVisit == 0) {
             return Integer.MAX_VALUE;
         }
-        return (nodeScoreDifference / (double) nodeVisit) + 1.41 *
+        return (nodeScoreDifference / (double) nodeVisit) + 0.5 *
                 Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
     }
 
