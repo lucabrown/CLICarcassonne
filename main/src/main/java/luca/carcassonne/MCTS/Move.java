@@ -76,7 +76,7 @@ public class Move {
 
     @Override
     public String toString() {
-        return "Move [" + coordinates + ", t" + tile + ", r" + rotation + ", p" + playerIndex
+        return "Move [" + coordinates + ", " + tile + ", r" + rotation + ", p" + playerIndex
                 + ", f" + featureIndex + "]";
     }
 

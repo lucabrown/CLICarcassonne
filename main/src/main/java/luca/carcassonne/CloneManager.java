@@ -27,7 +27,7 @@ public class CloneManager {
         Stack<Tile> newAvailableTiles = (Stack<Tile>) availableTiles.stream().map(t -> clone(t))
                 .collect(Collectors.toCollection(Stack::new));
         Tile newCurrentTile = clone(currentTile);
-        Board newBoard = cloneBoard(board, newPlayers);
+        Board newBoard = clone(board, newPlayers);
 
         newState.setBoard(newBoard);
         newState.setPlayers(newPlayers);
@@ -54,7 +54,7 @@ public class CloneManager {
         return newState;
     }
 
-    public static Board cloneBoard(Board oldBoard, ArrayList<Player> newPlayers) {
+    public static Board clone(Board oldBoard, ArrayList<Player> newPlayers) {
         Board newBoard = new Board();
         // System.out.println("- Cloning board: " + newBoard.hashCode());
         // System.out.println("- - Starting Tile: "

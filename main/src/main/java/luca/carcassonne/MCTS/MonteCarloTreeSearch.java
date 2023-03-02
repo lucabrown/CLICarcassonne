@@ -1,5 +1,7 @@
 package luca.carcassonne.MCTS;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -20,52 +22,49 @@ import luca.carcassonne.tile.Tile;
 
 public class MonteCarloTreeSearch {
     private State startingState;
+    private int maxIterations = 0;
 
-    public MonteCarloTreeSearch(Board startingBoard, int startingPlayer, Tile currentTile,
+    public MonteCarloTreeSearch(int maxIterations, Board startingBoard, int startingPlayer, Tile currentTile,
             ArrayList<Player> players, Stack<Tile> availableTiles) {
         startingState = new State(startingBoard, startingPlayer, currentTile, players, availableTiles);
+        this.maxIterations = maxIterations;
     }
 
     public Move findNextMove(Behaviour behaviour) {
         Node rootNode = new Node(startingState);
-        double startTime = System.currentTimeMillis();
-        double timeForOneMove = 5000;
         int iterations = 0;
 
         if (behaviour == Behaviour.RANDOM) {
             expandNode(rootNode);
-            return rootNode.getRandomChildNode().getState().getBoard().getLastMove();
+            Node toReturn = rootNode.getRandomChildNode();
+
+            if (toReturn == null)
+                return null;
+            else
+                return toReturn.getState().getBoard().getLastMove();
         }
 
-        while (System.currentTimeMillis() - startTime < timeForOneMove || iterations < 100) {
+        while (iterations < maxIterations) {
+            iterations++;
 
-            System.out.println("\n\n********* ITERATION " + iterations++ + " *********");
             // Selection
-            System.out.println("\n- - - SELECTION - - -");
             Node promisingNode = selectPromisingNode(rootNode);
 
             // Expansion
-            System.out.println("\n- - - EXPANSION - - -");
-
             if (promisingNode.getState().getCurrentTile() != null) {
-                promisingNode.getState().getBoard().printBoard();
                 expandNode(promisingNode);
             }
 
             // Simulation
-            System.out.println("\n- - - SIMULATION - - -");
             Node nodeToExplore = promisingNode;
 
             if (promisingNode.hasChildren()) {
                 nodeToExplore = promisingNode.getRandomChildNode(); // Random??
-                System.out.println("- Chosen random child: " + nodeToExplore.getState().getBoard().getPastMoves().get(0)
-                        + " moves");
             }
 
             int playoutResult = simulateRandomPlayout(nodeToExplore);
 
             // Backpropagation
-            System.out.println("\n- - - BACKPROPAGATION - - -");
             backPropagation(nodeToExplore, playoutResult);
         }
 
@@ -78,24 +77,17 @@ public class MonteCarloTreeSearch {
             return parentNode;
 
         Node node = null;
-        int level = 0;
 
         while (!parentNode.getChildren().isEmpty()) {
-            level++;
             node = UCT.findBestNodeWithUCT(parentNode);
             parentNode = node;
         }
-
-        System.out.println(
-                "- Selected node from " + node.getParent().getChildren().size() + " children at level " + level);
-        System.out.println("- Node tile: " + node.getState().getCurrentTile());
 
         return node;
     }
 
     private void expandNode(Node promisingNode) {
         ArrayList<State> possibleStates = promisingNode.getState().getAllPossibleChildStates();
-        System.out.println("- New children: " + possibleStates.size());
 
         for (State state : possibleStates) {
             Node newNode = new Node(state);
@@ -115,14 +107,8 @@ public class MonteCarloTreeSearch {
 
     private void backPropagation(Node exploredNode, int playoutResult) {
         Node tempNode = exploredNode;
-        int i = 0;
         while (tempNode != null) {
-            i++;
             tempNode.getState().incrementVisit();
-            // if (tempNode.getState().getCurrentPlayer() ==
-            // startingState.getCurrentPlayer()) {
-            // tempNode.getState().setFinalScoreDifference((int) playoutResult);
-            // }
 
             if (tempNode.getState().getFinalScoreDifference() < playoutResult) {
                 tempNode.getState().setFinalScoreDifference(playoutResult);
@@ -130,7 +116,9 @@ public class MonteCarloTreeSearch {
 
             tempNode = tempNode.getParent();
         }
+    }
 
-        System.out.println("- Backpropagated " + i + " nodes");
+    public State getStartingState() {
+        return startingState;
     }
 }

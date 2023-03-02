@@ -12,7 +12,8 @@
             "name": "Launch Game",
             "request": "launch",
             "mainClass": "luca.carcassonne.Game",
-            "projectName": "main"
+            "projectName": "main",
+            "vmArgs": "-Xmx32g"
         },
         {
             "type": "java",

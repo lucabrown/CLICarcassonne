@@ -1,10 +1,13 @@
 package luca.carcassonne;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Stack;
 
 import luca.carcassonne.MCTS.MonteCarloTreeSearch;
@@ -22,6 +25,8 @@ public class Game {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_RED = "\u001B[31m";
+
+    public static final float totalChildren[] = new float[72];
 
     private static final Random random = new Random();
     private static final Integer numberOfPLayers = 2;
@@ -42,10 +47,10 @@ public class Game {
         this.board = board;
         this.players = new ArrayList<>() {
             {
-                add(new Player(Colour.WHITE, Behaviour.RANDOM));
-                add(new Player(Colour.RED, Behaviour.MCTS));
-                // add(new Player(Colour.GREEN));
-                // add(new Player(Colour.YELLOW));
+                add(new Player(Colour.WHITE, Behaviour.MCTS));
+                add(new Player(Colour.RED, Behaviour.RANDOM));
+                // add(new Player(Colour.GREEN, Behaviour.MCTS));
+                // add(new Player(Colour.YELLOW, Behaviour.MCTS));
                 // add(new Player(Colour.BLACK));
                 // add(new Player(Colour.BLUE));
             }
@@ -56,7 +61,7 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        float times = 1;
+        float times = 10;
         float whiteTotalScore = 0;
         float redTotalScore = 0;
         float whiteWR = 0;
@@ -79,6 +84,20 @@ public class Game {
             }
         }
 
+        // FileWriter childWriter = null;
+        // try {
+        // childWriter = new FileWriter("child_states_unoptimised_max_meeples.txt");
+        // childWriter.write("TILE N\n");
+
+        // for (int i = 0; i < totalChildren.length; i++) {
+        // totalChildren[i] = totalChildren[i] / times;
+        // childWriter.write(i + " " + totalChildren[i] + "\n");
+        // }
+        // childWriter.close();
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
+
         whiteWR = (whiteWR / times * 100);
         redWR = (redWR / times * 100);
         ties = (ties / times * 100);
@@ -95,6 +114,15 @@ public class Game {
     // The main game loop
     public void play() {
         Collections.shuffle(availableTiles);
+        // Scanner scanner = new Scanner(System.in);
+        // FileWriter myWriter = null;
+        // int moveNumber = 0;
+        // try {
+        // myWriter = new FileWriter("time.txt");
+        // myWriter.write("TILE TIME\n");
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
 
         startTime = System.currentTimeMillis();
         progressBarStep = availableTiles.size() / 100 + 1;
@@ -109,6 +137,11 @@ public class Game {
 
         // Each loop iteration corresponds to one turn
         while (!availableTiles.empty()) {
+            long timeForMove = System.currentTimeMillis();
+            System.out.println(players.get(currentPlayer).getColour() + "'s turn");
+            System.out.println("Available tiles: " + availableTiles.size());
+            System.out.println("Performing " + players.get(currentPlayer).getBehaviour() + " move");
+
             boolean isPlaced = false;
             boolean playerPlacedTile = true;
             boolean meeplePlaced = false;
@@ -119,25 +152,21 @@ public class Game {
             checkedRotations = new HashSet<Integer>();
 
             currentTile = availableTiles.pop();
+            System.out.println("Current tile: " + currentTile.getId());
 
-            /*
-             * 
-             * 
-             * Start MCTS by passing in:
-             * - the current board
-             * - the current tile
-             * - the current player
-             * - the available tiles
-             * - the players
-             * 
-             * MCTS = new MCTS(board, currentTile, currentPlayer, availableTiles, players);
-             * 
-             * Move move = mcts.findNextMove();
-             */
-
-            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer, currentTile, players,
+            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(50, board, currentPlayer, currentTile, players,
                     availableTiles);
             Move move = mcts.findNextMove(players.get(currentPlayer).getBehaviour());
+
+            if (move == null) {
+                System.out.println("- - Tile not placed");
+                isPlaced = true;
+                playerPlacedTile = false;
+                continue;
+            }
+
+            // totalChildren[moveNumber] = totalChildren[moveNumber]
+            // + mcts.getStartingState().getAllPossibleChildStates().size();
 
             while (!isPlaced) {
                 triedPlacements++;
@@ -200,11 +229,29 @@ public class Game {
 
                 ScoreManager.scoreClosedFeatures(board);
                 currentPlayer = (currentPlayer + 1) % players.size();
+
+                timeForMove = System.currentTimeMillis() - timeForMove;
+                System.out.println("Move " + move + " performed in " + timeForMove + "ms");
+                System.out.println("Enter for next turn.");
+                // String line = scanner.nextLine();
+                // moveNumber++;
+                // try {
+                // myWriter.write(moveNumber + " " + timeForMove + "\n");
+                // } catch (Exception e) {
+                // e.printStackTrace();
+                // }
             }
 
             // printProgressBarStep();
 
         }
+
+        // try {
+        // myWriter.close();
+        // } catch (Exception e) {
+        // // TODO: handle exception
+        // e.printStackTrace();
+        // }
 
         ScoreManager.scoreOpenFeatures(board);
 

@@ -35,14 +35,14 @@ public class Settings {
     private static final int N_THREE_ROAD_INTERSECTION = 4;
     private static final int N_FOUR_ROAD_INTERSECTION = 1;
     private static final int N_SINGLE_CASTLE = 5;
-    private static final int N_SINGLE_CASTLE_WITH_STRAIGHT_ROAD = 4;
+    private static final int N_SINGLE_CASTLE_WITH_STRAIGHT_ROAD = 3;
     private static final int N_SINGLE_CASTLE_WITH_CURVY_ROAD_LEFT = 3;
     private static final int N_SINGLE_CASTLE_WITH_CURVY_ROAD_RIGHT = 3;
     private static final int N_SINGLE_CASTLE_WITH_THREE_ROAD_INTERSECTION = 3;
     private static final int N_STRAIGHT_CASTLE = 1;
     private static final int N_CURVY_CASTLE = 3;
     private static final int N_TWO_SINGLE_CASTLES_OPPOSITE = 3;
-    private static final int N_TWO_SINGLE_CASTLES_ADJACENT = 3;
+    private static final int N_TWO_SINGLE_CASTLES_ADJACENT = 2;
     private static final int N_CURVY_CASTLE_WITH_CURVY_ROAD = 3;
     private static final int N_STRAIGHT_CASTLE_WITH_SHIELD = 2;
     private static final int N_CURVY_CASTLE_WITH_SHIELD = 2;

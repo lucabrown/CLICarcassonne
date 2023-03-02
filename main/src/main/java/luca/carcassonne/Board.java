@@ -93,11 +93,15 @@ public class Board {
     // Tries to place a tile in the given coordinates. Returns true if the placement
     // was legal.
     public boolean placeTile(Coordinates coordinates, Tile newTile) {
-        if (tilePlacementLegal(coordinates, newTile)) {
+        List<Tile> tilesToCheck = placedTiles.stream()
+                .filter(e -> e.getAdjacentCoordinates().contains(coordinates))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        if (tilePlacementLegal(coordinates, newTile, tilesToCheck)) {
             newTile.setCoordinates(coordinates);
 
             updateBoard(newTile);
-            updateFeatures(newTile);
+            updateFeatures(newTile, tilesToCheck);
 
             return true;
         }
@@ -159,10 +163,10 @@ public class Board {
     }
 
     // Updates the set of open features by connecting the new open features
-    private void updateFeatures(Tile newTile) {
-        List<Tile> tilesToCheck = placedTiles.stream()
-                .filter(e -> e.getAdjacentCoordinates().contains(newTile.getCoordinates()))
-                .collect(Collectors.toCollection(ArrayList::new));
+    private void updateFeatures(Tile newTile, List<Tile> tilesToCheck) {
+        // List<Tile> tilesToCheck = placedTiles.stream()
+        // .filter(e -> e.getAdjacentCoordinates().contains(newTile.getCoordinates()))
+        // .collect(Collectors.toCollection(ArrayList::new));
 
         HashMap<Feature, Integer> featuresToConnect = new HashMap<>();
 
@@ -181,11 +185,11 @@ public class Board {
     }
 
     // Checks if the tile's placement is legal
-    private boolean tilePlacementLegal(Coordinates coordinates, Tile tile) {
+    private boolean tilePlacementLegal(Coordinates coordinates, Tile tile, List<Tile> tilesToCheck) {
         if (possibleCoordinates.contains(coordinates)) {
-            List<Tile> tilesToCheck = placedTiles.stream()
-                    .filter(e -> e.getAdjacentCoordinates().contains(coordinates))
-                    .collect(Collectors.toCollection(ArrayList::new));
+            // List<Tile> tilesToCheck = placedTiles.stream()
+            // .filter(e -> e.getAdjacentCoordinates().contains(coordinates))
+            // .collect(Collectors.toCollection(ArrayList::new));
 
             for (Tile t : tilesToCheck) {
                 int position = getRelativePosition(t, coordinates);

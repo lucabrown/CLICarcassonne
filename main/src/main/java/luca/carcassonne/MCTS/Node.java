@@ -66,14 +66,15 @@ public class Node {
         return children.size() > 0;
     }
 
-    // public Node getRandomChildNode() {
-    // int noOfPossibleMoves = this.children.size();
-    // int selectRandom = (int) (Math.random() * noOfPossibleMoves);
-
-    // return this.children.get(selectRandom);
-    // }
-
     public Node getRandomChildNode() {
+        int noOfPossibleMoves = this.children.size();
+        int selectRandom = (int) (Math.random() * noOfPossibleMoves);
+        if (noOfPossibleMoves == 0)
+            return null;
+        return this.children.get(selectRandom);
+    }
+
+    public Node getInformedRandomChildNode() {
         for (Node child : children) {
             Move lastMove = child.getState().getBoard().getLastMove();
             if (lastMove.getFeatureIndex() != -1

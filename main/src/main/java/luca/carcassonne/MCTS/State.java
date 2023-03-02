@@ -68,16 +68,10 @@ public class State {
         List<Coordinates> possibleCoordinates = this.board.getPossibleCoordinates();
         int rotations = getSymmetricRotations(currentTile);
 
-        // System.out.println("Parent tile: " + currentTile.getId());
-        // System.out.println("- Possible coordinates: " + possibleCoordinates.size());
-        // System.out.println("- Possible rotations: " + rotations);
-        // System.out.println("- Possible features: " +
-        // currentTile.getFeatures().size());
-
         State junkState = CloneManager.clone(this);
 
         for (Coordinates coordinates : possibleCoordinates) {
-            for (int i = rotations - 1; i < 4; i++) {
+            for (int i = rotations; i < 4; i++) {
                 for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
 
                     Tile junkTile = CloneManager.clone(currentTile);
@@ -86,6 +80,7 @@ public class State {
                     junkTile.rotateClockwise(i);
 
                     boolean placed = junkState.getBoard().placeTile(junkCoordinates, junkTile);
+                    boolean meeplePlaced = false;
 
                     if (placed) {
                         State newState = CloneManager.clone(this);
@@ -105,8 +100,14 @@ public class State {
 
                         if (j < currentTile.getFeatures().size()) {
 
-                            newState.getBoard().placeMeeple(newTile.getFeatures().get(j),
+                            meeplePlaced = newState.getBoard().placeMeeple(newTile.getFeatures().get(j),
                                     newState.getPlayers().get(currentPlayer));
+                            if (!meeplePlaced) {
+                                junkState.getBoard().getPlacedTiles().remove(junkTile);
+                                junkState.getBoard().getPossibleCoordinates().add(junkCoordinates);
+
+                                continue;
+                            }
                             newState.getBoard().addNewMove(new Move(newCoordinates, newTile, i, currentPlayer, j));
                         } else {
                             newState.getBoard().addNewMove(new Move(newCoordinates, newTile, i, currentPlayer));
@@ -119,11 +120,10 @@ public class State {
                         junkState.getBoard().getPlacedTiles().remove(junkTile);
                         junkState.getBoard().getPossibleCoordinates().add(junkCoordinates);
                     }
-                    // System.out.println("---- Placed: " + placed);
                 }
             }
         }
-        System.out.println("Possible child states: " + possibleChildStates.size());
+
         return possibleChildStates;
     }
 
@@ -144,10 +144,7 @@ public class State {
         HashSet<Integer> checkedRotations;
         newAvailableTiles.push(newCurrentTile);
 
-        int i = 0;
-        System.out.println("Random play");
         while (!newAvailableTiles.empty() && currentTile != null) {
-            i++;
             boolean isPlaced = false;
             boolean playerPlacedTile = true;
 
@@ -198,15 +195,12 @@ public class State {
                 ScoreManager.scoreClosedFeatures(newBoard);
                 newCurrentPlayer = (newCurrentPlayer + 1) % newPlayers.size();
             }
-
-            // System.out.println("Place tile: " + i);
         }
 
         ScoreManager.scoreOpenFeatures(newBoard);
 
         finalScoreDifference = calculateScoreDifference(newPlayers, originalPlayer);
         this.setFinalScoreDifference(finalScoreDifference);
-        System.out.println("Playout iterations: " + i);
 
         return calculateScoreDifference(newPlayers, currentPlayer);
     }
@@ -260,7 +254,7 @@ public class State {
             symmetricRotations = 3;
         }
 
-        return symmetricRotations;
+        return symmetricRotations - 1;
     }
 
     public Board getBoard() {
@@ -330,36 +324,4 @@ public class State {
     public void setFinalScoreDifference(int finalScoreDifference) {
         this.finalScoreDifference = finalScoreDifference;
     }
-
-    // @Override
-    // public Object clone() {
-    // State newState = new State();
-
-    // newState.setBoard((Board) board.clone());
-    // newState.setMove(move == null ? null : (Move) move.clone());
-    // newState.setCurrentPlayer(currentPlayer);
-    // newState.setCurrentTile(currentTile == null ? null : (Tile)
-    // currentTile.clone());
-    // newState.setAvailableTiles(
-    // (Stack<Tile>) availableTiles.stream().map(t -> (Tile) t.clone())
-    // .collect(Collectors.toCollection(Stack::new)));
-    // newState.setPlayers((ArrayList<Player>) players.stream().map(p -> (Player)
-    // p.clone())
-    // .collect(Collectors.toCollection(ArrayList::new)));
-    // newState.setVisitCount(visitCount);
-    // newState.setFinalScoreDifference(finalScoreDifference);
-
-    // for (SimpleGraph<Feature, DefaultEdge> featureGraph :
-    // newState.getBoard().getOpenFeatures()) {
-    // for (Feature feature : featureGraph.vertexSet()) {
-    // if (feature.getOwner() == null) {
-    // continue;
-    // }
-    // int playerIndex = players.indexOf(feature.getOwner());
-    // feature.setOwner(newState.getPlayers().get(playerIndex));
-    // }
-    // }
-
-    // return newState;
-    // }
 }
