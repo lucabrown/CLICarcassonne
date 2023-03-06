@@ -11,7 +11,7 @@ import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-import luca.carcassonne.MCTS.Move;
+import luca.carcassonne.mcts.Move;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Coordinates;

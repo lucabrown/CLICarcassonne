@@ -1,4 +1,4 @@
-package luca.carcassonne.MCTS;
+package luca.carcassonne.mcts;
 
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;

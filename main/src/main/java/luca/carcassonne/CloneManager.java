@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import luca.carcassonne.MCTS.Move;
-import luca.carcassonne.MCTS.State;
+import luca.carcassonne.mcts.Move;
+import luca.carcassonne.mcts.State;
+import luca.carcassonne.player.MonteCarloAgent;
 import luca.carcassonne.player.Player;
+import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 
@@ -121,9 +123,26 @@ public class CloneManager {
 
         newPlayer.setScore(player.getScore());
         newPlayer.setAvailableMeeples(player.getAvailableMeeples());
-        newPlayer.setBehaviour(player.getBehaviour());
 
         return newPlayer;
+    }
+
+    public static MonteCarloAgent clone(MonteCarloAgent agent) {
+        MonteCarloAgent newAgent = new MonteCarloAgent(agent.getColour(), agent.getMaxIterations());
+
+        newAgent.setScore(agent.getScore());
+        newAgent.setAvailableMeeples(agent.getAvailableMeeples());
+
+        return newAgent;
+    }
+
+    public static RandomAgent clone(RandomAgent agent) {
+        RandomAgent newAgent = new RandomAgent(agent.getColour());
+
+        newAgent.setScore(agent.getScore());
+        newAgent.setAvailableMeeples(agent.getAvailableMeeples());
+
+        return newAgent;
     }
 
     public static Move clone(Move move) {

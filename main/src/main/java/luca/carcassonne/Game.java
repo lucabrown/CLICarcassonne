@@ -10,18 +10,19 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Stack;
 
-import luca.carcassonne.MCTS.MonteCarloTreeSearch;
-import luca.carcassonne.MCTS.Move;
-import luca.carcassonne.player.Behaviour;
+import luca.carcassonne.mcts.MonteCarloTreeSearch;
+import luca.carcassonne.mcts.Move;
 import luca.carcassonne.player.Colour;
+import luca.carcassonne.player.MonteCarloAgent;
 import luca.carcassonne.player.Player;
+import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
 import luca.carcassonne.tile.feature.Field;
 
 // Starts the game and handles turns and available tiles
-public class Game {
+public class Game extends Thread {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -29,11 +30,10 @@ public class Game {
     public static final float totalChildren[] = new float[72];
 
     private static final Random random = new Random();
-    private static final Integer numberOfPLayers = 2;
-    private static int failedTiles = 0;
-    private static int triedPlacements = 0;
-    private static int progressBarStep = 1;
-    private static long startTime;
+    private int failedTiles = 0;
+    private int triedPlacements = 0;
+    private int progressBarStep = 1;
+    private long startTime;
 
     private Board board;
     private final ArrayList<Player> players;
@@ -47,9 +47,9 @@ public class Game {
         this.board = board;
         this.players = new ArrayList<>() {
             {
-                add(new Player(Colour.WHITE, Behaviour.MCTS));
-                add(new Player(Colour.RED, Behaviour.RANDOM));
-                // add(new Player(Colour.GREEN, Behaviour.MCTS));
+                add(new MonteCarloAgent(Colour.WHITE, 1000));
+                // add(new MonteCarloAgent(Colour.RED, 100));
+                add(new RandomAgent(Colour.RED));
                 // add(new Player(Colour.YELLOW, Behaviour.MCTS));
                 // add(new Player(Colour.BLACK));
                 // add(new Player(Colour.BLUE));
@@ -57,11 +57,10 @@ public class Game {
         };
         this.availableTiles = Settings.getStandardDeck();
         currentTile = new Tile(0, 0);
-        Game.failedTiles = 0;
     }
 
     public static void main(String[] args) {
-        float times = 10;
+        float times = 1;
         float whiteTotalScore = 0;
         float redTotalScore = 0;
         float whiteWR = 0;
@@ -72,7 +71,7 @@ public class Game {
             System.out.print(i);
 
             Game game = new Game(new Board(Settings.getSingleCastleWithStraightRoad()));
-            game.play();
+            game.run();
             whiteTotalScore += game.players.get(0).getScore();
             redTotalScore += game.players.get(1).getScore();
             if (game.players.get(0).getScore() > game.players.get(1).getScore()) {
@@ -112,7 +111,8 @@ public class Game {
     }
 
     // The main game loop
-    public void play() {
+    @Override
+    public void run() {
         Collections.shuffle(availableTiles);
         // Scanner scanner = new Scanner(System.in);
         // FileWriter myWriter = null;
@@ -140,7 +140,7 @@ public class Game {
             long timeForMove = System.currentTimeMillis();
             System.out.println(players.get(currentPlayer).getColour() + "'s turn");
             System.out.println("Available tiles: " + availableTiles.size());
-            System.out.println("Performing " + players.get(currentPlayer).getBehaviour() + " move");
+            System.out.println("Performing " + players.get(currentPlayer).getClass() + " move");
 
             boolean isPlaced = false;
             boolean playerPlacedTile = true;
@@ -154,9 +154,13 @@ public class Game {
             currentTile = availableTiles.pop();
             System.out.println("Current tile: " + currentTile.getId());
 
-            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(50, board, currentPlayer, currentTile, players,
+            // MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(500, board,
+            // currentPlayer, currentTile, players,
+            // availableTiles);
+            // Move move = mcts.findNextMove(players.get(currentPlayer).getBehaviour());
+
+            Move move = players.get(currentPlayer).getNextMove(board, currentPlayer, currentTile, players,
                     availableTiles);
-            Move move = mcts.findNextMove(players.get(currentPlayer).getBehaviour());
 
             if (move == null) {
                 System.out.println("- - Tile not placed");
@@ -263,6 +267,19 @@ public class Game {
         printSuccessfulTiles();
         printFailedTiles();
         printTimeElapsed();
+
+        ThreadManager.whiteTotalScore.addAndGet(players.get(0).getScore());
+        ThreadManager.redTotalScore.addAndGet(players.get(1).getScore());
+
+        if (players.get(0).getScore() > players.get(1).getScore()) {
+            ThreadManager.whiteWR.incrementAndGet();
+        } else if (players.get(0).getScore() == players.get(1).getScore()) {
+            ThreadManager.ties.incrementAndGet();
+        } else {
+            ThreadManager.redWR.incrementAndGet();
+        }
+
+        this.interrupt();
     }
 
     // Keeps a record of checked combinations for one tile

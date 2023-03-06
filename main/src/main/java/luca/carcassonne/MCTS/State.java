@@ -1,4 +1,4 @@
-package luca.carcassonne.MCTS;
+package luca.carcassonne.mcts;
 
 import java.util.ArrayList;
 import java.util.HashMap;

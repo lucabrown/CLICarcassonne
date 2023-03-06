@@ -1,10 +1,15 @@
 package luca.carcassonne.player;
 
+import java.util.ArrayList;
+import java.util.Stack;
+
+import luca.carcassonne.Board;
 import luca.carcassonne.Settings;
+import luca.carcassonne.mcts.Move;
+import luca.carcassonne.tile.Tile;
 
 public class Player {
     private Colour colour;
-    private Behaviour behaviour;
     private int score;
     private int availableMeeples;
 
@@ -12,21 +17,12 @@ public class Player {
         this.colour = colour;
         this.score = 0;
         this.availableMeeples = Settings.MAX_MEEPLES;
-        this.behaviour = Behaviour.RANDOM;
-    }
-
-    public Player(Colour colour, Behaviour behaviour) {
-        this.colour = colour;
-        this.score = 0;
-        this.availableMeeples = Settings.MAX_MEEPLES;
-        this.behaviour = behaviour;
     }
 
     public Player() {
         this.colour = null;
         this.score = 0;
         this.availableMeeples = Settings.MAX_MEEPLES;
-        this.behaviour = Behaviour.RANDOM;
     }
 
     public int getScore() {
@@ -65,20 +61,9 @@ public class Player {
         return colour;
     }
 
-    public void setBehaviour(Behaviour behaviour) {
-        this.behaviour = behaviour;
+    public Move getNextMove(Board startingBoard, int startingPlayer, Tile currentTile,
+            ArrayList<Player> players, Stack<Tile> availableTiles) {
+        return null;
     }
-
-    public Behaviour getBehaviour() {
-        return behaviour;
-    }
-
-    // @Override
-    // public Object clone() {
-    // Player clone = new Player(colour);
-    // clone.score = score;
-    // clone.availableMeeples = availableMeeples;
-    // return clone;
-    // }
 
 }

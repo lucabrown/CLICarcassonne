@@ -1,4 +1,4 @@
-package luca.carcassonne.MCTS;
+package luca.carcassonne.mcts;
 
 /*
 * All the code in this file is from

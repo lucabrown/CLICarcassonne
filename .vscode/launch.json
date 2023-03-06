@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ThreadManager",
+            "request": "launch",
+            "mainClass": "luca.carcassonne.ThreadManager",
+            "projectName": "main"
+        },
+        {
+            "type": "java",
             "name": "Launch Test",
             "request": "launch",
             "mainClass": "luca.carcassonne.gson.Test",
@@ -12,8 +19,7 @@
             "name": "Launch Game",
             "request": "launch",
             "mainClass": "luca.carcassonne.Game",
-            "projectName": "main",
-            "vmArgs": "-Xmx32g"
+            "projectName": "main"
         },
         {
             "type": "java",

@@ -1,4 +1,4 @@
-package luca.carcassonne.MCTS;
+package luca.carcassonne.mcts;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,8 +15,6 @@ https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-se
 */
 
 import luca.carcassonne.Board;
-import luca.carcassonne.CloneManager;
-import luca.carcassonne.player.Behaviour;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Tile;
 
@@ -30,19 +28,9 @@ public class MonteCarloTreeSearch {
         this.maxIterations = maxIterations;
     }
 
-    public Move findNextMove(Behaviour behaviour) {
+    public Move findNextMove() {
         Node rootNode = new Node(startingState);
         int iterations = 0;
-
-        if (behaviour == Behaviour.RANDOM) {
-            expandNode(rootNode);
-            Node toReturn = rootNode.getRandomChildNode();
-
-            if (toReturn == null)
-                return null;
-            else
-                return toReturn.getState().getBoard().getLastMove();
-        }
 
         while (iterations < maxIterations) {
             iterations++;
@@ -70,6 +58,18 @@ public class MonteCarloTreeSearch {
 
         Node bestNode = rootNode.getChildWithMaxScore();
         return bestNode.getState().getBoard().getLastMove();
+    }
+
+    public Move getRandomMove() {
+        Node rootNode = new Node(startingState);
+
+        expandNode(rootNode);
+        Node toReturn = rootNode.getRandomChildNode();
+
+        if (toReturn == null)
+            return null;
+        else
+            return toReturn.getState().getBoard().getLastMove();
     }
 
     private Node selectPromisingNode(Node parentNode) {
