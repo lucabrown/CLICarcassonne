@@ -16,7 +16,7 @@ public class Tile {
     private ArrayList<SideFeature> sideFeatures;
     private Coordinates coordinates;
     private ArrayList<Feature> features;
-    private Player owner;
+    private int owner;
 
     public Tile(SideFeature north, SideFeature east, SideFeature south, SideFeature west) {
         this.sideFeatures = new ArrayList<>() {
@@ -49,7 +49,7 @@ public class Tile {
         this.sideFeatures = null;
         this.coordinates = null;
         this.features = null;
-        this.owner = null;
+        this.owner = 0;
     }
 
     public Tile(Integer x, Integer y) {
@@ -145,11 +145,11 @@ public class Tile {
         this.features = features;
     }
 
-    public Player getOwner() {
+    public int getOwner() {
         return owner;
     }
 
-    public void setOwner(Player owner) {
+    public void setOwner(int owner) {
         this.owner = owner;
     }
 

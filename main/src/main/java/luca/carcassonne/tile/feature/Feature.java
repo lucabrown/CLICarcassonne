@@ -11,15 +11,12 @@ import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Tile;
 
 public abstract class Feature {
-    protected Player owner;
     protected ArrayList<CardinalPoint> cardinalPoints;
-    protected Tile belongingTile;
     protected Integer pointsOpen;
     protected Integer pointsClosed;
 
     Feature(ArrayList<CardinalPoint> cardinalPoints) {
         this.cardinalPoints = cardinalPoints;
-        this.belongingTile = null;
     }
 
     Feature() {
@@ -37,21 +34,13 @@ public abstract class Feature {
         this.cardinalPoints = cardinalPoints;
     }
 
-    public Tile getBelongingTile() {
-        return belongingTile;
-    }
+    // public int getOwner() {
+    // return owner;
+    // }
 
-    public void setBelongingTile(Tile belongingTile) {
-        this.belongingTile = belongingTile;
-    }
-
-    public Player getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Player owner) {
-        this.owner = owner;
-    }
+    // public void setOwner(int owner) {
+    // this.owner = owner;
+    // }
 
     protected void setPointsOpen(Integer pointsOpen) {
         this.pointsOpen = pointsOpen;

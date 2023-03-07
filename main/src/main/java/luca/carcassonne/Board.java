@@ -2,7 +2,7 @@ package luca.carcassonne;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +15,7 @@ import luca.carcassonne.mcts.Move;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Coordinates;
+import luca.carcassonne.tile.Triplet;
 import luca.carcassonne.tile.SideFeature;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Castle;
@@ -39,10 +40,10 @@ public class Board {
     private int minX;
     private Tile startingTile;
     private ArrayList<Tile> placedTiles;
-    private HashSet<Tile> monasteryTiles;
-    private HashSet<SimpleGraph<Feature, DefaultEdge>> openFeatures;
-    private HashSet<SimpleGraph<Feature, DefaultEdge>> closedFeatures;
-    private HashSet<SimpleGraph<Feature, DefaultEdge>> newlyClosedFeatures;
+    private ArrayList<Tile> monasteryTiles;
+    private ArrayList<SimpleGraph<Triplet, DefaultEdge>> openFeatures;
+    private ArrayList<SimpleGraph<Triplet, DefaultEdge>> closedFeatures;
+    private ArrayList<SimpleGraph<Triplet, DefaultEdge>> newlyClosedFeatures;
     private ArrayList<Coordinates> possibleCoordinates;
     private ArrayList<Move> pastMoves;
 
@@ -55,34 +56,36 @@ public class Board {
         this.maxX = startingTile.getCoordinates().getX();
         this.minY = maxY;
         this.minX = maxX;
-        placedTiles = new ArrayList<>() {
+        placedTiles = new ArrayList<Tile>() {
             {
                 add(startingTile);
             }
         };
-        monasteryTiles = new HashSet<>() {
+        monasteryTiles = new ArrayList<Tile>() {
             {
                 if (startingTile.getFeatures().stream().anyMatch(feature -> feature.getClass() == Monastery.class)) {
                     add(startingTile);
                 }
             }
         };
-        possibleCoordinates = new ArrayList<>() {
+        possibleCoordinates = new ArrayList<Coordinates>() {
             {
                 startingTile.getAdjacentCoordinates().forEach(coordinate -> {
                     add(coordinate);
                 });
             }
         };
-        this.openFeatures = new HashSet<>();
-        for (Feature feature : startingTile.getFeatures()) {
-            SimpleGraph<Feature, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
+        this.openFeatures = new ArrayList<>();
+        for (int i = 0; i < startingTile.getFeatures().size(); i++) {
+            SimpleGraph<Triplet, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
+            Triplet feature = new Triplet(0, i);
             graph.addVertex(feature);
             openFeatures.add(graph);
-            feature.setBelongingTile(startingTile);
+            // feature.setBelongingTile(startingTile);
         }
-        this.closedFeatures = new HashSet<>();
-        this.newlyClosedFeatures = new HashSet<>();
+
+        this.closedFeatures = new ArrayList<>();
+        this.newlyClosedFeatures = new ArrayList<>();
         this.pastMoves = new ArrayList<>();
     }
 
@@ -110,38 +113,38 @@ public class Board {
 
     }
 
-    // Tries to place a meeple on a feature
+    // Tries to place a meeple on the most recently placed tile.
     @SuppressWarnings("unchecked")
-    public boolean placeMeeple(Feature newFeature, Player currentPlayer) {
-        SimpleGraph<Feature, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class);
-        HashMap<Player, Integer> players = new HashMap<>();
-        // HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures =
-        // (HashSet<SimpleGraph<Feature, DefaultEdge>>) openFeatures
-        // .clone();
-        HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) openFeatures
-                .stream().map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone()) // TODO fix
-                .collect(Collectors.toCollection(HashSet::new));
+    public boolean placeMeeple(int featureIndex, int playerIndex, Player currentPlayer) {
+        int lastTileIndex = placedTiles.size() - 1;
+        SimpleGraph<Triplet, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class);
+        HashMap<Integer, Integer> players = new HashMap<>();
+        Triplet newFeature = new Triplet(lastTileIndex, featureIndex);
+
+        ArrayList<SimpleGraph<Triplet, DefaultEdge>> allFeatures = (ArrayList<SimpleGraph<Triplet, DefaultEdge>>) openFeatures
+                .stream().map(g -> (SimpleGraph<Triplet, DefaultEdge>) g.clone()) // TODO fix
+                .collect(Collectors.toCollection(ArrayList::new));
         allFeatures.addAll(closedFeatures);
 
         if (currentPlayer.getAvailableMeeples() <= 0) {
             return false;
         }
 
-        for (SimpleGraph<Feature, DefaultEdge> f : allFeatures) {
+        for (SimpleGraph<Triplet, DefaultEdge> f : allFeatures) {
             if (f.containsVertex(newFeature)) {
                 feature = f;
                 break;
             }
         }
 
-        players = ScoreManager.getPlayersOnFeature(feature);
+        players = ScoreManager.getPlayersOnFeature(placedTiles, feature);
 
-        if (!players.isEmpty() && !players.containsKey(currentPlayer)) {
+        if (!players.isEmpty() && !players.containsKey(playerIndex)) {
             return false;
         }
 
         currentPlayer.decrementMeeples();
-        newFeature.setOwner(currentPlayer);
+        newFeature.setPlayerIndex(playerIndex);
 
         return true;
     }
@@ -168,15 +171,16 @@ public class Board {
         // .filter(e -> e.getAdjacentCoordinates().contains(newTile.getCoordinates()))
         // .collect(Collectors.toCollection(ArrayList::new));
 
-        HashMap<Feature, Integer> featuresToConnect = new HashMap<>();
+        HashMap<Triplet, Integer> featuresToConnect = new HashMap<>();
 
-        for (Feature feature : newTile.getFeatures()) {
-            feature.setBelongingTile(newTile);
-        }
+        // for (Feature feature : newTile.getFeatures()) {
+        // feature.setBelongingTile(newTile);
+        // }
 
         for (Tile tile : tilesToCheck) {
             int position = getRelativePosition(tile, newTile.getCoordinates());
-            for (Feature feature : tile.getFeatures()) {
+            for (int i = 0; i < tile.getFeatures().size(); i++) {
+                Triplet feature = new Triplet(placedTiles.indexOf(tile), i);
                 featuresToConnect.put(feature, position);
             }
         }
@@ -227,14 +231,20 @@ public class Board {
     }
 
     // Links the new open features to the existing graphs.
-    private void linkFeatures(HashMap<Feature, Integer> featuresToConnect, Tile newTile) {
+    private void linkFeatures(HashMap<Triplet, Integer> featuresToConnect, Tile newTile) {
         boolean featureLinked = false;
         newlyClosedFeatures.clear();
 
-        for (Feature newFeature : newTile.getFeatures()) {
+        for (int i = 0; i < newTile.getFeatures().size(); i++) {
+            Triplet newFeatureTriplet = new Triplet(placedTiles.indexOf(newTile), i);
+            Feature newFeature = newTile.getFeatures().get(i);
             featureLinked = false;
 
-            for (Feature feature : featuresToConnect.keySet()) {
+            for (int j = 0; j < featuresToConnect.keySet().size(); j++) {
+                Triplet presentFeature = featuresToConnect.keySet().stream().collect(Collectors.toList()).get(j);
+                Feature feature = placedTiles.get(presentFeature.getTileIndex()).getFeatures()
+                        .get(presentFeature.getFeatureIndex());
+
                 switch (featuresToConnect.get(feature)) {
                     case 0:
                         if (featuresMatch(feature, newFeature, CardinalPoint.SSW, CardinalPoint.NNW)) {
@@ -288,17 +298,19 @@ public class Board {
             }
 
             if (!featureLinked) {
-                SimpleGraph<Feature, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
+                SimpleGraph<Triplet, DefaultEdge> newGraph = new SimpleGraph<>(DefaultEdge.class);
 
                 if (newFeature instanceof Monastery) {
                     monasteryTiles.add(newTile);
                 }
 
-                newGraph.addVertex(newFeature);
+                Triplet newTriplet = new Triplet(placedTiles.size() - 1, i);
+
+                newGraph.addVertex(newTriplet);
                 openFeatures.add(newGraph);
 
             } else if (newFeature.getClass() != Field.class && newFeature.getClass() != Monastery.class) {
-                checkIfFeatureIsComplete(newFeature);
+                checkIfFeatureIsComplete(newFeatureTriplet);
             }
         }
 
@@ -306,10 +318,14 @@ public class Board {
     }
 
     // Finds the graph that contains the new feature and checks if it's closed
-    private void checkIfFeatureIsComplete(Feature newFeature) {
-        for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
-            if (graph.containsVertex(newFeature)) {
-                int totalCardinalPoints = graph.vertexSet().stream().mapToInt(f -> f.getCardinalPoints().size()).sum();
+    private void checkIfFeatureIsComplete(Triplet newFeatureTriplet) {
+        Feature newFeature = placedTiles.get(newFeatureTriplet.getTileIndex()).getFeatures()
+                .get(newFeatureTriplet.getFeatureIndex());
+
+        for (SimpleGraph<Triplet, DefaultEdge> graph : openFeatures) {
+            if (graph.containsVertex(newFeatureTriplet)) {
+                int totalCardinalPoints = graph.vertexSet().stream().mapToInt(e -> placedTiles.get(e.getTileIndex())
+                        .getFeatures().get(e.getFeatureIndex()).getCardinalPoints().size()).sum();
                 int totalEdges = graph.edgeSet().size();
 
                 if (totalEdges != 0 && totalCardinalPoints % totalEdges == 0
@@ -328,18 +344,22 @@ public class Board {
 
     // Checks if monasteries are closed
     private void checkIfMonasteriesAreComplete() {
-        HashSet<Tile> tilesToDelete = new HashSet<>();
-        for (Tile monasteryTile : monasteryTiles) {
+        ArrayList<Tile> tilesToDelete = new ArrayList<>();
+        for (int i = 0; i < monasteryTiles.size(); i++) {
+            Tile monasteryTile = monasteryTiles.get(i);
             if (getSurroundingTiles(monasteryTile) == 8) {
                 Iterator<Feature> it = monasteryTile.getFeatures().iterator();
-                Feature monastery = it.next();
+                int monasteryIndex = 0;
 
-                while (!(monastery instanceof Monastery)) {
-                    monastery = it.next();
+                for (int j = 0; j < monasteryTile.getFeatures().size(); j++) {
+                    if (monasteryTile.getFeatures().get(j) instanceof Monastery) {
+                        monasteryIndex = j;
+                        break;
+                    }
                 }
 
-                for (SimpleGraph<Feature, DefaultEdge> openGraph : openFeatures) {
-                    if (openGraph.containsVertex(monastery)) {
+                for (SimpleGraph<Triplet, DefaultEdge> openGraph : openFeatures) {
+                    if (openGraph.containsVertex(new Triplet(placedTiles.indexOf(monasteryTile), monasteryIndex))) {
 
                         newlyClosedFeatures.add(openGraph);
                         closedFeatures.add(openGraph);
@@ -352,7 +372,7 @@ public class Board {
             }
         }
 
-        monasteryTiles.removeAll(tilesToDelete);
+        // monasteryTiles.removeAll(tilesToDelete);
     }
 
     // Checks if two features match given their cardinal points
@@ -365,11 +385,11 @@ public class Board {
 
     // Connects a feature to an existing graph.
     private void addFeaturesEdge(Feature feature, Feature newFeature) {
-        SimpleGraph<Feature, DefaultEdge> belongingGraph = null;
+        SimpleGraph<Triplet, DefaultEdge> belongingGraph = null;
         boolean foundBelongingGraph = false;
-        for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
+        for (SimpleGraph<Triplet, DefaultEdge> graph : openFeatures) {
             if (graph.containsVertex(feature) && !graph.containsEdge(feature, newFeature)) {
-                for (SimpleGraph<Feature, DefaultEdge> g : openFeatures) {
+                for (SimpleGraph<Triplet, DefaultEdge> g : openFeatures) {
                     if (g.containsVertex(newFeature)) {
                         belongingGraph = g;
                         foundBelongingGraph = true;
@@ -426,7 +446,7 @@ public class Board {
     // monasteries)
     public int getSurroundingTiles(Tile tile) {
         int nSurroundingTiles = 0;
-        HashSet<Coordinates> surroundingCoordinates = new HashSet<>() {
+        ArrayList<Coordinates> surroundingCoordinates = new ArrayList<>() {
             {
                 add(new Coordinates(tile.getCoordinates().getX() + 1, tile.getCoordinates().getY()));
                 add(new Coordinates(tile.getCoordinates().getX() - 1, tile.getCoordinates().getY()));
@@ -529,15 +549,15 @@ public class Board {
         this.minX = minX;
     }
 
-    public HashSet<SimpleGraph<Feature, DefaultEdge>> getNewlyClosedFeatures() {
+    public ArrayList<SimpleGraph<Triplet, DefaultEdge>> getNewlyClosedFeatures() {
         return newlyClosedFeatures;
     }
 
-    public HashSet<SimpleGraph<Feature, DefaultEdge>> getClosedFeatures() {
+    public ArrayList<SimpleGraph<Triplet, DefaultEdge>> getClosedFeatures() {
         return closedFeatures;
     }
 
-    public HashSet<SimpleGraph<Feature, DefaultEdge>> getOpenFeatures() {
+    public ArrayList<SimpleGraph<Triplet, DefaultEdge>> getOpenFeatures() {
         return openFeatures;
     }
 
@@ -613,7 +633,7 @@ public class Board {
     // Prints all the closed features on the board
     public void printClosedFeatures() {
         System.out.println("\n");
-        for (SimpleGraph<Feature, DefaultEdge> graph : closedFeatures) {
+        for (SimpleGraph<Triplet, DefaultEdge> graph : closedFeatures) {
             System.out.println(
                     graph.vertexSet().stream().map(f -> f.getClass().getSimpleName())
                             .collect(Collectors.toCollection(ArrayList::new))
@@ -626,7 +646,7 @@ public class Board {
     // Prints all the open features on the board
     public void printOpenFeatures() {
         System.out.println("\n");
-        for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
+        for (SimpleGraph<Triplet, DefaultEdge> graph : openFeatures) {
             System.out.println(
                     graph.vertexSet().stream().map(f -> f.getClass().getSimpleName())
                             .collect(Collectors.toCollection(ArrayList::new)));
@@ -672,23 +692,23 @@ public class Board {
     // newBoard.placedTiles = (ArrayList<Tile>) this.placedTiles.stream().map(t ->
     // (Tile) t.clone())
     // .collect(Collectors.toCollection(ArrayList::new));
-    // newBoard.openFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
+    // newBoard.openFeatures = (ArrayList<SimpleGraph<Pair, DefaultEdge>>)
     // this.openFeatures.stream()
-    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
-    // g.clone()).collect(Collectors.toCollection(HashSet::new));
-    // newBoard.closedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
+    // .map(g -> (SimpleGraph<Pair, DefaultEdge>)
+    // g.clone()).collect(Collectors.toCollection(ArrayList::new));
+    // newBoard.closedFeatures = (ArrayList<SimpleGraph<Pair, DefaultEdge>>)
     // this.closedFeatures.stream()
-    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
-    // g.clone()).collect(Collectors.toCollection(HashSet::new));
-    // newBoard.newlyClosedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
+    // .map(g -> (SimpleGraph<Pair, DefaultEdge>)
+    // g.clone()).collect(Collectors.toCollection(ArrayList::new));
+    // newBoard.newlyClosedFeatures = (ArrayList<SimpleGraph<Pair, DefaultEdge>>)
     // this.newlyClosedFeatures.stream()
-    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
-    // g.clone()).collect(Collectors.toCollection(HashSet::new));
+    // .map(g -> (SimpleGraph<Pair, DefaultEdge>)
+    // g.clone()).collect(Collectors.toCollection(ArrayList::new));
     // newBoard.possibleCoordinates = (ArrayList<Coordinates>)
     // this.possibleCoordinates.stream()
     // .map(c -> (Coordinates) c.clone())
     // .collect(Collectors.toCollection(ArrayList::new));
-    // newBoard.monasteryTiles = new HashSet<Tile>() {
+    // newBoard.monasteryTiles = new ArrayList<Tile>() {
     // {
     // for (Tile tile : placedTiles) {
     // if (tile.getFeatures().stream().anyMatch(feature -> feature.getClass() ==

@@ -10,6 +10,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 import luca.carcassonne.player.Player;
+import luca.carcassonne.tile.Triplet;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Castle;
 import luca.carcassonne.tile.feature.Feature;
@@ -26,7 +27,7 @@ public class ScoreManager {
             return;
         }
 
-        for (SimpleGraph<Feature, DefaultEdge> feature : board.getNewlyClosedFeatures()) {
+        for (SimpleGraph<Triplet, DefaultEdge> feature : board.getNewlyClosedFeatures()) {
             if (feature.vertexSet().iterator().next().getClass() == Field.class) {
                 continue;
             }
@@ -54,7 +55,7 @@ public class ScoreManager {
             return;
         }
 
-        for (SimpleGraph<Feature, DefaultEdge> feature : board.getOpenFeatures()) {
+        for (SimpleGraph<Triplet, DefaultEdge> feature : board.getOpenFeatures()) {
             Set<Player> owners = new HashSet<>();
             int score = 0;
 
@@ -73,7 +74,7 @@ public class ScoreManager {
     }
 
     // Returns a list of players who own the feature
-    private static List<Player> getFeatureOwners(SimpleGraph<Feature, DefaultEdge> feature) {
+    private static List<Player> getFeatureOwners(SimpleGraph<Triplet, DefaultEdge> feature) {
         ArrayList<Player> owners = new ArrayList<>();
         HashMap<Player, Integer> players = new HashMap<>();
         int maxMeeples = 0;
@@ -100,25 +101,19 @@ public class ScoreManager {
     }
 
     // Returns a map of players and the number of meeples they have on the feature
-    public static HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature) {
-        HashMap<Player, Integer> players = new HashMap<>();
+    public static HashMap<Integer, Integer> getPlayersOnFeature(ArrayList<Tile> placedTiles,
+            SimpleGraph<Triplet, DefaultEdge> feature) {
+        HashMap<Integer, Integer> players = new HashMap<>();
 
-        // Map each player to the number of meeples they have on the feature
-        feature.vertexSet().stream().map(v -> v.getOwner()).forEach(p -> {
-            if (players.containsKey(p)) {
-                players.put(p, players.get(p) + 1);
-            } else {
-                if (p != null) {
-                    players.put(p, 1);
-                }
-            }
-        });
+        // Map each Tile, Feature pair to the owner of the feature
+        feature.vertexSet().stream().map(v -> v.getPlayerIndex())
+                .forEach(owner -> players.merge(owner, 1, Integer::sum));
 
         return players;
     }
 
     // Calculates the value of a feature
-    private static int calculateFeatureValue(Board board, SimpleGraph<Feature, DefaultEdge> feature, boolean isClosed) {
+    private static int calculateFeatureValue(Board board, SimpleGraph<Triplet, DefaultEdge> feature, boolean isClosed) {
         HashSet<Tile> belongingTiles = new HashSet<>();
         Class<?> featureClass = feature.vertexSet().iterator().next().getClass();
         int score = 0;
@@ -161,8 +156,8 @@ public class ScoreManager {
     }
 
     // Scores all the fields on the board
-    private static int calculateFieldScore(SimpleGraph<Feature, DefaultEdge> feature, Board board) {
-        HashSet<SimpleGraph<Feature, DefaultEdge>> adjacentCastles = new HashSet<>();
+    private static int calculateFieldScore(SimpleGraph<Triplet, DefaultEdge> feature, Board board) {
+        HashSet<SimpleGraph<Triplet, DefaultEdge>> adjacentCastles = new HashSet<>();
         int score = 0;
 
         for (Feature vertex : feature.vertexSet()) {
@@ -172,7 +167,7 @@ public class ScoreManager {
                 continue;
             }
 
-            for (SimpleGraph<Feature, DefaultEdge> castle : board.getClosedFeatures()) {
+            for (SimpleGraph<Triplet, DefaultEdge> castle : board.getClosedFeatures()) {
                 for (Feature castleVertex : field.getAdjacentCastles()) {
                     if (castle.containsVertex(castleVertex)) {
                         adjacentCastles.add(castle);
