@@ -79,7 +79,7 @@ public class MonteCarloTreeSearch {
         Node node = null;
 
         while (!parentNode.getChildren().isEmpty()) {
-            node = UCT.findBestNodeWithUCT(parentNode);
+            node = findBestNodeWithUCT(parentNode);
             parentNode = node;
         }
 
@@ -116,6 +116,31 @@ public class MonteCarloTreeSearch {
 
             tempNode = tempNode.getParent();
         }
+    }
+
+    private double uctValue(int totalVisit, double nodeScoreDifference, int nodeVisit) {
+        if (nodeVisit == 0) {
+            return Integer.MAX_VALUE;
+        }
+        return (nodeScoreDifference / (double) nodeVisit) + 0.5 *
+                Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
+    }
+
+    private Node findBestNodeWithUCT(Node parentNode) {
+        int parentVisit = parentNode.getState().getVisitCount();
+        double bestValue = Integer.MIN_VALUE;
+        Node bestNode = null;
+
+        for (Node childNode : parentNode.getChildren()) {
+            double nodeValue = uctValue(parentVisit, childNode.getState().getFinalScoreDifference(),
+                    childNode.getState().getVisitCount());
+            if (nodeValue > bestValue) {
+                bestNode = childNode;
+                bestValue = nodeValue;
+            }
+        }
+
+        return bestNode;
     }
 
     public State getStartingState() {

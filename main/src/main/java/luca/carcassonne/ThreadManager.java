@@ -30,8 +30,8 @@ public class ThreadManager {
     public static AtomicInteger whiteWR = new AtomicInteger();
     public static AtomicInteger redWR = new AtomicInteger();
     public static AtomicInteger ties = new AtomicInteger();
-    static int numberOfThreads = 1;
-    static float times = 1;
+    static int numberOfThreads = 10;
+    static float times = 10;
 
     public static void main(String[] args) {
         long currentTime = System.currentTimeMillis();
