@@ -1,6 +1,7 @@
 package luca.carcassonne;
 
-import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,19 +9,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.Stack;
 
-import luca.carcassonne.mcts.MonteCarloTreeSearch;
+import org.javatuples.Pair;
+
 import luca.carcassonne.mcts.Move;
 import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.MonteCarloAgent;
 import luca.carcassonne.player.Player;
+import luca.carcassonne.player.ProgressiveHistoryAgent;
 import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
-import luca.carcassonne.tile.feature.Field;
 
 // Starts the game and handles turns and available tiles
 public class Game extends Thread {
@@ -45,12 +46,21 @@ public class Game extends Thread {
     private HashSet<Integer> checkedRotations;
 
     public Game(Board board) {
+        HashMap<Pair<String, Integer>, Integer> totalActionMap = readFromData("totalMoves.csv");
+        HashMap<Pair<String, Integer>, Integer> winningActionMap = readFromData("winningMoves.csv");
+
+        System.out.println("Total actions read: " + totalActionMap.size());
+        System.out.println("Winning actions read: " + winningActionMap.size());
+
         this.board = board;
         this.players = new ArrayList<>() {
             {
-                add(new MonteCarloAgent(Colour.WHITE, 1000));
+                add(new ProgressiveHistoryAgent(Colour.WHITE, 500, 0.5, totalActionMap, winningActionMap));
+                // add(new MonteCarloAgent(Colour.WHITE, 1000, 0.5));
+                add(new MonteCarloAgent(Colour.RED, 500, 0.5));
                 // add(new MonteCarloAgent(Colour.RED, 100));
-                add(new RandomAgent(Colour.RED));
+                // add(new RandomAgent(Colour.WHITE));
+                // add(new RandomAgent(Colour.RED));
                 // add(new Player(Colour.YELLOW, Behaviour.MCTS));
                 // add(new Player(Colour.BLACK));
                 // add(new Player(Colour.BLUE));
@@ -84,20 +94,6 @@ public class Game extends Thread {
             }
         }
 
-        // FileWriter childWriter = null;
-        // try {
-        // childWriter = new FileWriter("child_states_unoptimised_max_meeples.txt");
-        // childWriter.write("TILE N\n");
-
-        // for (int i = 0; i < totalChildren.length; i++) {
-        // totalChildren[i] = totalChildren[i] / times;
-        // childWriter.write(i + " " + totalChildren[i] + "\n");
-        // }
-        // childWriter.close();
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-
         whiteWR = (whiteWR / times * 100);
         redWR = (redWR / times * 100);
         ties = (ties / times * 100);
@@ -106,35 +102,15 @@ public class Game extends Thread {
         System.out.println("White won " + whiteWR + "% of games with an average score of " + whiteTotalScore / times);
         System.out.println("Red won " + redWR + "% of games with an average score of " + redTotalScore / times);
         System.out.println("Ties: " + ties + "%");
-
-        System.out.println(Settings.getStandardDeck().size());
-
     }
 
     // The main game loop
     @Override
     public void run() {
         Collections.shuffle(availableTiles);
-        // Scanner scanner = new Scanner(System.in);
-        // FileWriter myWriter = null;
-        // int moveNumber = 0;
-        // try {
-        // myWriter = new FileWriter("time.txt");
-        // myWriter.write("TILE TIME\n");
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-
         startTime = System.currentTimeMillis();
         progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
-        // currentTile = Settings.getMonastery();
-        // MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(board, currentPlayer,
-        // currentTile,
-        // players, availableTiles);
-
-        // Move move = mcts.findNextMove();
-        // System.out.println("Move: " + move);
 
         // Each loop iteration corresponds to one turn
         while (!availableTiles.empty()) {
@@ -154,11 +130,6 @@ public class Game extends Thread {
 
             currentTile = availableTiles.pop();
             System.out.println("Current tile: " + currentTile.getId());
-
-            // MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(500, board,
-            // currentPlayer, currentTile, players,
-            // availableTiles);
-            // Move move = mcts.findNextMove(players.get(currentPlayer).getBehaviour());
 
             Move move = players.get(currentPlayer).getNextMove(board, currentPlayer, currentTile, players,
                     availableTiles);
@@ -196,20 +167,6 @@ public class Game extends Thread {
             }
 
             if (playerPlacedTile) {
-                // Object[] filteredFeature = currentTile.getFeatures().stream().toArray();
-
-                // Feature randomFeature = (Feature)
-                // filteredFeature[random.nextInt(filteredFeature.length)];
-
-                // while (randomFeature.getClass() == Field.class && random.nextInt(10) < 7) {
-                // randomFeature = (Feature)
-                // filteredFeature[random.nextInt(filteredFeature.length)];
-                // }
-
-                // // place meeple with 30% chance
-                // if (random.nextInt(10) < 3) {
-                // meeplePlaced = board.placeMeeple(randomFeature, players.get(currentPlayer));
-                // }
 
                 Feature feature = null;
                 if (move.getFeatureIndex() != -1) {
@@ -238,30 +195,11 @@ public class Game extends Thread {
                 timeForMove = System.currentTimeMillis() - timeForMove;
                 System.out.println("Move " + move + " performed in " + timeForMove + "ms");
                 System.out.println("Enter for next turn.");
-                // String line = scanner.nextLine();
-                // moveNumber++;
-                // try {
-                // myWriter.write(moveNumber + " " + timeForMove + "\n");
-                // } catch (Exception e) {
-                // e.printStackTrace();
-                // }
             }
-
-            // printProgressBarStep();
-
         }
-
-        // try {
-        // myWriter.close();
-        // } catch (Exception e) {
-        // // TODO: handle exception
-        // e.printStackTrace();
-        // }
 
         ScoreManager.scoreOpenFeatures(board);
 
-        // board.printOpenFeatures();
-        // board.printClosedFeatures();
         board.printBoard();
         printScores();
 
@@ -269,15 +207,40 @@ public class Game extends Thread {
         printFailedTiles();
         printTimeElapsed();
 
+        int winningPlayer = players.get(0).getScore() > players.get(1).getScore() ? 0 : 1;
+
+        try {
+            FileWriter totalMovesWriter = new FileWriter("totalMoves.csv", true);
+            FileWriter winningMovesWriter = new FileWriter("winningMoves.csv", true);
+
+            for (Move move : board.getPastMoves()) {
+                if (move.getPlayerIndex() == 0) {
+                    String data = move.getTile().getId() + "," + move.getFeatureIndex() + "\n";
+                    totalMovesWriter.write(data);
+                    if (move.getPlayerIndex() == winningPlayer) {
+                        winningMovesWriter.write(data);
+                    }
+
+                }
+            }
+
+            totalMovesWriter.close();
+            winningMovesWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         ThreadManager.whiteTotalScore.addAndGet(players.get(0).getScore());
         ThreadManager.redTotalScore.addAndGet(players.get(1).getScore());
 
         if (players.get(0).getScore() > players.get(1).getScore()) {
             ThreadManager.whiteWR.incrementAndGet();
+            printMoves(0);
         } else if (players.get(0).getScore() == players.get(1).getScore()) {
             ThreadManager.ties.incrementAndGet();
         } else {
             ThreadManager.redWR.incrementAndGet();
+            printMoves(1);
         }
 
         this.interrupt();
@@ -302,6 +265,36 @@ public class Game extends Thread {
         return false;
     }
 
+    public HashMap<Pair<String, Integer>, Integer> readFromData(String fileName) {
+        HashMap<Pair<String, Integer>, Integer> actionMap = new HashMap<Pair<String, Integer>, Integer>();
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                Pair<String, Integer> action = new Pair<String, Integer>(values[0],
+                        Integer.parseInt(values[1]));
+                if (actionMap.containsKey(action)) {
+                    actionMap.put(action, actionMap.get(action) + 1);
+                } else {
+                    actionMap.put(action, 1);
+                }
+            }
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // for (Pair<String, Integer> action : actionMap.keySet()) {
+        // System.out.println(action + " " + actionMap.get(action));
+        // }
+
+        return actionMap;
+    }
+
     // * * * * * * * * * * * *
     // * PRINTING METHODS *
     // * * * * * * * * * * * *
@@ -310,6 +303,14 @@ public class Game extends Thread {
     private void printScores() {
         for (Player player : players) {
             System.out.println(player.getColour() + " score: " + player.getScore());
+        }
+    }
+
+    private void printMoves(int winner) {
+        for (Move move : board.getPastMoves()) {
+            if (move.getPlayerIndex() == winner) {
+                System.out.println(move.getTile().getId() + " " + move.getFeatureIndex());
+            }
         }
     }
 

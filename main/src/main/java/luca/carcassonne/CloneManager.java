@@ -39,73 +39,37 @@ public class CloneManager {
         newState.setVisitCount(visitCount);
         newState.setFinalScoreDifference(finalScoreDifference);
 
-        // System.out.println("Cloning state: " + newState.hashCode());
-        // System.out.println("- Players: " + (newState.getPlayers() == null ? "null" :
-        // newState.getPlayers().size()));
-        // System.out.println("- Available tiles: "
-        // + (newState.getAvailableTiles() == null ? "null" :
-        // newState.getAvailableTiles().size()));
-        // System.out.println(
-        // "- Current tile: " + (newState.getCurrentTile() == null ? "null" :
-        // newState.getCurrentTile().getId()));
-        // System.out.println("- Current player: " + newState.getCurrentPlayer());
-        // System.out.println("- Visit count: " + newState.getVisitCount());
-        // System.out.println("- Final score difference: " +
-        // newState.getFinalScoreDifference());
-
         return newState;
     }
 
     public static Board clone(Board oldBoard, ArrayList<Player> newPlayers) {
         Board newBoard = new Board();
-        // System.out.println("- Cloning board: " + newBoard.hashCode());
-        // System.out.println("- - Starting Tile: "
-        // + (newBoard.getStartingTile() == null ? "null" :
-        // newBoard.getStartingTile().getId()));
-        // System.out.println(
-        // "- - Past Moves: " + (newBoard.getPastMoves() == null ? "null" :
-        // newBoard.getPastMoves().size()));
-        // System.out.println(
-        // "- - Placed tiles: " + (newBoard.getPlacedTiles() == null ? "null" :
-        // newBoard.getPlacedTiles().size()));
-        // System.out.println("- - Open Features: "
-        // + (newBoard.getOpenFeatures() == null ? "null" :
-        // newBoard.getOpenFeatures().size()));
-        // System.out.println("- - Closed Features: "
-        // + (newBoard.getClosedFeatures() == null ? "null" :
-        // newBoard.getClosedFeatures().size()));
 
-        newBoard.setMaxX(oldBoard.getMaxX());
-        newBoard.setMaxY(oldBoard.getMaxY());
-        newBoard.setMinX(oldBoard.getMinX());
-        newBoard.setMinY(oldBoard.getMinY());
-        newBoard.setHeight(oldBoard.getHeight());
-        newBoard.setWidth(oldBoard.getWidth());
-        // System.out.println("- Moves before: " + newBoard.getPastMoves().size());
         for (Move move : oldBoard.getPastMoves()) {
             Move newMove = clone(move);
-
-            // System.out.println("- Making move");
-            // System.out.println("- New board: " + (newBoard == null ? "null" :
-            // newBoard.hashCode()));
-            // System.out.println("- New move: " + (newMove == null ? "null" : newMove));
             Tile tileToPlace = newMove.getTile();
+
             tileToPlace.rotateClockwise(newMove.getRotation());
 
             boolean placed = newBoard.placeTile(newMove.getCoordinates(), tileToPlace);
+
             if (placed == false) {
                 throw new RuntimeException("Error cloning Board: tile could not be placed.");
             }
 
             if (newMove.getFeatureIndex() != -1) {
                 Player newPlayer = newPlayers.get(newMove.getPlayerIndex());
-                newBoard.placeMeeple(newMove.getTile().getFeatures().get(newMove.getFeatureIndex()), newPlayer);
+                boolean meeplePlaced = newBoard
+                        .placeMeeple(newMove.getTile().getFeatures().get(newMove.getFeatureIndex()), newPlayer);
+                // if (!meeplePlaced) {
+                // throw new RuntimeException("Error cloning Board: meeple could not be
+                // placed.");
+                // }
             }
 
             ScoreManager.scoreClosedFeatures(newBoard);
             newBoard.addNewMove(newMove);
         }
-        // System.out.println("- Moves after: " + newBoard.getPastMoves().size());
 
         return newBoard;
     }
@@ -122,13 +86,14 @@ public class CloneManager {
         Player newPlayer = new Player(player.getColour());
 
         newPlayer.setScore(player.getScore());
-        newPlayer.setAvailableMeeples(player.getAvailableMeeples());
+        newPlayer.setAvailableMeeples(Settings.MAX_MEEPLES);
 
         return newPlayer;
     }
 
     public static MonteCarloAgent clone(MonteCarloAgent agent) {
-        MonteCarloAgent newAgent = new MonteCarloAgent(agent.getColour(), agent.getMaxIterations());
+        MonteCarloAgent newAgent = new MonteCarloAgent(agent.getColour(), agent.getMaxIterations(),
+                agent.getExplorationConstant());
 
         newAgent.setScore(agent.getScore());
         newAgent.setAvailableMeeples(agent.getAvailableMeeples());

@@ -93,11 +93,6 @@ public class State {
                             throw new RuntimeException("Tile could not be placed to determine child.");
                         }
 
-                        newState.setCurrentPlayer((currentPlayer + 1) % players.size());
-                        newState.setOriginalPlayer(originalPlayer);
-                        newState.setCurrentTile(
-                                (newState.getAvailableTiles().isEmpty() ? null : newState.getAvailableTiles().pop()));
-
                         if (j < currentTile.getFeatures().size()) {
 
                             meeplePlaced = newState.getBoard().placeMeeple(newTile.getFeatures().get(j),
@@ -114,6 +109,11 @@ public class State {
                         }
 
                         ScoreManager.scoreClosedFeatures(newState.getBoard());
+
+                        newState.setCurrentPlayer((currentPlayer + 1) % players.size());
+                        newState.setOriginalPlayer(originalPlayer);
+                        newState.setCurrentTile(
+                                (newState.getAvailableTiles().isEmpty() ? null : newState.getAvailableTiles().pop()));
 
                         possibleChildStates.add(newState);
 

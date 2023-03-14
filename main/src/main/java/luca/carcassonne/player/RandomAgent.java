@@ -18,7 +18,7 @@ public class RandomAgent extends Player {
     @Override
     public Move getNextMove(Board startingBoard, int startingPlayer, Tile currentTile,
             ArrayList<Player> players, Stack<Tile> availableTiles) {
-        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(0, startingBoard, startingPlayer, currentTile,
+        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(0, 0, startingBoard, startingPlayer, currentTile,
                 players, availableTiles);
 
         return mcts.getRandomMove();

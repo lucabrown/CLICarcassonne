@@ -1,18 +1,27 @@
 package luca.carcassonne.player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
+
+import org.javatuples.Pair;
 
 import luca.carcassonne.Board;
 import luca.carcassonne.mcts.MonteCarloTreeSearch;
 import luca.carcassonne.mcts.Move;
 import luca.carcassonne.tile.Tile;
 
-public class MonteCarloAgent extends Player {
+public class ProgressiveHistoryAgent extends Player {
     private int maxIterations = 0;
     private double explorationConstant = 0;
+    private HashMap<Pair<String, Integer>, Integer> totalActionMap = new HashMap<>();
+    private HashMap<Pair<String, Integer>, Integer> winningActionMap = new HashMap<>();
 
-    public MonteCarloAgent(Colour colour, int maxIterations, double explorationConstant) {
+    public ProgressiveHistoryAgent(
+            Colour colour,
+            int maxIterations,
+            double explorationConstant, HashMap<Pair<String, Integer>, Integer> totalActionMap,
+            HashMap<Pair<String, Integer>, Integer> winningActionMap) {
         super(colour);
         this.maxIterations = maxIterations;
         this.explorationConstant = explorationConstant;
@@ -26,7 +35,7 @@ public class MonteCarloAgent extends Player {
                 startingPlayer, currentTile,
                 players, availableTiles);
 
-        return mcts.findNextMove();
+        return mcts.findProgressiveHistoryMove(totalActionMap, winningActionMap);
     }
 
     public void setMaxIterations(int maxIterations) {
