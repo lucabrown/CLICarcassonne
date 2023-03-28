@@ -1,11 +1,6 @@
 package luca.carcassonne.tile.feature;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
-
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Tile;
@@ -68,8 +63,5 @@ public abstract class Feature {
     public Integer getPointsClosed() {
         return pointsClosed;
     }
-
-    // @Override
-    // public abstract Object clone();
 
 }

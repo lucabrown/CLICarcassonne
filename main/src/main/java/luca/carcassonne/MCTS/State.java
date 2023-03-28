@@ -4,21 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Stack;
-import java.util.stream.Collectors;
-
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
-
-/*
-* All the code in this file is from
-*
-*
-https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-searching/src/main/java/com/baeldung/algorithms/mcts
-*
-* unless clearly stated otherwise.
-*/
 
 import luca.carcassonne.Board;
 import luca.carcassonne.CloneManager;
@@ -61,6 +47,8 @@ public class State {
         this.currentTile = currentTile;
         this.players = players;
         this.availableTiles = availableTiles;
+        this.visitCount = 0;
+        this.finalScoreDifference = 0;
     }
 
     public ArrayList<State> getAllPossibleChildStates() {
@@ -71,21 +59,26 @@ public class State {
         State junkState = CloneManager.clone(this);
 
         for (Coordinates coordinates : possibleCoordinates) {
-            for (int i = rotations; i < 4; i++) {
-                for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
+            for (int i = 0; i < rotations; i++) {
+                // for (int j = 0; j < currentTile.getFeatures().size() + 1; j++) {
+                // State junkState = CloneManager.clone(this);
+                Tile junkTile = CloneManager.clone(currentTile);
+                Coordinates junkCoordinates = CloneManager.clone(coordinates);
 
-                    Tile junkTile = CloneManager.clone(currentTile);
-                    Coordinates junkCoordinates = CloneManager.clone(coordinates);
+                junkTile.rotateClockwise(i);
 
-                    junkTile.rotateClockwise(i);
+                boolean placed = junkState.getBoard().canPlaceJunkTile(junkCoordinates, junkTile);
+                boolean meeplePlaced = false;
 
-                    boolean placed = junkState.getBoard().placeTile(junkCoordinates, junkTile);
-                    boolean meeplePlaced = false;
-
-                    if (placed) {
+                if (placed) {
+                    for (int k = 0; k < currentTile.getFeatures().size(); k++) {
                         State newState = CloneManager.clone(this);
                         Tile newTile = CloneManager.clone(newState.getCurrentTile());
                         Coordinates newCoordinates = CloneManager.clone(coordinates);
+
+                        if (newState.getPlayers().get(currentPlayer).getAvailableMeeples() == 0) {
+                            break;
+                        }
 
                         newTile.rotateClockwise(i);
 
@@ -93,38 +86,58 @@ public class State {
                             throw new RuntimeException("Tile could not be placed to determine child.");
                         }
 
-                        if (j < currentTile.getFeatures().size()) {
+                        meeplePlaced = newState.getBoard().placeMeeple(newTile.getFeatures().get(k),
+                                newState.getPlayers().get(currentPlayer));
 
-                            meeplePlaced = newState.getBoard().placeMeeple(newTile.getFeatures().get(j),
-                                    newState.getPlayers().get(currentPlayer));
-                            if (!meeplePlaced) {
-                                junkState.getBoard().getPlacedTiles().remove(junkTile);
-                                junkState.getBoard().getPossibleCoordinates().add(junkCoordinates);
-
-                                continue;
-                            }
-                            newState.getBoard().addNewMove(new Move(newCoordinates, newTile, i, currentPlayer, j));
-                        } else {
-                            newState.getBoard().addNewMove(new Move(newCoordinates, newTile, i, currentPlayer));
+                        if (!meeplePlaced) {
+                            // throw new RuntimeException("Meeple could not be placed to determine child.");
+                            continue;
                         }
+
+                        newState.getBoard()
+                                .addNewMove(new Move(newCoordinates, newTile.getId(), i, currentPlayer, k));
 
                         ScoreManager.scoreClosedFeatures(newState.getBoard());
 
                         newState.setCurrentPlayer((currentPlayer + 1) % players.size());
                         newState.setOriginalPlayer(originalPlayer);
                         newState.setCurrentTile(
-                                (newState.getAvailableTiles().isEmpty() ? null : newState.getAvailableTiles().pop()));
+                                (newState.getAvailableTiles().isEmpty() ? null
+                                        : newState.getAvailableTiles().pop()));
 
                         possibleChildStates.add(newState);
-
-                        junkState.getBoard().getPlacedTiles().remove(junkTile);
-                        junkState.getBoard().getPossibleCoordinates().add(junkCoordinates);
                     }
+
+                    State newState = CloneManager.clone(this);
+                    Tile newTile = CloneManager.clone(newState.getCurrentTile());
+                    Coordinates newCoordinates = CloneManager.clone(coordinates);
+
+                    newTile.rotateClockwise(i);
+
+                    if (!newState.getBoard().placeTile(newCoordinates, newTile)) {
+                        throw new RuntimeException("Tile could not be placed to determine child.");
+                    }
+
+                    newState.getBoard().addNewMove(new Move(newCoordinates, newTile.getId(), i, currentPlayer));
+
+                    ScoreManager.scoreClosedFeatures(newState.getBoard());
+
+                    newState.setCurrentPlayer((currentPlayer + 1) % players.size());
+                    newState.setOriginalPlayer(originalPlayer);
+                    newState.setCurrentTile(
+                            (newState.getAvailableTiles().isEmpty() ? null : newState.getAvailableTiles().pop()));
+
+                    possibleChildStates.add(newState);
+
+                    // junkState.getBoard().getPlacedTiles().remove(junkTile);
+                    // junkState.getBoard().getPossibleCoordinates().add(junkCoordinates);
                 }
+                // }
             }
         }
 
         return possibleChildStates;
+
     }
 
     public void incrementVisit() {
@@ -139,7 +152,6 @@ public class State {
         ArrayList<Player> newPlayers = newState.getPlayers();
         int newCurrentPlayer = currentPlayer;
 
-        Random random = new Random();
         HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
         HashSet<Integer> checkedRotations;
         newAvailableTiles.push(newCurrentTile);
@@ -155,10 +167,10 @@ public class State {
             while (!isPlaced) {
 
                 Coordinates randomCoordinates = newBoard.getPossibleCoordinates()
-                        .get(random.nextInt(newBoard.getPossibleCoordinates()
+                        .get(Settings.getRandomInt(newBoard.getPossibleCoordinates()
                                 .size()));
 
-                int randomRotation = random.nextInt(4);
+                int randomRotation = Settings.getRandomInt(4);
                 newCurrentTile.rotateClockwise(randomRotation);
 
                 // Check if the tile can go in the given coordinates with the given rotation
@@ -179,14 +191,14 @@ public class State {
             if (playerPlacedTile) {
                 Object[] filteredFeature = newCurrentTile.getFeatures().stream().toArray();
 
-                Feature randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
+                Feature randomFeature = (Feature) filteredFeature[Settings.getRandomInt(filteredFeature.length)];
 
-                while (randomFeature.getClass() == Field.class && random.nextInt(10) < 7) {
-                    randomFeature = (Feature) filteredFeature[random.nextInt(filteredFeature.length)];
+                while (randomFeature.getClass() == Field.class && Settings.getRandomInt(10) < 7) {
+                    randomFeature = (Feature) filteredFeature[Settings.getRandomInt(filteredFeature.length)];
                 }
 
                 // place meeple with 30% chance
-                if (random.nextInt(10) < 3) {
+                if (Settings.getRandomInt(10) < 3) {
                     board.placeMeeple(randomFeature, newPlayers.get(newCurrentPlayer));
                 }
 
@@ -240,21 +252,21 @@ public class State {
     }
 
     private int getSymmetricRotations(Tile tile) {
-        int symmetricRotations = 1;
+        int symmetricRotations = 4;
         ArrayList<SideFeature> sideFeatures = tile.getSideFeatures();
 
         if (sideFeatures.get(0) == sideFeatures.get(2)
                 && sideFeatures.get(1) == sideFeatures
                         .get(3)
                 && sideFeatures.get(0) == sideFeatures.get(3)) {
-            symmetricRotations = 4;
+            symmetricRotations = 3;
         } else if (sideFeatures.get(0) == sideFeatures.get(2)
                 && sideFeatures.get(1) == sideFeatures
                         .get(3)) {
-            symmetricRotations = 3;
+            symmetricRotations = 2;
         }
 
-        return symmetricRotations - 1;
+        return symmetricRotations;
     }
 
     public Board getBoard() {
@@ -265,7 +277,7 @@ public class State {
         this.board = board;
     }
 
-    public int gerOriginalPlayer() {
+    public int getOriginalPlayer() {
         return originalPlayer;
     }
 

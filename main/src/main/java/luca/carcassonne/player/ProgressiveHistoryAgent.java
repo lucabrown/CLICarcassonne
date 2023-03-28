@@ -53,4 +53,21 @@ public class ProgressiveHistoryAgent extends Player {
     public double getExplorationConstant() {
         return explorationConstant;
     }
+
+    public HashMap<Pair<String, Integer>, Integer> getTotalActionMap() {
+        return totalActionMap;
+    }
+
+    public void setTotalActionMap(HashMap<Pair<String, Integer>, Integer> totalActionMap) {
+        this.totalActionMap = totalActionMap;
+    }
+
+    public HashMap<Pair<String, Integer>, Integer> getWinningActionMap() {
+        return winningActionMap;
+    }
+
+    public void setWinningActionMap(HashMap<Pair<String, Integer>, Integer> winningActionMap) {
+        this.winningActionMap = winningActionMap;
+    }
+
 }

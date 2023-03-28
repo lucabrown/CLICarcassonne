@@ -16,16 +16,4 @@ public class Road extends Feature {
         super();
     }
 
-    // @Override
-    // @SuppressWarnings("unchecked")
-    // public Object clone() {
-    // Road newRoad = new Road();
-
-    // newRoad.cardinalPoints = (ArrayList<CardinalPoint>)
-    // this.cardinalPoints.clone();
-    // newRoad.pointsClosed = this.pointsClosed;
-    // newRoad.pointsOpen = this.pointsOpen;
-
-    // return newRoad;
-    // }
 }

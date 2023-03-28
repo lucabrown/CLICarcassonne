@@ -1,10 +1,6 @@
 package luca.carcassonne.tile;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import luca.carcassonne.Settings;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.feature.Feature;
@@ -190,21 +186,4 @@ public class Tile {
         return "Tile" + sideFeatures;
     }
 
-    // @Override
-    // @SuppressWarnings("unchecked")
-    // public Object clone() {
-    // Tile newTile = new Tile();
-    // newTile.id = id;
-    // if (coordinates != null) {
-    // newTile.coordinates = (Coordinates) coordinates.clone();
-    // } else {
-    // newTile.coordinates = null;
-    // }
-    // newTile.sideFeatures = (ArrayList<SideFeature>) sideFeatures.clone();
-    // newTile.features = (ArrayList<Feature>) features.stream().map(f -> (Feature)
-    // f.clone())
-    // .collect(Collectors.toCollection(ArrayList::new));
-
-    // return newTile;
-    // }
 }

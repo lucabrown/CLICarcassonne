@@ -8,9 +8,8 @@ import luca.carcassonne.mcts.MonteCarloTreeSearch;
 import luca.carcassonne.mcts.Move;
 import luca.carcassonne.tile.Tile;
 
-public class RandomAgent extends Player {
-
-    public RandomAgent(Colour colour) {
+public class GreedyAgent extends Player {
+    public GreedyAgent(Colour colour) {
         super(colour);
     }
 
@@ -20,6 +19,6 @@ public class RandomAgent extends Player {
         MonteCarloTreeSearch mcts = new MonteCarloTreeSearch(0, 0, startingBoard, startingPlayer, currentTile,
                 players, availableTiles);
 
-        return mcts.getRandomMove();
+        return mcts.getGreedyMove();
     }
 }

@@ -3,15 +3,10 @@ package luca.carcassonne;
 import org.junit.jupiter.api.Test;
 
 import luca.carcassonne.tile.CardinalPoint;
-import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
 import java.util.stream.Collectors;

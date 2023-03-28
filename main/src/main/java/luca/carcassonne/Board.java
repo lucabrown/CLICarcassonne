@@ -115,15 +115,14 @@ public class Board {
     public boolean placeMeeple(Feature newFeature, Player currentPlayer) {
         SimpleGraph<Feature, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class);
         HashMap<Player, Integer> players = new HashMap<>();
-        // HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures =
-        // (HashSet<SimpleGraph<Feature, DefaultEdge>>) openFeatures
-        // .clone();
         HashSet<SimpleGraph<Feature, DefaultEdge>> allFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>) openFeatures
-                .stream().map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone()) // TODO fix
+                .stream().map(g -> (SimpleGraph<Feature, DefaultEdge>) g.clone())
                 .collect(Collectors.toCollection(HashSet::new));
+
         allFeatures.addAll(closedFeatures);
 
         if (currentPlayer.getAvailableMeeples() <= 0) {
+            // System.out.println("No meeples available");
             return false;
         }
 
@@ -164,10 +163,6 @@ public class Board {
 
     // Updates the set of open features by connecting the new open features
     private void updateFeatures(Tile newTile, List<Tile> tilesToCheck) {
-        // List<Tile> tilesToCheck = placedTiles.stream()
-        // .filter(e -> e.getAdjacentCoordinates().contains(newTile.getCoordinates()))
-        // .collect(Collectors.toCollection(ArrayList::new));
-
         HashMap<Feature, Integer> featuresToConnect = new HashMap<>();
 
         for (Feature feature : newTile.getFeatures()) {
@@ -187,10 +182,6 @@ public class Board {
     // Checks if the tile's placement is legal
     private boolean tilePlacementLegal(Coordinates coordinates, Tile tile, List<Tile> tilesToCheck) {
         if (possibleCoordinates.contains(coordinates)) {
-            // List<Tile> tilesToCheck = placedTiles.stream()
-            // .filter(e -> e.getAdjacentCoordinates().contains(coordinates))
-            // .collect(Collectors.toCollection(ArrayList::new));
-
             for (Tile t : tilesToCheck) {
                 int position = getRelativePosition(t, coordinates);
 
@@ -224,6 +215,14 @@ public class Board {
         }
 
         return false;
+    }
+
+    public boolean canPlaceJunkTile(Coordinates coordinates, Tile tile) {
+        List<Tile> tilesToCheck = placedTiles.stream()
+                .filter(e -> e.getAdjacentCoordinates().contains(coordinates))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        return tilePlacementLegal(coordinates, tile, tilesToCheck);
     }
 
     // Links the new open features to the existing graphs.
@@ -572,7 +571,6 @@ public class Board {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         System.out.println();
-        double n = 0.0;
         for (int i = maxY; i >= minY; i--) {
             for (int j = minX; j <= maxX; j++) {
                 Coordinates c = new Coordinates(j, i);
@@ -581,7 +579,6 @@ public class Board {
                 } else if (coordinates.contains(c)) {
                     if (SideFeature != null && getTileFromCoordinates(c).getSideFeatures().contains(SideFeature)) {
                         System.out.print(highlightColour + "X " + ANSI_RESET);
-                        n += 1;
                     } else {
                         if (getTileFromCoordinates(c).getOwner() == null) {
                             System.out.print("X ");
@@ -603,11 +600,6 @@ public class Board {
         if (SideFeature != null) {
             System.out.println("Highlighting " + highlightColour + SideFeature.getSymbol() + "s" + ANSI_RESET + ".");
         }
-
-        // System.out.println("Height: " + height);
-        // System.out.println("Width: " + width);
-        // System.out.println("Closed features: " + closedFeatures.size());
-        // System.out.println("Open features: " + openFeatures.size());
     }
 
     // Prints all the closed features on the board
@@ -656,50 +648,5 @@ public class Board {
     public Tile getStartingTile() {
         return startingTile;
     }
-
-    // Create a Board copy constructor
-    // @Override
-    // @SuppressWarnings("unchecked")
-    // public Object clone() {
-    // Board newBoard = new Board();
-    // newBoard.height = this.height;
-    // newBoard.width = this.width;
-    // newBoard.maxY = this.maxY;
-    // newBoard.maxX = this.maxX;
-    // newBoard.minY = this.minY;
-    // newBoard.minX = this.minX;
-    // newBoard.startingTile = (Tile) this.startingTile.clone();
-    // newBoard.placedTiles = (ArrayList<Tile>) this.placedTiles.stream().map(t ->
-    // (Tile) t.clone())
-    // .collect(Collectors.toCollection(ArrayList::new));
-    // newBoard.openFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
-    // this.openFeatures.stream()
-    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
-    // g.clone()).collect(Collectors.toCollection(HashSet::new));
-    // newBoard.closedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
-    // this.closedFeatures.stream()
-    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
-    // g.clone()).collect(Collectors.toCollection(HashSet::new));
-    // newBoard.newlyClosedFeatures = (HashSet<SimpleGraph<Feature, DefaultEdge>>)
-    // this.newlyClosedFeatures.stream()
-    // .map(g -> (SimpleGraph<Feature, DefaultEdge>)
-    // g.clone()).collect(Collectors.toCollection(HashSet::new));
-    // newBoard.possibleCoordinates = (ArrayList<Coordinates>)
-    // this.possibleCoordinates.stream()
-    // .map(c -> (Coordinates) c.clone())
-    // .collect(Collectors.toCollection(ArrayList::new));
-    // newBoard.monasteryTiles = new HashSet<Tile>() {
-    // {
-    // for (Tile tile : placedTiles) {
-    // if (tile.getFeatures().stream().anyMatch(feature -> feature.getClass() ==
-    // Monastery.class)) {
-    // add(tile);
-    // }
-    // }
-    // }
-    // };
-
-    // return newBoard;
-    // }
 
 }

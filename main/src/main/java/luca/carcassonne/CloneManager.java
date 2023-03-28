@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 
 import luca.carcassonne.mcts.Move;
 import luca.carcassonne.mcts.State;
+import luca.carcassonne.player.GreedyAgent;
 import luca.carcassonne.player.MonteCarloAgent;
 import luca.carcassonne.player.Player;
+import luca.carcassonne.player.ProgressiveHistoryAgent;
 import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
@@ -20,6 +22,7 @@ public class CloneManager {
         Stack<Tile> availableTiles = state.getAvailableTiles();
         Tile currentTile = state.getCurrentTile();
         int currentPlayer = state.getCurrentPlayer();
+        int originalPlayer = state.getOriginalPlayer();
         int visitCount = state.getVisitCount();
         int finalScoreDifference = state.getFinalScoreDifference();
 
@@ -36,6 +39,7 @@ public class CloneManager {
         newState.setAvailableTiles(newAvailableTiles);
         newState.setCurrentTile(newCurrentTile);
         newState.setCurrentPlayer(currentPlayer);
+        newState.setOriginalPlayer(originalPlayer);
         newState.setVisitCount(visitCount);
         newState.setFinalScoreDifference(finalScoreDifference);
 
@@ -43,28 +47,31 @@ public class CloneManager {
     }
 
     public static Board clone(Board oldBoard, ArrayList<Player> newPlayers) {
-        Board newBoard = new Board();
-
+        Board newBoard = new Board(CloneManager.clone(oldBoard.getStartingTile()));
         for (Move move : oldBoard.getPastMoves()) {
             Move newMove = clone(move);
-            Tile tileToPlace = newMove.getTile();
+            Tile tileToPlace = Settings.getTileFromId(newMove.getTileId());
+            Coordinates coordinates = newMove.getCoordinates();
+            int rotation = newMove.getRotation();
+            int featureIndex = newMove.getFeatureIndex();
+            int playerIndex = newMove.getPlayerIndex();
 
-            tileToPlace.rotateClockwise(newMove.getRotation());
+            tileToPlace.rotateClockwise(rotation);
 
-            boolean placed = newBoard.placeTile(newMove.getCoordinates(), tileToPlace);
+            boolean placed = newBoard.placeTile(coordinates, tileToPlace);
 
             if (placed == false) {
                 throw new RuntimeException("Error cloning Board: tile could not be placed.");
             }
 
-            if (newMove.getFeatureIndex() != -1) {
-                Player newPlayer = newPlayers.get(newMove.getPlayerIndex());
+            if (featureIndex != -1) {
+                Player newPlayer = newPlayers.get(playerIndex);
                 boolean meeplePlaced = newBoard
-                        .placeMeeple(newMove.getTile().getFeatures().get(newMove.getFeatureIndex()), newPlayer);
-                // if (!meeplePlaced) {
-                // throw new RuntimeException("Error cloning Board: meeple could not be
-                // placed.");
-                // }
+                        .placeMeeple(tileToPlace.getFeatures().get(featureIndex), newPlayer);
+
+                if (!meeplePlaced) {
+                    throw new RuntimeException("Error cloning Board: meeple could not be placed.");
+                }
             }
 
             ScoreManager.scoreClosedFeatures(newBoard);
@@ -91,6 +98,16 @@ public class CloneManager {
         return newPlayer;
     }
 
+    public static ProgressiveHistoryAgent clone(ProgressiveHistoryAgent agent) {
+        ProgressiveHistoryAgent newAgent = new ProgressiveHistoryAgent(agent.getColour(), agent.getMaxIterations(),
+                agent.getExplorationConstant(), agent.getTotalActionMap(), agent.getWinningActionMap());
+
+        newAgent.setScore(agent.getScore());
+        newAgent.setAvailableMeeples(agent.getAvailableMeeples());
+
+        return newAgent;
+    }
+
     public static MonteCarloAgent clone(MonteCarloAgent agent) {
         MonteCarloAgent newAgent = new MonteCarloAgent(agent.getColour(), agent.getMaxIterations(),
                 agent.getExplorationConstant());
@@ -110,11 +127,20 @@ public class CloneManager {
         return newAgent;
     }
 
+    public static GreedyAgent clone(GreedyAgent agent) {
+        GreedyAgent newAgent = new GreedyAgent(agent.getColour());
+
+        newAgent.setScore(agent.getScore());
+        newAgent.setAvailableMeeples(agent.getAvailableMeeples());
+
+        return newAgent;
+    }
+
     public static Move clone(Move move) {
         Move newMove = new Move();
 
         newMove.setCoordinates(clone(move.getCoordinates()));
-        newMove.setTile(clone(move.getTile()));
+        newMove.setTileId(move.getTileId());
         newMove.setRotation(move.getRotation());
         newMove.setPlayerIndex(move.getPlayerIndex());
         newMove.setFeatureIndex(move.getFeatureIndex());

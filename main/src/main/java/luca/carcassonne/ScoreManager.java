@@ -55,6 +55,7 @@ public class ScoreManager {
         }
 
         for (SimpleGraph<Feature, DefaultEdge> feature : board.getOpenFeatures()) {
+
             Set<Player> owners = new HashSet<>();
             int score = 0;
 
@@ -68,7 +69,6 @@ public class ScoreManager {
             for (Player owner : owners) {
                 owner.addScore(score);
             }
-
         }
     }
 

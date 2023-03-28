@@ -1,14 +1,13 @@
 package luca.carcassonne;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Random;
 import java.util.Stack;
 
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.SideFeature;
 import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Castle;
-import luca.carcassonne.tile.feature.Feature;
 import luca.carcassonne.tile.feature.Field;
 import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
@@ -53,6 +52,21 @@ public class Settings {
     private static final int N_BIG_CASTLE_WITH_SHIELD_WITH_ROAD = 2;
     private static final int N_HUGE_CASTLE = 1;
 
+    private static final int GLOBAL_SEED = 2;
+    private static final Random random = new Random(GLOBAL_SEED);
+
+    public static float getRandomFloat() {
+        return random.nextFloat();
+    }
+
+    public static int getRandomInt(int max) {
+        return random.nextInt(max);
+    }
+
+    public static Random getRandom() {
+        return random;
+    }
+
     // [FIELD, FIELD, FIELD, FIELD]
     public static final Tile getMonastery() {
         return new Tile(SideFeature.FIELD, SideFeature.FIELD, SideFeature.FIELD,
@@ -74,7 +88,7 @@ public class Settings {
                                 add(CardinalPoint.W);
                                 add(CardinalPoint.WNW);
                             }
-                        }, new HashSet<>()));
+                        }, new ArrayList<>()));
                         add(new Monastery());
                     }
                 }, "Monastery");
@@ -100,7 +114,7 @@ public class Settings {
                                 add(CardinalPoint.W);
                                 add(CardinalPoint.WNW);
                             }
-                        }, new HashSet<>()));
+                        }, new ArrayList<>()));
                         add(new Monastery());
                         add(new Road(new ArrayList<CardinalPoint>() {
                             {
@@ -117,7 +131,7 @@ public class Settings {
                 SideFeature.FIELD,
                 new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>();
+                        ArrayList<Castle> castles = new ArrayList<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
                             {
                                 add(CardinalPoint.N);
@@ -152,7 +166,7 @@ public class Settings {
                 SideFeature.FIELD,
                 new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>();
+                        ArrayList<Castle> castles = new ArrayList<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
                             {
                                 add(CardinalPoint.N);
@@ -187,7 +201,7 @@ public class Settings {
                 SideFeature.ROAD,
                 new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>();
+                        ArrayList<Castle> castles = new ArrayList<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
                             {
                                 add(CardinalPoint.E);
@@ -233,7 +247,7 @@ public class Settings {
         return new Tile(SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD,
                 SideFeature.ROAD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>();
+                        ArrayList<Castle> castles = new ArrayList<>();
                         add(new Road(new ArrayList<CardinalPoint>() {
                             {
                                 add(CardinalPoint.N);
@@ -287,7 +301,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.FIELD, SideFeature.FIELD,
                 SideFeature.FIELD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -322,7 +336,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.ROAD,
                 SideFeature.FIELD, SideFeature.ROAD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<Castle>() {
+                        ArrayList<Castle> castles = new ArrayList<Castle>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -353,7 +367,7 @@ public class Settings {
                                 add(CardinalPoint.SSW);
                                 add(CardinalPoint.WSW);
                             }
-                        }, new HashSet<Castle>()));
+                        }, new ArrayList<Castle>()));
                         for (Castle castle : castles) {
                             add(castle);
                         }
@@ -365,7 +379,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.FIELD,
                 SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<Castle>() {
+                        ArrayList<Castle> castles = new ArrayList<Castle>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -396,7 +410,7 @@ public class Settings {
                                 add(CardinalPoint.WSW);
                                 add(CardinalPoint.SSW);
                             }
-                        }, new HashSet<Castle>()));
+                        }, new ArrayList<Castle>()));
                         for (Castle castle : castles) {
                             add(castle);
                         }
@@ -408,7 +422,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.ROAD,
                 SideFeature.ROAD, SideFeature.FIELD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<Castle>() {
+                        ArrayList<Castle> castles = new ArrayList<Castle>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -439,7 +453,7 @@ public class Settings {
                                 add(CardinalPoint.ESE);
                                 add(CardinalPoint.SSE);
                             }
-                        }, new HashSet<Castle>()));
+                        }, new ArrayList<Castle>()));
                         for (Castle castle : castles) {
                             add(castle);
                         }
@@ -451,7 +465,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE,
                 SideFeature.ROAD, SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -509,7 +523,7 @@ public class Settings {
         return new Tile(SideFeature.FIELD, SideFeature.CASTLE, SideFeature.FIELD,
                 SideFeature.CASTLE, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<Castle>() {
+                        ArrayList<Castle> castles = new ArrayList<Castle>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -548,7 +562,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD,
                 SideFeature.FIELD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -581,7 +595,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.FIELD,
                 SideFeature.CASTLE, SideFeature.FIELD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -620,7 +634,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
                 SideFeature.FIELD, SideFeature.FIELD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -659,7 +673,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
                 SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -700,7 +714,7 @@ public class Settings {
         return new Tile(SideFeature.FIELD, SideFeature.CASTLE,
                 SideFeature.FIELD, SideFeature.CASTLE, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<Castle>() {
+                        ArrayList<Castle> castles = new ArrayList<Castle>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -739,7 +753,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
                 SideFeature.FIELD, SideFeature.FIELD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -772,7 +786,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE,
                 SideFeature.CASTLE, SideFeature.ROAD, SideFeature.ROAD, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -813,7 +827,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.FIELD,
                 SideFeature.CASTLE, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -846,7 +860,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.ROAD,
                 SideFeature.CASTLE, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -887,7 +901,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
                 SideFeature.FIELD, SideFeature.CASTLE, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -920,7 +934,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE,
                 SideFeature.ROAD, SideFeature.CASTLE, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {
@@ -961,7 +975,7 @@ public class Settings {
         return new Tile(SideFeature.CASTLE, SideFeature.CASTLE, SideFeature.CASTLE,
                 SideFeature.CASTLE, new ArrayList<>() {
                     {
-                        HashSet<Castle> castles = new HashSet<>() {
+                        ArrayList<Castle> castles = new ArrayList<>() {
                             {
                                 add(new Castle(new ArrayList<CardinalPoint>() {
                                     {

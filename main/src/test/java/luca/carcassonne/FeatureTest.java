@@ -1,16 +1,5 @@
 package luca.carcassonne;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import org.junit.jupiter.api.Test;
-
-import luca.carcassonne.tile.CardinalPoint;
-import luca.carcassonne.tile.feature.Castle;
-import luca.carcassonne.tile.feature.Field;
-
 public class FeatureTest {
 
     // @Test

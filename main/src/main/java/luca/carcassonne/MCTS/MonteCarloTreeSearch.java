@@ -6,15 +6,6 @@ import java.util.Stack;
 
 import org.javatuples.Pair;
 
-/*
-* All the code in this file is from
-*
-*
-https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-searching/src/main/java/com/baeldung/algorithms/mcts
-*
-* unless clearly stated otherwise.
-*/
-
 import luca.carcassonne.Board;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.Tile;
@@ -96,6 +87,18 @@ public class MonteCarloTreeSearch {
 
         Node bestNode = rootNode.getChildWithMaxScore();
         return bestNode.getState().getBoard().getLastMove();
+    }
+
+    public Move getGreedyMove() {
+        Node rootNode = new Node(startingState);
+
+        expandNode(rootNode);
+        Node toReturn = rootNode.getChildWithGreedyPolicy();
+
+        if (toReturn == null)
+            return null;
+        else
+            return toReturn.getState().getBoard().getLastMove();
     }
 
     public Move getRandomMove() {
@@ -229,7 +232,7 @@ public class MonteCarloTreeSearch {
         double uctValue = Integer.MAX_VALUE;
         double actionScore = 0;
         int timesActionPlayed = 0;
-        Pair<String, Integer> action = new Pair<String, Integer>(performedMove.getTile().getId(),
+        Pair<String, Integer> action = new Pair<String, Integer>(performedMove.getTileId(),
                 performedMove.getFeatureIndex());
 
         if (nodeVisit == 0) {

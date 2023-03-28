@@ -48,14 +48,4 @@ public class Coordinates {
         return c.getX() == x && c.getY() == y;
     }
 
-    // @Override
-    // public Object clone() {
-    // Coordinates newCoordinates = new Coordinates();
-
-    // newCoordinates.setX(x);
-    // newCoordinates.setY(y);
-
-    // return newCoordinates;
-
-    // }
 }

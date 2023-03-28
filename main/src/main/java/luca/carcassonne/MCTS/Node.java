@@ -1,26 +1,18 @@
 package luca.carcassonne.mcts;
 
-/*
-* All the code in this file is from
-*
-*
-https://github.com/eugenp/tutorials/tree/master/algorithms-modules/algorithms-searching/src/main/java/com/baeldung/algorithms/mcts
-*
-* unless clearly stated otherwise.
-*/
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
-
+import luca.carcassonne.CloneManager;
+import luca.carcassonne.ScoreManager;
+import luca.carcassonne.Settings;
 import luca.carcassonne.tile.feature.Castle;
 import luca.carcassonne.tile.feature.Monastery;
 
 public class Node {
-    State state;
-    Node parent;
-    ArrayList<Node> children;
+    private State state;
+    private Node parent;
+    private ArrayList<Node> children;
 
     public Node() {
         this.state = new State();
@@ -68,28 +60,53 @@ public class Node {
 
     public Node getRandomChildNode() {
         int noOfPossibleMoves = this.children.size();
-        int selectRandom = (int) (Math.random() * noOfPossibleMoves);
+        int selectRandom = (int) (Settings.getRandomFloat() * noOfPossibleMoves);
         if (noOfPossibleMoves == 0)
             return null;
         return this.children.get(selectRandom);
     }
 
     public Node getInformedRandomChildNode() {
+        ArrayList<Node> goodChildren = new ArrayList<>();
         for (Node child : children) {
             Move lastMove = child.getState().getBoard().getLastMove();
             if (lastMove.getFeatureIndex() != -1
-                    && (lastMove.getTile().getFeatures().get(lastMove.getFeatureIndex()).getClass() == Castle.class
-                            || lastMove.getTile().getFeatures().get(lastMove.getFeatureIndex())
+                    && (Settings.getTileFromId(lastMove.getTileId()).getFeatures().get(lastMove.getFeatureIndex())
+                            .getClass() == Castle.class
+                            || Settings.getTileFromId(lastMove.getTileId()).getFeatures()
+                                    .get(lastMove.getFeatureIndex())
                                     .getClass() == Monastery.class)) {
-                return child;
+                goodChildren.add(child);
             }
+        }
 
+        if (goodChildren.size() > 0) {
+            int noOfPossibleMoves = goodChildren.size();
+            int selectRandom = (int) (Settings.getRandomFloat() * noOfPossibleMoves);
+            return goodChildren.get(selectRandom);
         }
 
         int noOfPossibleMoves = this.children.size();
-        int selectRandom = (int) (Math.random() * noOfPossibleMoves);
+        int selectRandom = (int) (Settings.getRandomFloat() * noOfPossibleMoves);
 
         return this.children.get(selectRandom);
+    }
+
+    public Node getChildWithGreedyPolicy() {
+        if (this.children.size() == 0)
+            return null;
+
+        Node bestChild = this.children.get(0);
+        for (Node child : this.children) {
+            State clonedState = CloneManager.clone(child.getState());
+            ScoreManager.scoreOpenFeatures(clonedState.getBoard());
+            int scoreAfterChildState = clonedState.getPlayers().get(state.getCurrentPlayer()).getScore();
+            if (scoreAfterChildState >= bestChild.getState().getPlayers().get(state.getCurrentPlayer()).getScore()) {
+                bestChild = child;
+            }
+        }
+
+        return bestChild;
     }
 
     public Node getChildWithMaxScore() {
@@ -97,18 +114,5 @@ public class Node {
             return c.getState().getVisitCount();
         }));
     }
-
-    // @Override
-    // public Object clone() {
-    // Node newNode = new Node();
-
-    // newNode.setState((State) state.clone());
-    // newNode.setParent(parent);
-    // for (Node child : children) {
-    // newNode.getChildren().add((Node) child.clone());
-    // }
-
-    // return newNode;
-    // }
 
 }

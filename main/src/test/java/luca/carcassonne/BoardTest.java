@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.Player;
-import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.SideFeature;
 import luca.carcassonne.tile.Tile;

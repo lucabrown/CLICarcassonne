@@ -1,12 +1,5 @@
 package luca.carcassonne;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-
-import luca.carcassonne.player.Colour;
-import luca.carcassonne.player.Player;
-
 public class PlayerTest {
 
     // @Test

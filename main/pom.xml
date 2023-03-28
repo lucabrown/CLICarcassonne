@@ -203,6 +203,9 @@
                   </limits>
                 </rule>
               </rules>
+              <excludes>
+                <exclude>META-INF/**</exclude>
+              </excludes>
             </configuration>
           </execution>
         </executions>

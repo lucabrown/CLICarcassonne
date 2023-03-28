@@ -8,13 +8,4 @@ public class Monastery extends Feature {
         super(new ArrayList<>());
     }
 
-    // @Override
-    // public Object clone() {
-    // Monastery newMonastery = new Monastery();
-
-    // newMonastery.pointsClosed = this.pointsClosed;
-    // newMonastery.pointsOpen = this.pointsOpen;
-
-    // return newMonastery;
-    // }
 }

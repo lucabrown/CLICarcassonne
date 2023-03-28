@@ -6,22 +6,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Stack;
 
 import org.javatuples.Pair;
 
 import luca.carcassonne.mcts.Move;
 import luca.carcassonne.player.Colour;
-import luca.carcassonne.player.MonteCarloAgent;
+import luca.carcassonne.player.GreedyAgent;
 import luca.carcassonne.player.Player;
-import luca.carcassonne.player.ProgressiveHistoryAgent;
-import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
-import luca.carcassonne.tile.feature.Feature;
 
 // Starts the game and handles turns and available tiles
 public class Game extends Thread {
@@ -31,7 +28,6 @@ public class Game extends Thread {
 
     public static final float totalChildren[] = new float[72];
 
-    private static final Random random = new Random();
     private int failedTiles = 0;
     private int triedPlacements = 0;
     private int progressBarStep = 1;
@@ -55,12 +51,19 @@ public class Game extends Thread {
         this.board = board;
         this.players = new ArrayList<>() {
             {
-                add(new ProgressiveHistoryAgent(Colour.WHITE, 500, 0.5, totalActionMap, winningActionMap));
-                // add(new MonteCarloAgent(Colour.WHITE, 1000, 0.5));
-                add(new MonteCarloAgent(Colour.RED, 500, 0.5));
+                // add(new ProgressiveHistoryAgent(Colour.WHITE, 500, 0.5, totalActionMap,
+                // winningActionMap));
+                // add(new MonteCarloAgent(Colour.RED, 500, 0.5));
+                // add(new MonteCarloAgent(Colour.RED, 500, 0.5));
                 // add(new MonteCarloAgent(Colour.RED, 100));
+                add(new GreedyAgent(Colour.RED));
+                add(new GreedyAgent(Colour.WHITE));
+                // add(new GreedyAgent(Colour.WHITE));
                 // add(new RandomAgent(Colour.WHITE));
-                // add(new RandomAgent(Colour.RED));
+                // add(new RandomAgent(Colour.GREEN));
+                // add(new RandomAgent(Colour.BLACK));
+                // add(new RandomAgent(Colour.BLUE));
+
                 // add(new Player(Colour.YELLOW, Behaviour.MCTS));
                 // add(new Player(Colour.BLACK));
                 // add(new Player(Colour.BLUE));
@@ -107,7 +110,7 @@ public class Game extends Thread {
     // The main game loop
     @Override
     public void run() {
-        Collections.shuffle(availableTiles);
+        Collections.shuffle(availableTiles, Settings.getRandom());
         startTime = System.currentTimeMillis();
         progressBarStep = availableTiles.size() / 100 + 1;
         triedPlacements = 0;
@@ -117,7 +120,7 @@ public class Game extends Thread {
             long timeForMove = System.currentTimeMillis();
             System.out.println(players.get(currentPlayer).getColour() + "'s turn");
             System.out.println("Available tiles: " + availableTiles.size());
-            System.out.println("Performing " + players.get(currentPlayer).getClass() + " move");
+            System.out.println("Performing " + players.get(currentPlayer).getClass().getSimpleName() + " move");
 
             boolean isPlaced = false;
             boolean playerPlacedTile = true;
@@ -133,6 +136,11 @@ public class Game extends Thread {
 
             Move move = players.get(currentPlayer).getNextMove(board, currentPlayer, currentTile, players,
                     availableTiles);
+            // print move
+            if (move != null) {
+                System.out.println(
+                        "Move: " + move);
+            }
 
             if (move == null) {
                 System.out.println("- - Tile not placed");
@@ -140,9 +148,6 @@ public class Game extends Thread {
                 playerPlacedTile = false;
                 continue;
             }
-
-            // totalChildren[moveNumber] = totalChildren[moveNumber]
-            // + mcts.getStartingState().getAllPossibleChildStates().size();
 
             while (!isPlaced) {
                 triedPlacements++;
@@ -156,6 +161,7 @@ public class Game extends Thread {
 
                 // Check if the tile can go in the given coordinates with the given rotation
                 isPlaced = board.placeTile(randomCoordinates, currentTile);
+
                 if (!isPlaced) {
                     // If tile is not placed, keep a record of checked combination
                     if (updateCheckedCombinations(randomCoordinates, randomRotation)) {
@@ -168,10 +174,7 @@ public class Game extends Thread {
 
             if (playerPlacedTile) {
 
-                Feature feature = null;
                 if (move.getFeatureIndex() != -1) {
-                    feature = currentTile.getFeatures().get(move.getFeatureIndex());
-
                     meeplePlaced = board.placeMeeple(currentTile.getFeatures().get(move.getFeatureIndex()),
                             players.get(currentPlayer));
                 } else {
@@ -181,11 +184,11 @@ public class Game extends Thread {
                 currentTile.setOwner(players.get(currentPlayer)); // to delete
 
                 if (meeplePlaced) {
-                    Move newMove = new Move(randomCoordinates, currentTile, randomRotation, currentPlayer,
+                    Move newMove = new Move(randomCoordinates, currentTile.getId(), randomRotation, currentPlayer,
                             currentTile.getFeatures().indexOf(currentTile.getFeatures().get(move.getFeatureIndex())));
                     board.addNewMove(newMove);
                 } else {
-                    Move newMove = new Move(randomCoordinates, currentTile, randomRotation, currentPlayer);
+                    Move newMove = new Move(randomCoordinates, currentTile.getId(), randomRotation, currentPlayer);
                     board.addNewMove(newMove);
                 }
 
@@ -194,7 +197,8 @@ public class Game extends Thread {
 
                 timeForMove = System.currentTimeMillis() - timeForMove;
                 System.out.println("Move " + move + " performed in " + timeForMove + "ms");
-                System.out.println("Enter for next turn.");
+                // print score of each player
+                printScores();
             }
         }
 
@@ -215,7 +219,7 @@ public class Game extends Thread {
 
             for (Move move : board.getPastMoves()) {
                 if (move.getPlayerIndex() == 0) {
-                    String data = move.getTile().getId() + "," + move.getFeatureIndex() + "\n";
+                    String data = move.getTileId() + "," + move.getFeatureIndex() + "\n";
                     totalMovesWriter.write(data);
                     if (move.getPlayerIndex() == winningPlayer) {
                         winningMovesWriter.write(data);
@@ -230,17 +234,35 @@ public class Game extends Thread {
             e.printStackTrace();
         }
 
-        ThreadManager.whiteTotalScore.addAndGet(players.get(0).getScore());
-        ThreadManager.redTotalScore.addAndGet(players.get(1).getScore());
+        for (int i = 0; i < players.size(); i++) {
+            ThreadManager.playersTotalScore.set(i, ThreadManager.playersTotalScore.get(i)
+                    + players.get(i).getScore());
+        }
 
-        if (players.get(0).getScore() > players.get(1).getScore()) {
-            ThreadManager.whiteWR.incrementAndGet();
-            printMoves(0);
-        } else if (players.get(0).getScore() == players.get(1).getScore()) {
+        int maxValue = players.stream().max(Comparator.comparing(Player::getScore)).get().getScore();
+        ArrayList<Integer> maxPlayers = new ArrayList<Integer>();
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getScore() == maxValue) {
+                maxPlayers.add(i);
+            }
+        }
+
+        if (maxPlayers.size() > 1) {
             ThreadManager.ties.incrementAndGet();
         } else {
-            ThreadManager.redWR.incrementAndGet();
-            printMoves(1);
+
+            for (Integer i : maxPlayers) {
+                ThreadManager.playersWR.set(i, ThreadManager.playersWR.get(i) + 1);
+            }
+        }
+
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getScore() > ThreadManager.playersMaxScore.get(i)) {
+                ThreadManager.playersMaxScore.set(i, players.get(i).getScore());
+            }
+            if (players.get(i).getScore() < ThreadManager.playersMinScore.get(i)) {
+                ThreadManager.playersMinScore.set(i, players.get(i).getScore());
+            }
         }
 
         this.interrupt();
@@ -288,11 +310,11 @@ public class Game extends Thread {
             e.printStackTrace();
         }
 
-        // for (Pair<String, Integer> action : actionMap.keySet()) {
-        // System.out.println(action + " " + actionMap.get(action));
-        // }
-
         return actionMap;
+    }
+
+    public int getNumberOfPlayers() {
+        return players.size();
     }
 
     // * * * * * * * * * * * *
@@ -306,10 +328,11 @@ public class Game extends Thread {
         }
     }
 
+    @SuppressWarnings("unused")
     private void printMoves(int winner) {
         for (Move move : board.getPastMoves()) {
             if (move.getPlayerIndex() == winner) {
-                System.out.println(move.getTile().getId() + " " + move.getFeatureIndex());
+                System.out.println(move.getTileId() + " " + move.getFeatureIndex());
             }
         }
     }
@@ -341,6 +364,7 @@ public class Game extends Thread {
     }
 
     // Prints 1% of the progress bar
+    @SuppressWarnings("unused")
     private void printProgressBarStep() {
         if (board.getPlacedTilesSize() == 2) {
             System.out.print("\n%: ");

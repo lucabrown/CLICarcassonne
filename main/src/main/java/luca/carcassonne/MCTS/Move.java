@@ -1,27 +1,25 @@
 package luca.carcassonne.mcts;
 
 import luca.carcassonne.tile.Coordinates;
-import luca.carcassonne.tile.Tile;
-import luca.carcassonne.tile.feature.Feature;
 
 public class Move {
     private Coordinates coordinates;
-    private Tile tile;
+    private String tileId;
     private int rotation;
     private int playerIndex;
     private int featureIndex;
 
-    public Move(Coordinates coordinates, Tile tile, int rotation, int playerIndex, int featureIndex) {
+    public Move(Coordinates coordinates, String tileId, int rotation, int playerIndex, int featureIndex) {
         this.coordinates = coordinates;
-        this.tile = tile;
+        this.tileId = tileId;
         this.rotation = rotation;
         this.playerIndex = playerIndex;
         this.featureIndex = featureIndex;
     }
 
-    public Move(Coordinates coordinates, Tile tile, int rotation, int playerIndex) {
+    public Move(Coordinates coordinates, String tileId, int rotation, int playerIndex) {
         this.coordinates = coordinates;
-        this.tile = tile;
+        this.tileId = tileId;
         this.rotation = rotation;
         this.playerIndex = playerIndex;
         this.featureIndex = -1;
@@ -29,7 +27,7 @@ public class Move {
 
     public Move() {
         this.coordinates = null;
-        this.tile = null;
+        this.tileId = null;
         this.rotation = 0;
         this.featureIndex = -1;
     }
@@ -42,12 +40,12 @@ public class Move {
         this.coordinates = coordinates;
     }
 
-    public Tile getTile() {
-        return tile;
+    public String getTileId() {
+        return tileId;
     }
 
-    public void setTile(Tile tile) {
-        this.tile = tile;
+    public void setTileId(String tileId) {
+        this.tileId = tileId;
     }
 
     public int getRotation() {
@@ -76,20 +74,7 @@ public class Move {
 
     @Override
     public String toString() {
-        return "Move [" + coordinates + ", " + tile + ", r" + rotation + ", p" + playerIndex
+        return "Move [" + coordinates + ", " + tileId + ", r" + rotation + ", p" + playerIndex
                 + ", f" + featureIndex + "]";
     }
-
-    // @Override
-    // public Object clone() {
-    // Move newMove = new Move();
-
-    // newMove.coordinates = (Coordinates) coordinates.clone();
-    // newMove.tile = (Tile) tile.clone();
-    // newMove.rotation = rotation;
-    // newMove.featureIndex = featureIndex;
-
-    // return newMove;
-
-    // }
 }
