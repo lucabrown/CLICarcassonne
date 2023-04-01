@@ -23,7 +23,14 @@ import luca.carcassonne.tile.feature.Field;
 import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 
-// Holds all played tiles and tracks the relation between them
+/**
+ * A class that handles the game's board.
+ * 
+ * The class is responsible for keeping track of tile placements, feature
+ * updates and past moves.
+ * 
+ * @author Luca Brown
+ */
 public class Board {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GREEN = "\u001B[32m";
@@ -46,6 +53,13 @@ public class Board {
     private ArrayList<Coordinates> possibleCoordinates;
     private ArrayList<Move> pastMoves;
 
+    /**
+     * Creates a new board with the given starting tile.
+     * 
+     * All collections are initialised and the starting tile is placed at (0, 0).
+     * 
+     * @param startingTile The starting tile of the board.
+     */
     public Board(Tile startingTile) {
         this.height = 1;
         this.width = 1;
@@ -90,8 +104,14 @@ public class Board {
         this(Settings.getStartingTile());
     }
 
-    // Tries to place a tile in the given coordinates. Returns true if the placement
-    // was legal.
+    /**
+     * Tries to place a tile in the given coordinates. Returns true if the placement
+     * was legal.
+     * 
+     * @param coordinates The coordinates to place the tile at.
+     * @param newTile     The tile to be placed.
+     * @return True if the tile was placed successfully.
+     */
     public boolean placeTile(Coordinates coordinates, Tile newTile) {
         List<Tile> tilesToCheck = placedTiles.stream()
                 .filter(e -> e.getAdjacentCoordinates().contains(coordinates))
@@ -110,7 +130,15 @@ public class Board {
 
     }
 
-    // Tries to place a meeple on a feature
+    /**
+     * Tries to place a meeple on the given feature. Returns true if the placement
+     * was successful.
+     * 
+     * @param newFeature    The feature to place the meeple on.
+     * @param currentPlayer The player placing the meeple.
+     * @return True if the meeple was placed successfully.
+     * 
+     */
     @SuppressWarnings("unchecked")
     public boolean placeMeeple(Feature newFeature, Player currentPlayer) {
         SimpleGraph<Feature, DefaultEdge> feature = new SimpleGraph<>(DefaultEdge.class);
@@ -122,7 +150,6 @@ public class Board {
         allFeatures.addAll(closedFeatures);
 
         if (currentPlayer.getAvailableMeeples() <= 0) {
-            // System.out.println("No meeples available");
             return false;
         }
 
@@ -145,7 +172,11 @@ public class Board {
         return true;
     }
 
-    // Updates the board's state with the new tile
+    /**
+     * Updates the board's state with the new tile
+     * 
+     * @param newTile The new tile to be placed.
+     */
     private void updateBoard(Tile newTile) {
         placedTiles.add(newTile);
         possibleCoordinates.remove(newTile.getCoordinates());
@@ -161,7 +192,12 @@ public class Board {
         updateBoardStringParameters(newTile);
     }
 
-    // Updates the set of open features by connecting the new open features
+    /**
+     * Updates the set of open features by connecting the features of the new tile.
+     * 
+     * @param newTile      The new tile to be placed.
+     * @param tilesToCheck The adjacent tiles to the new tile.
+     */
     private void updateFeatures(Tile newTile, List<Tile> tilesToCheck) {
         HashMap<Feature, Integer> featuresToConnect = new HashMap<>();
 
@@ -179,7 +215,14 @@ public class Board {
         linkFeatures(featuresToConnect, newTile);
     }
 
-    // Checks if the tile's placement is legal
+    /**
+     * Returns true if the tile placement is legal.
+     * 
+     * @param coordinates  The coordinates the tile si being placed at.
+     * @param tile         The tile that's being placed.
+     * @param tilesToCheck The adjacent tiles to the new tile.
+     * @return True if the tile placement is legal.
+     */
     private boolean tilePlacementLegal(Coordinates coordinates, Tile tile, List<Tile> tilesToCheck) {
         if (possibleCoordinates.contains(coordinates)) {
             for (Tile t : tilesToCheck) {
@@ -217,6 +260,13 @@ public class Board {
         return false;
     }
 
+    /**
+     * Returns true if the tile can be placed. Does not place the tile.
+     * 
+     * @param coordinates The coordinates the tile is being placed at.
+     * @param tile        The tile that's being placed.
+     * @return True if the tile can be placed.
+     */
     public boolean canPlaceJunkTile(Coordinates coordinates, Tile tile) {
         List<Tile> tilesToCheck = placedTiles.stream()
                 .filter(e -> e.getAdjacentCoordinates().contains(coordinates))
@@ -304,7 +354,11 @@ public class Board {
         checkIfMonasteriesAreComplete();
     }
 
-    // Finds the graph that contains the new feature and checks if it's closed
+    /**
+     * Finds the graph that contains the new feature and checks if it's closed
+     * 
+     * @param newFeature The new feature that was added to the graph.
+     */
     private void checkIfFeatureIsComplete(Feature newFeature) {
         for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
             if (graph.containsVertex(newFeature)) {
@@ -325,7 +379,9 @@ public class Board {
         }
     }
 
-    // Checks if monasteries are closed
+    /**
+     * Checks if any monasteries were completed.
+     */
     private void checkIfMonasteriesAreComplete() {
         HashSet<Tile> tilesToDelete = new HashSet<>();
         for (Tile monasteryTile : monasteryTiles) {
@@ -354,7 +410,18 @@ public class Board {
         monasteryTiles.removeAll(tilesToDelete);
     }
 
-    // Checks if two features match given their cardinal points
+    /**
+     * Checks if two features match given their cardinal points.
+     * 
+     * @param feature                 The feature that is already in the graph.
+     * @param newFeature              The new feature that is being added to the
+     *                                graph.
+     * @param featureCardinalPoint    The cardinal point of the feature that is
+     *                                already in the graph.
+     * @param newFeatureCardinalPoint The cardinal point of the new feature that is
+     *                                being added to the graph.
+     * @return True if the features match, false otherwise.
+     */
     private boolean featuresMatch(Feature feature, Feature newFeature, CardinalPoint featureCardinalPoint,
             CardinalPoint newFeatureCardinalPoint) {
         return feature.getClass() == newFeature.getClass()
@@ -362,7 +429,12 @@ public class Board {
                 && newFeature.getCardinalPoints().contains(newFeatureCardinalPoint);
     }
 
-    // Connects a feature to an existing graph.
+    /**
+     * Connects a feature to an existing graph.
+     * 
+     * @param feature    The feature that is already in the graph.
+     * @param newFeature The new feature that is being added to the graph.
+     */
     private void addFeaturesEdge(Feature feature, Feature newFeature) {
         SimpleGraph<Feature, DefaultEdge> belongingGraph = null;
         boolean foundBelongingGraph = false;
@@ -389,8 +461,15 @@ public class Board {
         }
     }
 
-    // Returns a number between 0 and 3 that represents the clockwise position of a
-    // tile relative to the given coordinates
+    /**
+     * Returns a number between 0 and 3 that represents the clockwise position of a
+     * tile relative to the given coordinates
+     * (0 = north, 1 = east, 2 = south, 3 = west).
+     * 
+     * @param tile        The tile to check.
+     * @param coordinates The coordinates to check.
+     * @return The relative position of the tile.
+     */
     private int getRelativePosition(Tile tile, Coordinates coordinates) {
         int pos = -1;
         int xDifference = tile.getCoordinates().getX() - coordinates.getX();
@@ -409,6 +488,12 @@ public class Board {
         return pos;
     }
 
+    /**
+     * Returns the tile that contains the given feature.
+     * 
+     * @param feature The feature to check.
+     * @return The tile that contains the feature.
+     */
     public Tile getTileFromFeature(Feature feature) {
         for (Tile tile : placedTiles) {
             for (Feature f : tile.getFeatures()) {
@@ -421,8 +506,13 @@ public class Board {
         return null;
     }
 
-    // Returns the number of tiles surrounding the given tile (used for scoring
-    // monasteries)
+    /**
+     * Returns the number of tiles surrounding the given tile (used for scoring
+     * monasteries).
+     * 
+     * @param tile The tile to check.
+     * @return The number of surrounding tiles.
+     */
     public int getSurroundingTiles(Tile tile) {
         int nSurroundingTiles = 0;
         HashSet<Coordinates> surroundingCoordinates = new HashSet<>() {

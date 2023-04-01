@@ -5,7 +5,8 @@
             "name": "ThreadManager",
             "request": "launch",
             "mainClass": "luca.carcassonne.ThreadManager",
-            "projectName": "main"
+            "projectName": "main",
+            "vmArgs": "-Xmx50g"
         },
         {
             "type": "java",

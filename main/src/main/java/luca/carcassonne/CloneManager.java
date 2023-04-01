@@ -14,7 +14,19 @@ import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 
-// Magnificent aren't they?
+/**
+ * - Magnificent aren't they?
+ * 
+ * A helper class for cloning objects.
+ * Each method works by creating a new object and copying the values of the old
+ * object into the new object.
+ * 
+ * For the {@code clone(Board, ArrayList<Player>)} method, the board is cloned
+ * by
+ * replaying all past moves on the new board.
+ * 
+ * @author Luca Brown
+ */
 public class CloneManager {
     public static State clone(State state) {
         Board board = state.getBoard();
@@ -74,7 +86,7 @@ public class CloneManager {
                 }
             }
 
-            ScoreManager.scoreClosedFeatures(newBoard);
+            ScoreManager.scoreClosedFeatures(newBoard, false);
             newBoard.addNewMove(newMove);
         }
 
@@ -92,7 +104,7 @@ public class CloneManager {
     public static Player clone(Player player) {
         Player newPlayer = new Player(player.getColour());
 
-        newPlayer.setScore(player.getScore());
+        newPlayer.setScore(0);
         newPlayer.setAvailableMeeples(Settings.MAX_MEEPLES);
 
         return newPlayer;

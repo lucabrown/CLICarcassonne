@@ -207,34 +207,4 @@ public class CloneManagerTest {
         assertEquals(1, agent.getExplorationConstant());
         assertEquals(0.5, clone.getExplorationConstant());
     }
-
-    // @Test
-    // void testBoardClone() {
-    // Board oldBoard = new Board();
-    // ArrayList<Player> oldPlayers = new ArrayList<>();
-    // oldPlayers.add(new RandomAgent(Colour.RED));
-    // oldPlayers.add(new GreedyAgent(Colour.BLUE));
-
-    // Tile castleTile = Settings.getBigCastleWithRoad();
-    // Feature castleFeature = castleTile.getFeatures().get(3);
-    // castleTile.rotateClockwise();
-    // Tile roadTile = Settings.getStraightRoad();
-    // Feature roadFeature = roadTile.getFeatures().get(1);
-
-    // oldBoard.placeTile(new Coordinates(0, 1), castleTile);
-    // oldBoard.placeMeeple(castleFeature, oldPlayers.get(0));
-    // oldBoard.placeTile(new Coordinates(0, -1), roadTile);
-    // oldBoard.placeMeeple(roadFeature, oldPlayers.get(1));
-
-    // ArrayList<Player> newPlayers = oldPlayers.stream().map(CloneManager::clone)
-    // .collect(Collectors.toCollection(ArrayList::new));
-
-    // Board newBoard = CloneManager.clone(oldBoard, newPlayers);
-    // for (int i = 0; i < oldPlayers.size(); i++) {
-    // assertEquals(oldPlayers.get(i).getColour(), newPlayers.get(i).getColour());
-    // assertEquals(oldPlayers.get(i).getScore(), newPlayers.get(i).getScore());
-    // assertEquals(oldPlayers.get(i).getAvailableMeeples(),
-    // newPlayers.get(i).getAvailableMeeples());
-    // }
-    // }
 }

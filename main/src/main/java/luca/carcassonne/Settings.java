@@ -52,8 +52,8 @@ public class Settings {
     private static final int N_BIG_CASTLE_WITH_SHIELD_WITH_ROAD = 2;
     private static final int N_HUGE_CASTLE = 1;
 
-    private static final int GLOBAL_SEED = 2;
-    private static final Random random = new Random(GLOBAL_SEED);
+    private static final int GLOBAL_SEED = 4443;
+    private static final Random random = new Random();
 
     public static float getRandomFloat() {
         return random.nextFloat();

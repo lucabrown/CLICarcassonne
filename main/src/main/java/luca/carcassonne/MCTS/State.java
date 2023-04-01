@@ -17,6 +17,16 @@ import luca.carcassonne.tile.Tile;
 import luca.carcassonne.tile.feature.Feature;
 import luca.carcassonne.tile.feature.Field;
 
+/**
+ * Represents a game state.
+ * 
+ * A game state is the state of the game at any point in time.
+ * 
+ * It is represented by a board, a list of players, a list of available tiles,
+ * and the current player.
+ * 
+ * @author Luca Brown
+ */
 public class State {
     private Board board;
     private int originalPlayer;
@@ -51,6 +61,11 @@ public class State {
         this.finalScoreDifference = 0;
     }
 
+    /**
+     * Returns all possible child states reachable from this state.
+     * 
+     * @return All possible child states reachable from this state.
+     */
     public ArrayList<State> getAllPossibleChildStates() {
         ArrayList<State> possibleChildStates = new ArrayList<>();
         List<Coordinates> possibleCoordinates = this.board.getPossibleCoordinates();
@@ -97,7 +112,7 @@ public class State {
                         newState.getBoard()
                                 .addNewMove(new Move(newCoordinates, newTile.getId(), i, currentPlayer, k));
 
-                        ScoreManager.scoreClosedFeatures(newState.getBoard());
+                        ScoreManager.scoreClosedFeatures(newState.getBoard(), false);
 
                         newState.setCurrentPlayer((currentPlayer + 1) % players.size());
                         newState.setOriginalPlayer(originalPlayer);
@@ -120,7 +135,7 @@ public class State {
 
                     newState.getBoard().addNewMove(new Move(newCoordinates, newTile.getId(), i, currentPlayer));
 
-                    ScoreManager.scoreClosedFeatures(newState.getBoard());
+                    ScoreManager.scoreClosedFeatures(newState.getBoard(), false);
 
                     newState.setCurrentPlayer((currentPlayer + 1) % players.size());
                     newState.setOriginalPlayer(originalPlayer);
@@ -129,10 +144,7 @@ public class State {
 
                     possibleChildStates.add(newState);
 
-                    // junkState.getBoard().getPlacedTiles().remove(junkTile);
-                    // junkState.getBoard().getPossibleCoordinates().add(junkCoordinates);
                 }
-                // }
             }
         }
 
@@ -144,6 +156,12 @@ public class State {
         visitCount++;
     }
 
+    /**
+     * Performs a random play from this state.
+     * 
+     * @return The score difference between the original player and the player who
+     *         won.
+     */
     public int randomPlay() {
         State newState = CloneManager.clone(this);
         Board newBoard = newState.getBoard();
@@ -204,12 +222,12 @@ public class State {
 
                 currentTile.setOwner(newPlayers.get(newCurrentPlayer)); // to delete
 
-                ScoreManager.scoreClosedFeatures(newBoard);
+                ScoreManager.scoreClosedFeatures(newBoard, false);
                 newCurrentPlayer = (newCurrentPlayer + 1) % newPlayers.size();
             }
         }
 
-        ScoreManager.scoreOpenFeatures(newBoard);
+        ScoreManager.scoreOpenFeatures(newBoard, false);
 
         finalScoreDifference = calculateScoreDifference(newPlayers, originalPlayer);
         this.setFinalScoreDifference(finalScoreDifference);
@@ -217,6 +235,17 @@ public class State {
         return calculateScoreDifference(newPlayers, currentPlayer);
     }
 
+    /**
+     * Updates the checked combinations and returns true if all possible
+     * combinations have been checked.
+     * 
+     * @param checkedCombinations     A hashmap containing the checked combinations.
+     * @param checkedRotations        A hashset containing the checked rotations.
+     * @param randomCoordinates       The coordinates of the tile.
+     * @param randomRotation          The rotation of the tile.
+     * @param possibleCoordinatesSize The number of possible coordinates.
+     * @return True if all possible combinations have been checked.
+     */
     private boolean updateCheckedCombinations(HashMap<Coordinates, HashSet<Integer>> checkedCombinations,
             HashSet<Integer> checkedRotations, Coordinates randomCoordinates, Integer randomRotation,
             int possibleCoordinatesSize) {
@@ -237,6 +266,14 @@ public class State {
         return false;
     }
 
+    /**
+     * Calculates the score difference between the original player and the player
+     * who won.
+     * 
+     * @param players        The players.
+     * @param originalPlayer The original player.
+     * @return The score difference.
+     */
     public int calculateScoreDifference(ArrayList<Player> players, int originalPlayer) {
         int pointDifference = 0;
 
@@ -251,6 +288,15 @@ public class State {
         return pointDifference;
     }
 
+    /**
+     * Returns the number of symmetric rotations for a given tile.
+     * 
+     * Used to reduce the number of possible child states by not rotating tiles that
+     * are symmetric along both axes.
+     * 
+     * @param tile The tile.
+     * @return The number of symmetric rotations.
+     */
     private int getSymmetricRotations(Tile tile) {
         int symmetricRotations = 4;
         ArrayList<SideFeature> sideFeatures = tile.getSideFeatures();

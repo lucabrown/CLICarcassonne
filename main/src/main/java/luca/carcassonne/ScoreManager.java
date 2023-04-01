@@ -17,11 +17,20 @@ import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 import luca.carcassonne.tile.feature.Field;
 
-// A class that handles the game's score
+/**
+ * A helper class for scoring features.
+ * 
+ * @author Luca Brown
+ */
 public class ScoreManager {
 
-    // Scores all closed features
-    public static void scoreClosedFeatures(Board board) {
+    /**
+     * Scores all of a board's closed features.
+     * 
+     * @param board The board that contains the features to be scored.
+     * @param print Whether or not to print the scores.
+     */
+    public static void scoreClosedFeatures(Board board, boolean print) {
         if (board.getNewlyClosedFeatures().isEmpty()) {
             return;
         }
@@ -44,12 +53,24 @@ public class ScoreManager {
             for (Player owner : owners) {
                 owner.addScore(score);
             }
-
+            if (print) {
+                System.out.println("Scored " + score + " points for " + owners.get(0).getColour() + " for a "
+                        + feature.vertexSet().size() + " tile "
+                        + feature.vertexSet().iterator().next().getClass().getSimpleName() + " ( "
+                        + board.getTileFromFeature(feature.vertexSet().iterator().next()) + " )");
+            }
         }
+
+        board.getNewlyClosedFeatures().clear();
     }
 
-    // Scores all the open features
-    public static void scoreOpenFeatures(Board board) {
+    /**
+     * Scores all of a board's open features.
+     * 
+     * @param board The board that contains the features to be scored
+     * @param print Whether or not to print the scores.
+     */
+    public static void scoreOpenFeatures(Board board, boolean print) {
         if (board.getOpenFeatures().isEmpty()) {
             return;
         }
@@ -69,10 +90,22 @@ public class ScoreManager {
             for (Player owner : owners) {
                 owner.addScore(score);
             }
+
+            if (print) {
+                System.out.println("Scored " + score + " points for " + owners.iterator().next().getColour() + " for a "
+                        + feature.vertexSet().size() + " tile "
+                        + feature.vertexSet().iterator().next().getClass().getSimpleName() + " ( "
+                        + board.getTileFromFeature(feature.vertexSet().iterator().next()) + " )");
+            }
         }
     }
 
-    // Returns a list of players who own the feature
+    /**
+     * Returns a list of players who own the feature
+     * 
+     * @param feature The feature that holds the players
+     * @return A list of players who own the feature
+     */
     private static List<Player> getFeatureOwners(SimpleGraph<Feature, DefaultEdge> feature) {
         ArrayList<Player> owners = new ArrayList<>();
         HashMap<Player, Integer> players = new HashMap<>();
@@ -99,7 +132,12 @@ public class ScoreManager {
         return owners;
     }
 
-    // Returns a map of players and the number of meeples they have on the feature
+    /**
+     * Returns a map of players and the number of meeples they have on the feature
+     * 
+     * @param feature The feature that holds the players
+     * @return A map of players and the number of meeples they have on the feature
+     */
     public static HashMap<Player, Integer> getPlayersOnFeature(SimpleGraph<Feature, DefaultEdge> feature) {
         HashMap<Player, Integer> players = new HashMap<>();
 
@@ -117,7 +155,14 @@ public class ScoreManager {
         return players;
     }
 
-    // Calculates the value of a feature
+    /**
+     * Calculates the value of a feature.
+     * 
+     * @param board    The board that contains the feature.
+     * @param feature  The feature to be scored.
+     * @param isClosed Whether or not the feature is closed.
+     * @return The value of the feature.
+     */
     private static int calculateFeatureValue(Board board, SimpleGraph<Feature, DefaultEdge> feature, boolean isClosed) {
         HashSet<Tile> belongingTiles = new HashSet<>();
         Class<?> featureClass = feature.vertexSet().iterator().next().getClass();
@@ -160,7 +205,13 @@ public class ScoreManager {
         return score;
     }
 
-    // Scores all the fields on the board
+    /**
+     * Calculates the value of a field.
+     * 
+     * @param feature The field to be scored.
+     * @param board   The board that contains the field.
+     * @return The value of the field.
+     */
     private static int calculateFieldScore(SimpleGraph<Feature, DefaultEdge> feature, Board board) {
         HashSet<SimpleGraph<Feature, DefaultEdge>> adjacentCastles = new HashSet<>();
         int score = 0;

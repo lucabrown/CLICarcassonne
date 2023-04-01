@@ -326,7 +326,7 @@ class BoardTest {
                 System.out.println("Yes");
             }
         }
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
         assertEquals(3, board.getOpenFeatures().size());
         assertEquals(1, board.getClosedFeatures().size());
         assertEquals(1, board.getNewlyClosedFeatures().size());
@@ -594,7 +594,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
 
         assertEquals(Settings.ROAD_POINTS_CLOSED * 2, player.getScore());
     }
@@ -617,7 +617,7 @@ class BoardTest {
         assertEquals(0, board.getNewlyClosedFeatures().size());
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(Settings.ROAD_POINTS_OPEN * 2, player.getScore());
     }
@@ -653,7 +653,7 @@ class BoardTest {
         assertEquals(0, player1.getScore());
         assertEquals(0, player2.getScore());
 
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
 
         assertEquals(Settings.ROAD_POINTS_CLOSED * 4, player1.getScore());
         assertEquals(Settings.ROAD_POINTS_CLOSED * 4, player2.getScore());
@@ -684,7 +684,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
 
         assertEquals(Settings.ROAD_POINTS_CLOSED * 4, player.getScore());
     }
@@ -711,7 +711,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
 
         assertEquals(Settings.CASTLE_POINTS_CLOSED * 2, player.getScore());
     }
@@ -736,7 +736,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(Settings.CASTLE_POINTS_OPEN * 2, player.getScore());
     }
@@ -761,7 +761,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(Settings.CASTLE_POINTS_OPEN * 2 + Settings.SHIELD_POINTS_OPEN, player.getScore());
     }
@@ -792,7 +792,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
 
         assertEquals(Settings.CASTLE_POINTS_CLOSED * 3 + Settings.SHIELD_POINTS_CLOSED, player.getScore());
     }
@@ -822,7 +822,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
 
         assertEquals(Settings.CASTLE_POINTS_CLOSED * 4, player.getScore());
     }
@@ -849,7 +849,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(0, player.getScore());
     }
@@ -879,7 +879,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE, player.getScore());
     }
@@ -914,7 +914,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE * 2, player.getScore());
     }
@@ -956,7 +956,7 @@ class BoardTest {
         assertEquals(0, player1.getScore());
         assertEquals(0, player2.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE, player1.getScore());
         assertEquals(Settings.FIELD_POINTS_PER_CASTLE, player2.getScore());
@@ -985,7 +985,7 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreOpenFeatures(board);
+        ScoreManager.scoreOpenFeatures(board, false);
 
         assertEquals(Settings.MONASTERY_POINTS_PER_TILE * 2, player.getScore());
     }
@@ -1036,72 +1036,8 @@ class BoardTest {
 
         assertEquals(0, player.getScore());
 
-        ScoreManager.scoreClosedFeatures(board);
+        ScoreManager.scoreClosedFeatures(board, false);
 
         assertEquals(Settings.MONASTERY_POINTS_PER_TILE * 9, player.getScore());
     }
-
-    // @Test
-    // void testBoardClone() {
-    // Board board = new Board(Settings.getSingleCastle());
-
-    // Board clone = (Board) board.clone();
-
-    // Tile tile = Settings.getSingleCastle();
-
-    // assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
-
-    // System.out.println(board.getOpenFeatures().size());
-    // System.out.println(clone.getOpenFeatures().size());
-
-    // tile = Settings.getTwoSingleCastlesAdjacent();
-
-    // assertTrue(clone.placeTile(new Coordinates(1, 0), tile));
-
-    // System.out.println(board.getOpenFeatures().size());
-    // System.out.println(clone.getOpenFeatures().size());
-    // }
-
-    // @Test
-    // @SuppressWarnings("unchecked")
-    // void testBoardCloneWithNewPlayers() {
-    // Board board = new Board(Settings.getSingleCastleWithStraightRoad());
-    // ArrayList<Player> players = new ArrayList<>();
-    // players.add(new Player(Colour.RED));
-
-    // Tile tile = Settings.getSingleCastleWithStraightRoad();
-
-    // assertTrue(board.placeTile(new Coordinates(-1, 0), tile));
-    // assertTrue(board.placeMeeple(tile.getFeatures().stream().filter(f -> f
-    // instanceof Road).findFirst().get(),
-    // players.get(0)));
-
-    // Board boardClone = (Board) board.clone();
-    // ArrayList<Player> playersClone = (ArrayList<Player>) players.stream().map(p
-    // -> (Player) p.clone())
-    // .collect(Collectors.toList());
-
-    // for (SimpleGraph<Feature, DefaultEdge> featureGraph :
-    // boardClone.getOpenFeatures()) {
-    // for (Feature feature : featureGraph.vertexSet()) {
-    // if (feature.getOwner() == null) {
-    // continue;
-    // }
-    // int playerIndex = players.indexOf(feature.getOwner());
-    // System.out.println(playerIndex);
-    // System.out.println(players.get(playerIndex));
-    // System.out.println(playersClone.get(playerIndex));
-    // feature.setOwner(playersClone.get(playerIndex));
-    // }
-    // }
-
-    // assertEquals(0, players.get(0).getScore());
-    // assertEquals(0, playersClone.get(0).getScore());
-
-    // ScoreManager.scoreOpenFeatures(boardClone);
-
-    // assertEquals(0, players.get(0).getScore());
-    // assertEquals(Settings.ROAD_POINTS_OPEN * 2, playersClone.get(0).getScore());
-
-    // }
 }

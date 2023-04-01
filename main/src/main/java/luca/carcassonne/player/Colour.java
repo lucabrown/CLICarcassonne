@@ -1,5 +1,10 @@
 package luca.carcassonne.player;
 
+/**
+ * Enum for the colours of the players.
+ * 
+ * @author Luca Brown
+ */
 public enum Colour {
     RED("\u001B[31m"),
     GREEN("\u001B[32m"),
@@ -10,11 +15,11 @@ public enum Colour {
 
     private String symbol;
 
-    Colour(String symbol){
-        this.symbol=symbol;
+    Colour(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getSymbol(){
+    public String getSymbol() {
         return symbol;
     }
 }

@@ -8,6 +8,15 @@ import luca.carcassonne.Settings;
 import luca.carcassonne.mcts.Move;
 import luca.carcassonne.tile.Tile;
 
+/**
+ * Represents a player in the game.
+ * 
+ * It is an abstract class that is extended by the {@code RandomAgent},
+ * {@code GreedyAgent}, {@code MonteCarloAgent} and
+ * {@code ProgressiveHistoryAgent} classes.
+ * 
+ * @author Luca Brown
+ */
 public class Player {
     private Colour colour;
     private int score;

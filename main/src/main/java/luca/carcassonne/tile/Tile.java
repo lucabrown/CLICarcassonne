@@ -5,8 +5,16 @@ import luca.carcassonne.Settings;
 import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.feature.Feature;
 
-// The main Tile object. The 4 sides are represented by side features, arranged clockwise 
-// from the top: north, east, south, west.
+/**
+ * The main Tile object. The 4 sides are represented by side features, arranged
+ * clockwise from the top: north, east, south, west.
+ * 
+ * A tile holds a list of {@code SideFeatures}, the features on its side used
+ * for tile placement,
+ * and a list of {@code Features} that are the features on the tile itself.
+ * 
+ * @author Luca Brown
+ */
 public class Tile {
     private String id;
     private ArrayList<SideFeature> sideFeatures;

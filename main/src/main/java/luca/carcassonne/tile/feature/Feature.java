@@ -5,6 +5,18 @@ import luca.carcassonne.player.Player;
 import luca.carcassonne.tile.CardinalPoint;
 import luca.carcassonne.tile.Tile;
 
+/**
+ * The abstract class for all features.
+ * 
+ * A feature is a part of a tile that can be claimed by a player.
+ * It holds a reference to the tile it belongs to, and a list of cardinal
+ * points.
+ * 
+ * It is extended by the {@code Field}, {@code Road}, {@code Castle} and
+ * {@code Monastery} classes.
+ * 
+ * @author Luca Brown
+ */
 public abstract class Feature {
     protected Player owner;
     protected ArrayList<CardinalPoint> cardinalPoints;
@@ -15,9 +27,6 @@ public abstract class Feature {
     Feature(ArrayList<CardinalPoint> cardinalPoints) {
         this.cardinalPoints = cardinalPoints;
         this.belongingTile = null;
-    }
-
-    Feature() {
     }
 
     public ArrayList<CardinalPoint> getCardinalPoints() {

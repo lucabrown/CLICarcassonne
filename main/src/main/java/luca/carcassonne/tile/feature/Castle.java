@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import luca.carcassonne.Settings;
 import luca.carcassonne.tile.CardinalPoint;
 
+/**
+ * A castle feature.
+ * 
+ * @author Luca Brown
+ */
 public class Castle extends Feature {
     private boolean HAS_SHIELD;
 
@@ -12,10 +17,6 @@ public class Castle extends Feature {
         super.setPointsClosed(Settings.CASTLE_POINTS_CLOSED);
         super.setPointsOpen(Settings.CASTLE_POINTS_OPEN);
         this.HAS_SHIELD = hasShield;
-    }
-
-    public Castle() {
-        super();
     }
 
     public boolean hasShield() {

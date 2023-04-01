@@ -1,6 +1,10 @@
 package luca.carcassonne.tile;
 
-// The main features on a tile's side
+/**
+ * The main features on a tile's side
+ * 
+ * @author Luca Brown
+ */
 public enum SideFeature {
     CASTLE("castle"),
     ROAD("road"),

@@ -9,24 +9,35 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Stack;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.javatuples.Pair;
 
 import luca.carcassonne.mcts.Move;
 import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.GreedyAgent;
+import luca.carcassonne.player.MonteCarloAgent;
 import luca.carcassonne.player.Player;
+import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
 
-// Starts the game and handles turns and available tiles
+/**
+ * The main class of the game. It is responsible for managing the board, the
+ * players, the tiles and the main game loop.
+ * 
+ * It extends {@code Thread} so that multiple games can be run in parallel
+ * through the
+ * {@code ThreadManager} class.
+ * 
+ * @author Luca Brown
+ */
 public class Game extends Thread {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_RED = "\u001B[31m";
-
-    public static final float totalChildren[] = new float[72];
 
     private int failedTiles = 0;
     private int triedPlacements = 0;
@@ -41,6 +52,13 @@ public class Game extends Thread {
     private HashMap<Coordinates, HashSet<Integer>> checkedCombinations;
     private HashSet<Integer> checkedRotations;
 
+    /**
+     * Creates a new game with the given board.
+     * 
+     * The players are added manually to the {@code players} list.
+     * 
+     * @param board
+     */
     public Game(Board board) {
         HashMap<Pair<String, Integer>, Integer> totalActionMap = readFromData("totalMoves.csv");
         HashMap<Pair<String, Integer>, Integer> winningActionMap = readFromData("winningMoves.csv");
@@ -53,15 +71,17 @@ public class Game extends Thread {
             {
                 // add(new ProgressiveHistoryAgent(Colour.WHITE, 500, 0.5, totalActionMap,
                 // winningActionMap));
-                // add(new MonteCarloAgent(Colour.RED, 500, 0.5));
-                // add(new MonteCarloAgent(Colour.RED, 500, 0.5));
-                // add(new MonteCarloAgent(Colour.RED, 100));
-                add(new GreedyAgent(Colour.RED));
+                add(new MonteCarloAgent(Colour.RED, 1000, 0.5));
+                // add(new MonteCarloAgent(Colour.WHITE, 1000, 0.5));
+                // add(new RandomAgent(Colour.RED));
+                // add(new GreedyAgent(Colour.RED));
                 add(new GreedyAgent(Colour.WHITE));
-                // add(new GreedyAgent(Colour.WHITE));
-                // add(new RandomAgent(Colour.WHITE));
+                // add(new MonteCarloAgent(Colour.RED, 100, 0.5));
+
                 // add(new RandomAgent(Colour.GREEN));
                 // add(new RandomAgent(Colour.BLACK));
+                // add(new RandomAgent(Colour.BLUE));
+
                 // add(new RandomAgent(Colour.BLUE));
 
                 // add(new Player(Colour.YELLOW, Behaviour.MCTS));
@@ -73,6 +93,14 @@ public class Game extends Thread {
         currentTile = new Tile(0, 0);
     }
 
+    /**
+     * Runs the game.
+     * 
+     * It is recommended not to start a game directly, but to instead use the
+     * {@code ThreadManager} class to run multiple games in parallel.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         float times = 1;
         float whiteTotalScore = 0;
@@ -107,7 +135,18 @@ public class Game extends Thread {
         System.out.println("Ties: " + ties + "%");
     }
 
-    // The main game loop
+    /**
+     * The main game loop.
+     * 
+     * Until there are no more tiles available, it will loop through each player,
+     * calling their {@code getNextMove()} method.
+     * 
+     * One a {@code Move} is received it is played by updating the board and
+     * keeping track of player score.
+     * 
+     * At the end of the game, the information is stored in the
+     * {@code ThreadManager} class.
+     */
     @Override
     public void run() {
         Collections.shuffle(availableTiles, Settings.getRandom());
@@ -192,17 +231,24 @@ public class Game extends Thread {
                     board.addNewMove(newMove);
                 }
 
-                ScoreManager.scoreClosedFeatures(board);
+                ScoreManager.scoreClosedFeatures(board, true);
                 currentPlayer = (currentPlayer + 1) % players.size();
 
                 timeForMove = System.currentTimeMillis() - timeForMove;
                 System.out.println("Move " + move + " performed in " + timeForMove + "ms");
+
+                synchronized (ThreadManager.timeForMove) {
+                    int index = 71 - availableTiles.size() - 1;
+                    ThreadManager.timeForMove.set(index,
+                            ThreadManager.timeForMove.get(index) + (int) timeForMove);
+                }
+
                 // print score of each player
                 printScores();
             }
         }
-
-        ScoreManager.scoreOpenFeatures(board);
+        System.out.println("Scoring open features");
+        ScoreManager.scoreOpenFeatures(board, true);
 
         board.printBoard();
         printScores();
@@ -213,30 +259,36 @@ public class Game extends Thread {
 
         int winningPlayer = players.get(0).getScore() > players.get(1).getScore() ? 0 : 1;
 
-        try {
-            FileWriter totalMovesWriter = new FileWriter("totalMoves.csv", true);
-            FileWriter winningMovesWriter = new FileWriter("winningMoves.csv", true);
+        // try {
+        // FileWriter totalMovesWriter = new FileWriter("totalMoves.csv", true);
+        // FileWriter winningMovesWriter = new FileWriter("winningMoves.csv", true);
 
-            for (Move move : board.getPastMoves()) {
-                if (move.getPlayerIndex() == 0) {
-                    String data = move.getTileId() + "," + move.getFeatureIndex() + "\n";
-                    totalMovesWriter.write(data);
-                    if (move.getPlayerIndex() == winningPlayer) {
-                        winningMovesWriter.write(data);
-                    }
+        // for (Move move : board.getPastMoves()) {
+        // if (move.getPlayerIndex() == 0) {
+        // String data = move.getTileId() + "," + move.getFeatureIndex() + "\n";
+        // totalMovesWriter.write(data);
+        // if (move.getPlayerIndex() == winningPlayer) {
+        // winningMovesWriter.write(data);
+        // }
 
-                }
+        // }
+        // }
+
+        // totalMovesWriter.close();
+        // winningMovesWriter.close();
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
+
+        // Write the average taken for each move to a file
+
+        // Obtain a lock on the synchronized list
+        synchronized (ThreadManager.playersTotalScore) {
+            for (int i = 0; i < players.size(); i++) {
+                // Update the player's score in the synchronized list
+                ThreadManager.playersTotalScore.set(i,
+                        ThreadManager.playersTotalScore.get(i) + players.get(i).getScore());
             }
-
-            totalMovesWriter.close();
-            winningMovesWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        for (int i = 0; i < players.size(); i++) {
-            ThreadManager.playersTotalScore.set(i, ThreadManager.playersTotalScore.get(i)
-                    + players.get(i).getScore());
         }
 
         int maxValue = players.stream().max(Comparator.comparing(Player::getScore)).get().getScore();
@@ -247,28 +299,56 @@ public class Game extends Thread {
             }
         }
 
-        if (maxPlayers.size() > 1) {
-            ThreadManager.ties.incrementAndGet();
-        } else {
-
-            for (Integer i : maxPlayers) {
-                ThreadManager.playersWR.set(i, ThreadManager.playersWR.get(i) + 1);
+        synchronized (ThreadManager.ties) {
+            if (maxPlayers.size() > 1) {
+                for (Integer i : maxPlayers) {
+                    ThreadManager.ties.set(i, ThreadManager.ties.get(i) + 1);
+                }
+            } else {
+                synchronized (ThreadManager.playersWR) {
+                    for (Integer i : maxPlayers) {
+                        ThreadManager.playersWR.set(i, ThreadManager.playersWR.get(i) + 1);
+                    }
+                }
             }
         }
 
-        for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).getScore() > ThreadManager.playersMaxScore.get(i)) {
-                ThreadManager.playersMaxScore.set(i, players.get(i).getScore());
-            }
-            if (players.get(i).getScore() < ThreadManager.playersMinScore.get(i)) {
-                ThreadManager.playersMinScore.set(i, players.get(i).getScore());
+        synchronized (ThreadManager.playersMaxScore) {
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).getScore() > ThreadManager.playersMaxScore.get(i)) {
+                    ThreadManager.playersMaxScore.set(i, players.get(i).getScore());
+                }
             }
         }
+
+        synchronized (ThreadManager.playersMinScore) {
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).getScore() < ThreadManager.playersMinScore.get(i)) {
+                    ThreadManager.playersMinScore.set(i, players.get(i).getScore());
+                }
+            }
+        }
+
+        synchronized (ThreadManager.scoreDelta) {
+            ThreadManager.scoreDelta.add(players.get(0).getScore() - players.get(1).getScore());
+        }
+
+        int remainingTasks = ((ThreadPoolExecutor) ThreadManager.pool).getQueue().size();
+        System.out.println("\n- - - - Remaining tasks: " + remainingTasks + "\n");
 
         this.interrupt();
     }
 
-    // Keeps a record of checked combinations for one tile
+    /**
+     * Keeps a record of checked combinations for a tile.
+     * 
+     * If there are no more possible placements for a tile it is remove from the
+     * game and a new one is drawn.
+     * 
+     * @param randomCoordinates
+     * @param randomRotation
+     * @return
+     */
     private boolean updateCheckedCombinations(Coordinates randomCoordinates, Integer randomRotation) {
         if (!checkedCombinations.containsKey(randomCoordinates)) {
             checkedCombinations.put(randomCoordinates, new HashSet<>());
@@ -287,6 +367,14 @@ public class Game extends Thread {
         return false;
     }
 
+    /**
+     * Reads data from a csv file.
+     * 
+     * Used for the {@code ProgressiveHistoryAgent}.
+     * 
+     * @param fileName
+     * @return
+     */
     public HashMap<Pair<String, Integer>, Integer> readFromData(String fileName) {
         HashMap<Pair<String, Integer>, Integer> actionMap = new HashMap<Pair<String, Integer>, Integer>();
 
@@ -317,27 +405,41 @@ public class Game extends Thread {
         return players.size();
     }
 
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
     // * * * * * * * * * * * *
     // * PRINTING METHODS *
     // * * * * * * * * * * * *
 
-    // Prints all the players' scores
+    /**
+     * Prints the scores of all players.
+     */
     private void printScores() {
         for (Player player : players) {
-            System.out.println(player.getColour() + " score: " + player.getScore());
+            System.out.println(player.getColour() + " score: " + player.getScore() + " (" + player.getAvailableMeeples()
+                    + " meeples left)");
         }
     }
 
+    /**
+     * Prints the moves of the given player.
+     * 
+     * @param playerIndex
+     */
     @SuppressWarnings("unused")
-    private void printMoves(int winner) {
+    private void printMoves(int playerIndex) {
         for (Move move : board.getPastMoves()) {
-            if (move.getPlayerIndex() == winner) {
+            if (move.getPlayerIndex() == playerIndex) {
                 System.out.println(move.getTileId() + " " + move.getFeatureIndex());
             }
         }
     }
 
-    // Prints how many tiles were placed successfully
+    /**
+     * Prints how many tiles were placed successfully.
+     */
     private void printSuccessfulTiles() {
         System.out.println(
                 "\nTried to place " + ANSI_GREEN + (board.getPlacedTilesSize() - 1) + ANSI_RESET + " tiles "
@@ -345,7 +447,9 @@ public class Game extends Thread {
                         + ANSI_RESET + " times.");
     }
 
-    // Prints how many tiles were not placed successfully
+    /**
+     * Prints how many tiles were not placed successfully.
+     */
     private void printFailedTiles() {
         if (failedTiles == 1) {
             System.out.println("Failed to place " + ANSI_RED + failedTiles + ANSI_RESET + " tile.");
@@ -356,14 +460,18 @@ public class Game extends Thread {
         }
     }
 
-    // Prints how much time it took to place all the tiles
+    /**
+     * Prints the time elapsed since the start of the game.
+     */
     private void printTimeElapsed() {
         long finishTime = System.currentTimeMillis();
         long timeElapsed = (finishTime - startTime);
         System.out.println("Time taken: " + ANSI_GREEN + timeElapsed / 1000.0 + ANSI_RESET + "s");
     }
 
-    // Prints 1% of the progress bar
+    /**
+     * Prints 1% of the progress bar.
+     */
     @SuppressWarnings("unused")
     private void printProgressBarStep() {
         if (board.getPlacedTilesSize() == 2) {

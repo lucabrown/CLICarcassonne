@@ -2,6 +2,14 @@ package luca.carcassonne.mcts;
 
 import luca.carcassonne.tile.Coordinates;
 
+/**
+ * A move in the game.
+ * 
+ * A move is represented by the coordinates of the tile, the tile id, the
+ * rotation of the tile, the player index, and the feature index.
+ * 
+ * @author Luca Brown
+ */
 public class Move {
     private Coordinates coordinates;
     private String tileId;

@@ -1,6 +1,10 @@
 package luca.carcassonne.tile;
 
-// The tile's coordinate system
+/**
+ * The tile's coordinate system.
+ * 
+ * @author Luca Brown
+ */
 public class Coordinates {
     private int x;
     private int y;
