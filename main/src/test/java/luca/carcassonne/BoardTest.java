@@ -155,7 +155,7 @@ class BoardTest {
         Tile curvyCastle = Settings.getCurvyCastle();
         curvyCastle.rotateClockwise();
         assertTrue(board.placeTile(new Coordinates(0, 1), curvyCastle));
-        board.printOpenFeatures();
+
         assertEquals(3, board.getOpenFeatures().size());
         assertEquals(0, board.getClosedFeatures().size());
         assertEquals(0, board.getNewlyClosedFeatures().size());
@@ -163,7 +163,7 @@ class BoardTest {
         curvyCastle = Settings.getCurvyCastle();
         curvyCastle.rotateClockwise(2);
         assertTrue(board.placeTile(new Coordinates(1, 1), curvyCastle));
-        board.printOpenFeatures();
+
         assertEquals(4, board.getOpenFeatures().size());
         assertEquals(0, board.getClosedFeatures().size());
         assertEquals(0, board.getNewlyClosedFeatures().size());
@@ -171,19 +171,19 @@ class BoardTest {
         curvyCastle = Settings.getCurvyCastle();
         curvyCastle.rotateClockwise(3);
         assertTrue(board.placeTile(new Coordinates(1, 0), curvyCastle));
-        board.printOpenFeatures();
 
         board.printClosedFeatures();
-        for (SimpleGraph<Feature, DefaultEdge> feature : board.getOpenFeatures()) {
-            if (feature.vertexSet().iterator().next().getClass() == Road.class) {
-                System.out.println(
-                        feature.vertexSet().stream().map(f -> f.getClass().getSimpleName())
-                                .collect(Collectors.toCollection(ArrayList::new)));
-                System.out.println(feature.vertexSet().stream().map(f -> f.getCardinalPoints().size()));
-                System.out.println(feature.edgeSet().size());
+        // for (SimpleGraph<Feature, DefaultEdge> feature : board.getOpenFeatures()) {
+        // if (feature.vertexSet().iterator().next().getClass() == Road.class) {
+        // System.out.println(
+        // feature.vertexSet().stream().map(f -> f.getClass().getSimpleName())
+        // .collect(Collectors.toCollection(ArrayList::new)));
+        // System.out.println(feature.vertexSet().stream().map(f ->
+        // f.getCardinalPoints().size()));
+        // System.out.println(feature.edgeSet().size());
 
-            }
-        }
+        // }
+        // }
 
         assertEquals(4, board.getOpenFeatures().size());
         assertEquals(1, board.getClosedFeatures().size());
@@ -249,7 +249,7 @@ class BoardTest {
         Tile curvyRoad = Settings.getCurvyRoad();
         curvyRoad.rotateClockwise();
         assertTrue(board.placeTile(new Coordinates(0, 1), curvyRoad));
-        board.printOpenFeatures();
+
         assertEquals(3, board.getOpenFeatures().size());
         assertEquals(0, board.getClosedFeatures().size());
         assertEquals(0, board.getNewlyClosedFeatures().size());
@@ -257,7 +257,7 @@ class BoardTest {
         curvyRoad = Settings.getCurvyRoad();
         curvyRoad.rotateClockwise(2);
         assertTrue(board.placeTile(new Coordinates(1, 1), curvyRoad));
-        board.printOpenFeatures();
+
         assertEquals(3, board.getOpenFeatures().size());
         assertEquals(0, board.getClosedFeatures().size());
         assertEquals(0, board.getNewlyClosedFeatures().size());
@@ -265,19 +265,19 @@ class BoardTest {
         curvyRoad = Settings.getCurvyRoad();
         curvyRoad.rotateClockwise(3);
         assertTrue(board.placeTile(new Coordinates(1, 0), curvyRoad));
-        board.printOpenFeatures();
 
         board.printClosedFeatures();
-        for (SimpleGraph<Feature, DefaultEdge> feature : board.getOpenFeatures()) {
-            if (feature.vertexSet().iterator().next().getClass() == Road.class) {
-                System.out.println(
-                        feature.vertexSet().stream().map(f -> f.getClass().getSimpleName())
-                                .collect(Collectors.toCollection(ArrayList::new)));
-                System.out.println(feature.vertexSet().stream().map(f -> f.getCardinalPoints().size()));
-                System.out.println(feature.edgeSet().size());
+        // for (SimpleGraph<Feature, DefaultEdge> feature : board.getOpenFeatures()) {
+        // if (feature.vertexSet().iterator().next().getClass() == Road.class) {
+        // System.out.println(
+        // feature.vertexSet().stream().map(f -> f.getClass().getSimpleName())
+        // .collect(Collectors.toCollection(ArrayList::new)));
+        // System.out.println(feature.vertexSet().stream().map(f ->
+        // f.getCardinalPoints().size()));
+        // System.out.println(feature.edgeSet().size());
 
-            }
-        }
+        // }
+        // }
 
         assertEquals(2, board.getOpenFeatures().size());
         assertEquals(1, board.getClosedFeatures().size());
@@ -292,7 +292,7 @@ class BoardTest {
     // Tile curvyRoad = Settings.getCurvyRoad();
     // assertTrue(board.placeTile(new Coordinates(0, -1), curvyRoad));
     // System.out.println("After placing first tile");
-    // board.printOpenFeatures();
+    //
     // assertEquals(6, board.getOpenFeatures().size());
     // assertEquals(0, board.getClosedFeatures().size());
     // assertEquals(0, board.getNewlyClosedFeatures().size());
@@ -303,7 +303,7 @@ class BoardTest {
     // System.out.println("After placing second tile");
     // System.out.println("Open features:");
 
-    // board.printOpenFeatures();
+    //
     // assertEquals(6, board.getOpenFeatures().size());
     // assertEquals(0, board.getClosedFeatures().size());
     // assertEquals(0, board.getNewlyClosedFeatures().size());
@@ -314,7 +314,7 @@ class BoardTest {
     // System.out.println("After placing third tile");
     // System.out.println("Open features:");
 
-    // board.printOpenFeatures();
+    //
 
     // System.out.println("Closed features:");
 
@@ -377,7 +377,6 @@ class BoardTest {
         System.out.println("After placing all tiles");
         board.printBoard();
 
-        board.printOpenFeatures();
         assertEquals(2, board.getOpenFeatures().size());
         assertEquals(2, board.getClosedFeatures().size());
         assertEquals(2, board.getNewlyClosedFeatures().size());
@@ -500,7 +499,7 @@ class BoardTest {
         road.rotateClockwise(2);
 
         assertTrue(board.placeTile(new Coordinates(1, 1), road));
-        board.printOpenFeatures();
+
         System.out.println("Number of features: " + board.getOpenFeatures().size());
         assertTrue(board.placeMeeple(roadFeature, player1));
     }

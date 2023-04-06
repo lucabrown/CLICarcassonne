@@ -706,14 +706,14 @@ public class Board {
     }
 
     // Prints all the open features on the board
-    public void printOpenFeatures() {
-        System.out.println("\n");
-        for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
-            System.out.println(
-                    graph.vertexSet().stream().map(f -> f.getClass().getSimpleName())
-                            .collect(Collectors.toCollection(ArrayList::new)));
-        }
-    }
+    // public void printOpenFeatures() {
+    // System.out.println("\n");
+    // for (SimpleGraph<Feature, DefaultEdge> graph : openFeatures) {
+    // System.out.println(
+    // graph.vertexSet().stream().map(f -> f.getClass().getSimpleName())
+    // .collect(Collectors.toCollection(ArrayList::new)));
+    // }
+    // }
 
     // Keeps track of the board's width and height
     private void updateBoardStringParameters(Tile tile) {

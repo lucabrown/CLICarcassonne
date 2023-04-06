@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -60,8 +62,10 @@ public class Game extends Thread {
      * @param board
      */
     public Game(Board board) {
-        HashMap<Pair<String, Integer>, Integer> totalActionMap = readFromData("totalMoves.csv");
-        HashMap<Pair<String, Integer>, Integer> winningActionMap = readFromData("winningMoves.csv");
+        HashMap<Pair<String, Integer>, Integer> totalActionMap = readFromData(
+                "luca/carcassonne/totalMoves.csv");
+        HashMap<Pair<String, Integer>, Integer> winningActionMap = readFromData(
+                "luca/carcassonne/winningMoves.csv");
 
         System.out.println("Total actions read: " + totalActionMap.size());
         System.out.println("Winning actions read: " + winningActionMap.size());
@@ -340,8 +344,10 @@ public class Game extends Thread {
     public HashMap<Pair<String, Integer>, Integer> readFromData(String fileName) {
         HashMap<Pair<String, Integer>, Integer> actionMap = new HashMap<Pair<String, Integer>, Integer>();
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(fileName));
+        try (InputStream inputStream = Game.class.getClassLoader().getResourceAsStream(fileName);
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader br = new BufferedReader(inputStreamReader)) {
+            // BufferedReader br = new BufferedReader(new FileReader(fileName));
 
             String line;
             while ((line = br.readLine()) != null) {
