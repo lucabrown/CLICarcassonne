@@ -8,27 +8,5 @@
             "projectName": "main",
             "vmArgs": "-Xmx50g"
         },
-        {
-            "type": "java",
-            "name": "Launch Test",
-            "request": "launch",
-            "mainClass": "luca.carcassonne.gson.Test",
-            "projectName": "main"
-        },
-        {
-            "type": "java",
-            "name": "Launch Game",
-            "request": "launch",
-            "mainClass": "luca.carcassonne.Game",
-            "projectName": "main"
-        },
-        {
-            "type": "java",
-            "name": "Launch App",
-            "request": "launch",
-            "mainClass": "luca.carcassonne.App",
-            "projectName": "main",
-            "vmArgs": "--module-path /Users/LucaBrown/Documents/javafx-sdk-11.0.2/lib --add-modules javafx.controls,javafx.fxml"
-        }
     ]
 }

@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -20,6 +19,7 @@ import luca.carcassonne.player.Colour;
 import luca.carcassonne.player.GreedyAgent;
 import luca.carcassonne.player.MonteCarloAgent;
 import luca.carcassonne.player.Player;
+import luca.carcassonne.player.ProgressiveHistoryAgent;
 import luca.carcassonne.player.RandomAgent;
 import luca.carcassonne.tile.Coordinates;
 import luca.carcassonne.tile.Tile;
@@ -69,24 +69,16 @@ public class Game extends Thread {
         this.board = board;
         this.players = new ArrayList<>() {
             {
-                // add(new ProgressiveHistoryAgent(Colour.WHITE, 500, 0.5, totalActionMap,
-                // winningActionMap));
-                add(new MonteCarloAgent(Colour.RED, 1000, 0.5));
-                // add(new MonteCarloAgent(Colour.WHITE, 1000, 0.5));
-                // add(new RandomAgent(Colour.RED));
-                // add(new GreedyAgent(Colour.RED));
-                add(new GreedyAgent(Colour.WHITE));
-                // add(new MonteCarloAgent(Colour.RED, 100, 0.5));
+                // Uncomment any of these agents to let them play.
 
                 // add(new RandomAgent(Colour.GREEN));
-                // add(new RandomAgent(Colour.BLACK));
-                // add(new RandomAgent(Colour.BLUE));
-
-                // add(new RandomAgent(Colour.BLUE));
-
-                // add(new Player(Colour.YELLOW, Behaviour.MCTS));
-                // add(new Player(Colour.BLACK));
-                // add(new Player(Colour.BLUE));
+                // add(new GreedyAgent(Colour.WHITE));
+                // add(new MonteCarloAgent(Colour.BLACK, 500, 0.5));
+                // add(new ProgressiveHistoryAgent(Colour.BLUE, 500, 0.5, totalActionMap,
+                // winningActionMap));
+                // add(new GreedyAgent(Colour.RED));
+                add(new RandomAgent(Colour.BLACK));
+                add(new RandomAgent(Colour.BLUE));
             }
         };
         this.availableTiles = Settings.getStandardDeck();
@@ -175,11 +167,6 @@ public class Game extends Thread {
 
             Move move = players.get(currentPlayer).getNextMove(board, currentPlayer, currentTile, players,
                     availableTiles);
-            // print move
-            if (move != null) {
-                System.out.println(
-                        "Move: " + move);
-            }
 
             if (move == null) {
                 System.out.println("- - Tile not placed");
@@ -235,7 +222,7 @@ public class Game extends Thread {
                 currentPlayer = (currentPlayer + 1) % players.size();
 
                 timeForMove = System.currentTimeMillis() - timeForMove;
-                System.out.println("Move " + move + " performed in " + timeForMove + "ms");
+                System.out.println("Move: " + move + " performed in " + timeForMove + "ms");
 
                 synchronized (ThreadManager.timeForMove) {
                     int index = 71 - availableTiles.size() - 1;
@@ -256,31 +243,6 @@ public class Game extends Thread {
         printSuccessfulTiles();
         printFailedTiles();
         printTimeElapsed();
-
-        int winningPlayer = players.get(0).getScore() > players.get(1).getScore() ? 0 : 1;
-
-        // try {
-        // FileWriter totalMovesWriter = new FileWriter("totalMoves.csv", true);
-        // FileWriter winningMovesWriter = new FileWriter("winningMoves.csv", true);
-
-        // for (Move move : board.getPastMoves()) {
-        // if (move.getPlayerIndex() == 0) {
-        // String data = move.getTileId() + "," + move.getFeatureIndex() + "\n";
-        // totalMovesWriter.write(data);
-        // if (move.getPlayerIndex() == winningPlayer) {
-        // winningMovesWriter.write(data);
-        // }
-
-        // }
-        // }
-
-        // totalMovesWriter.close();
-        // winningMovesWriter.close();
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-
-        // Write the average taken for each move to a file
 
         // Obtain a lock on the synchronized list
         synchronized (ThreadManager.playersTotalScore) {

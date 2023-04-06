@@ -22,7 +22,7 @@ public class MonteCarloTreeSearch {
     private State startingState;
     private int maxIterations = 0;
     private double explorationConstant = 0;
-    private double progressiveHistoryConstant = 5;
+    private double progressiveHistoryConstant = 3;
 
     public MonteCarloTreeSearch(int maxIterations, double explorationConstant, Board startingBoard, int startingPlayer,
             Tile currentTile,

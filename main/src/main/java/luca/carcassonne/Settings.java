@@ -12,6 +12,11 @@ import luca.carcassonne.tile.feature.Field;
 import luca.carcassonne.tile.feature.Monastery;
 import luca.carcassonne.tile.feature.Road;
 
+/**
+ * Contains all the constants used in the game.
+ * 
+ * @author Luca Brown
+ */
 public class Settings {
     // Player constants
     public static final int MAX_MEEPLES = 7;
@@ -52,6 +57,7 @@ public class Settings {
     private static final int N_BIG_CASTLE_WITH_SHIELD_WITH_ROAD = 2;
     private static final int N_HUGE_CASTLE = 1;
 
+    // The global seed for the random number generator.
     private static final int GLOBAL_SEED = 4443;
     private static final Random random = new Random();
 

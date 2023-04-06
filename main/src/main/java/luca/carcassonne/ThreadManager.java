@@ -3,12 +3,9 @@ package luca.carcassonne;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -43,8 +40,8 @@ public class ThreadManager {
             .synchronizedList(new ArrayList<Integer>());
     public static List<Integer> timeForMove = Collections
             .synchronizedList(new ArrayList<Integer>(Collections.nCopies(71, 0)));
-    static int numberOfThreads = 5;
-    static float times = 25;
+    static int numberOfThreads = 1;
+    static float times = 1;
 
     /**
      * Runs the games.
@@ -94,7 +91,7 @@ public class ThreadManager {
             System.out.println("\nAfter " + times + " games:");
             for (int i = 0; i < playersWR.size(); i++) {
                 System.out.println(players.get(i) + " won " + ((float) playersWR.get(i)) / times * 100
-                        + "% of games (+" + (float) ties.get(i) / times + "% ties) " + "with an average score of "
+                        + "% of games (+" + (float) ties.get(i) + " tie(s)) " + "with an average score of "
                         + (float) playersTotalScore.get(i) / times
                         + " (range: " + playersMaxScore.get(i) + "-" + playersMinScore.get(i) + ")");
 
@@ -110,17 +107,6 @@ public class ThreadManager {
                 // divide each element by the number og games
                 timeForMove.set(i, timeForMove.get(i) / (int) times);
             }
-
-            System.out.println("Time for move: "
-                    + timeForMove);
-
-            // // write timForMove to file
-            // try {
-            // java.nio.file.Files.write(java.nio.file.Paths.get("timeForMove.txt"),
-            // "TILE TIME\n".getBytes());
-            // } catch (java.io.IOException e) {
-            // e.printStackTrace();
-            // }
 
         } catch (InterruptedException e) {
             e.printStackTrace();
